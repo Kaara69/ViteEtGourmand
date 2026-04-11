@@ -1,0 +1,63 @@
+/*  Pages publiques : index, menus, contact, login, register */
+
+                            /* HERO */
+.hero {
+    min-height: 100vh;
+    background: linear-gradient(135deg,#1C1210 0%, #2D1F14 45%, #1C1510 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+}
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: repeating-linear-gradient(45deg, rgba(201,151,61,.04) 0, rgba(201,151,61,.04) 1px, transparent 0, transparent 50%);
+    background-size: 24px 24px;
+}
+.hero-badge {
+    display: inline-block;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 4px 16px;
+    border-radius: 50px;
+    font-size: .8rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+}
+.hero h1 {
+    font-size: clamp(2.5rem, 5vw, 4.5rem);
+    color: #fff;
+    line-height: 1.15;
+}
+.hero h1 em {
+    color: var(--gold);
+    font-style: italic;
+}
+.hero p {
+    color: rgba(255, 255, 255, .75);
+    font-size: 1.15rem;
+    font-weight: 300;
+}
+.hero-line {
+    width: 60px;
+    height: 3px;
+    background: var(--gold);
+    margin: 1.5rem 0;
+}
+.hero-stat { 
+    border-left: 2px solid var(--gold); 
+    padding-left: 1rem; 
+}
+.hero-stat .number { 
+    font-family: 'Playfair Display', serif; 
+    font-size: 2rem; 
+    color: var(--gold); 
+    line-height: 1; 
+}
+.hero-stat .label { 
+    color: rgba(255,255,255,.6); 
+    font-size: .85rem; 
+}

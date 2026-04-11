@@ -1,0 +1,18 @@
+/* variables, base, navbar, boutons communs à toutes les pages */
+
+:root {
+  --gold:  #C9973D;
+  --warm:  #8B6914;
+  --dark:  #1C1510;
+  --dark2: #2D1F14;
+  --cream: #FAF7F2;
+}
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--cream);
+}
+
+h1, h2, h3, .display-font {
+  font-family: 'Playfair Display', serif;
+}
