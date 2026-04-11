@@ -96,3 +96,84 @@
         </div>
     </div>
 </section>
+
+
+                            <!-- A PROPOS -->
+<section style="background:var(--dark);padding:6rem 0;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="section-label" style="color:var(--gold);">À propos de nous</div>
+                <h2 class="display-font text-white mt-2">Une passion transmise <em style="color:var(--gold);font-style:italic;">depuis 2008</em></h2>
+                <div style="width:60px;height:3px;background:var(--gold);margin:1.5rem 0;"></div>
+                <p style="color:rgba(255,255,255,.75);font-size:1.05rem;line-height:1.8;">
+                Fondé par Julie & José , Vite &amp; Gourmand est né d'une conviction simple : la gastronomie artisanale mérite d'être accessible à tous. Depuis plus de 25 ans, notre équipe de chefs passionnés élabore chaque jour des recettes authentiques avec des produits soigneusement sélectionnés auprès de producteurs locaux.
+                </p>
+                <p style="color:rgba(255,255,255,.65);line-height:1.8;">
+                Que ce soit pour un déjeuner d'entreprise, un événement familial ou une occasion spéciale, nous mettons tout notre savoir-faire au service de votre satisfaction. Chaque plat est une promesse : celle de vous offrir le meilleur de la cuisine française, avec chaleur et générosité.
+                </p>
+                <div class="row g-3 mt-4">
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">15+</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">ans d'expérience</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">500+</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">clients fidèles</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">100%</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">produits frais</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">3</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">chefs cuisiniers</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5">
+                    <a href="contact.php" class="btn btn-gold btn-lg me-3">Nous contacter</a>
+                    <a href="menus.php" class="btn btn-outline-gold btn-lg">Voir la carte</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                <div class="col-12">
+                    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,151,61,.2);border-radius:14px;padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;">
+                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">👨‍🍳</div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Notre équipe</h6>
+                        <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Trois chefs diplômés, passionnés et complémentaires. Chacun apporte son expertise — pâtisserie, plats chauds, plateaux froids — pour un résultat d'exception.</p>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,151,61,.2);border-radius:14px;padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;">
+                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">🌿</div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Nos engagements</h6>
+                        <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Produits de saison, circuits courts, fournisseurs locaux. Nous travaillons avec des artisans qui partagent nos valeurs de qualité et de durabilité.</p>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,151,61,.2);border-radius:14px;padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;">
+                        <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">🏆</div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-1">Reconnus et primés</h6>
+                                <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Lauréat du prix "Meilleur Traiteur Île-de-France" en 2019 et 2022. Notre engagement pour la qualité est reconnu par nos pairs et nos clients.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
