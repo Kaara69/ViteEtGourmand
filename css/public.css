@@ -61,3 +61,76 @@
     color: rgba(255,255,255,.6); 
     font-size: .85rem; 
 }
+
+                            /* feature card (index) */
+.feature-card {
+    border: none;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
+}
+
+.feature-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
+}
+
+.feature-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #FAF0DC, #F5E4BB);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.25rem;
+}
+
+
+                            /* AVIS */
+
+.avis-card {
+    border: none;
+    border-radius: 12px;
+    background: #fff;
+    padding: 1.75rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,.05);
+}
+
+.avis-quote {
+    font-size: 3rem;
+    line-height: .8;
+    color: var(--gold);
+    opacity: .3;
+    font-family: 'Playfair Display', serif;
+}
+
+                            /* footer horaires*/
+.horaire-row { 
+    display: flex; 
+    justify-content: space-between; 
+    padding: .6rem 0; 
+    border-bottom: 1px dashed rgba(0,0,0,.07); 
+}
+.jour-label { 
+    font-weight: 700; 
+}
+.badge-open  { 
+    background: #d4f4dd; 
+    color: #1a7a3a; 
+    padding: 3px 10px; 
+    border-radius: 50px; 
+    font-size: .8rem; 
+}
+.badge-closed { 
+    background: #fde8e8; 
+    color: #b03030; 
+    padding: 3px 10px; 
+    border-radius: 50px; 
+    font-size: .8rem; }
+.today-row { 
+    background: rgba(201,151,61,.08); 
+    border-radius: 8px; 
+    padding: .6rem .75rem; 
+}

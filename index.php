@@ -1,17 +1,19 @@
 <?php
+// TEMPORAIRE : pour voir le site sans erreurs
 session_start();
-include 'includes/db.php';
-include 'includes/auth.php';
-
-$is_logged = isset($_SESSION['user_id']);
-$role = $_SESSION['role'] ?? '';
-$today_fr = ['Sunday'=>'Dimanche','Monday'=>'Lundi','Tuesday'=>'Mardi','Wednesday'=>'Mercredi',
-             'Thursday'=>'Jeudi','Friday'=>'Vendredi','Saturday'=>'Samedi'][date('l')];
-
-$avis = $pdo->query("SELECT * FROM avis WHERE statut='approuvé' ORDER BY created_at DESC LIMIT 6")->fetchAll();
+$is_logged = false;
+$role = '';
+$avis = []; // Pas d'avis pour l'instant
 $horaires = [];
-foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $horaires[$h['jour']] = $h;
 
+// Fonction stars manquante
+function stars($note) {
+    $html = '';
+    for($i=1; $i<=5; $i++) {
+        $html .= ($i <= $note) ? '★' : '☆';
+    }
+    return $html;
+}
 ?>
 
 <!DOCTYPE html>

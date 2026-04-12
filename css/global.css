@@ -16,3 +16,77 @@ body {
 h1, h2, h3, .display-font {
   font-family: 'Playfair Display', serif;
 }
+
+/* Navbar publique */
+.navbar-main { 
+  background: rgba(28,21,16,0.97); 
+  backdrop-filter: blur(8px); 
+}
+.navbar-main .nav-link { 
+  color: rgba(255,255,255,0.8) !important; 
+  font-weight: 600; letter-spacing: .3px; 
+}
+.navbar-main .nav-link:hover,
+.navbar-main .nav-link.active { 
+  color: var(--gold) !important; 
+}
+.navbar-brand { 
+  color: var(--gold) !important; 
+  font-family: 'Playfair Display', serif; 
+  font-size: 1.3rem; 
+}
+
+/* boutons */
+.btn-gold { 
+  background: var(--gold); 
+  color: #fff;
+  border: none; 
+  font-weight: 700; 
+  padding: .75rem 2rem; 
+  letter-spacing: .5px; 
+}
+.btn-gold:hover { 
+  background: var(--warm); 
+  color: #fff; 
+}
+.btn-outline-gold { 
+  border: 2px solid var(--gold); 
+  color: var(--gold); 
+  font-weight: 700; 
+  padding: .7rem 2rem; 
+}
+.btn-outline-gold:hover { 
+  background: var(--gold); 
+  color: #fff; 
+}
+
+/* étoiles avis */
+.stars { 
+  color: var(--gold); 
+  font-size: 1.1rem; 
+  letter-spacing: 2px; 
+}
+
+/* utilitaires */
+.section-label { 
+  font-size: .75rem; 
+  letter-spacing: 3px; 
+  text-transform: uppercase; 
+  color: var(--gold); 
+  font-weight: 700; 
+}
+.page-hero { 
+  background: linear-gradient(135deg, var(--dark), var(--dark2)); 
+  padding: 4rem 0; 
+  text-align: center; 
+}
+
+/* Footer*/
+footer { 
+  background: var(--dark); 
+  color: rgba(255,255,255,.7); 
+}
+footer a { 
+  color: var(--gold); 
+  text-decoration: none; 
+}
