@@ -1,4 +1,18 @@
-<!-- include php -->
+<?php
+session_start();
+include 'includes/db.php';
+include 'includes/auth.php';
+
+$is_logged = isset($_SESSION['user_id']);
+$role = $_SESSION['role'] ?? '';
+$today_fr = ['Sunday'=>'Dimanche','Monday'=>'Lundi','Tuesday'=>'Mardi','Wednesday'=>'Mercredi',
+             'Thursday'=>'Jeudi','Friday'=>'Vendredi','Saturday'=>'Samedi'][date('l')];
+
+$avis = $pdo->query("SELECT * FROM avis WHERE statut='approuvé' ORDER BY created_at DESC LIMIT 6")->fetchAll();
+$horaires = [];
+foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $horaires[$h['jour']] = $h;
+
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -115,14 +129,14 @@
                 <div class="row g-3 mt-4">
                     <div class="col-6">
                         <div style="border-left:3px solid var(--gold);padding-left:1rem;">
-                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">15+</div>
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">25+</div>
                         <div style="color:rgba(255,255,255,.6);font-size:.9rem;">ans d'expérience</div>
                         </div>
                     </div>
                     <div class="col-6">
                         <div style="border-left:3px solid var(--gold);padding-left:1rem;">
-                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">500+</div>
-                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">clients fidèles</div>
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">98%</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">clients statisfaits</div>
                         </div>
                     </div>
                     <div class="col-6">
@@ -133,7 +147,7 @@
                     </div>
                     <div class="col-6">
                         <div style="border-left:3px solid var(--gold);padding-left:1rem;">
-                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">3</div>
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">2</div>
                         <div style="color:rgba(255,255,255,.6);font-size:.9rem;">chefs cuisiniers</div>
                         </div>
                     </div>
@@ -177,3 +191,53 @@
         </div>
     </div>
 </section>
+
+                            <!--  AVIS CLIENT -->
+
+<section class="py-5" id="avis" style="background:var(--cream);padding:5rem 0!important;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Ils nous font confiance</div>
+            <h2 class="display-font mt-2">Avis de nos clients</h2>
+        </div>
+        <?php if ($avis): ?>
+        <div class="row g-4">
+            <?php foreach ($avis as $a): ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="avis-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="avis-quote me-2">"</div>
+                        <div>
+                            <div class="stars"><?= stars($a['note']) ?></div>
+                            <div class="fw-bold mt-1"><?= htmlspecialchars($a['nom']) ?></div>
+                            <div class="text-muted small"><?= date('M Y', strtotime($a['created_at'])) ?></div>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0 fst-italic small"><?= htmlspecialchars($a['contenu']) ?></p>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <p class="text-center text-muted">Aucun avis pour le moment.</p>
+        <?php endif; ?>
+        <?php if ($is_logged && $role === 'client'): ?>
+        <div class="text-center mt-4">
+            <a href="user/profile.php#avis" class="btn btn-outline-dark">Laisser un avis</a>
+        </div>
+        <?php elseif (!$is_logged): ?>
+        <div class="text-center mt-4">
+            <a href="register.php" class="btn btn-outline-dark">Rejoindre et laisser un avis</a>
+        </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+                            <!-- HORAIRES -->
+                            <!-- FOOTER -->
+<?php include 'include/partials/footer.php'; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+</body>
+</html>
