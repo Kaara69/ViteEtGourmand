@@ -1,4 +1,18 @@
-<!-- include php -->
+<?php
+session_start();
+include 'includes/db.php';
+include 'includes/auth.php';
+
+$is_logged = isset($_SESSION['user_id']);
+$role = $_SESSION['role'] ?? '';
+$today_fr = ['Sunday'=>'Dimanche','Monday'=>'Lundi','Tuesday'=>'Mardi','Wednesday'=>'Mercredi',
+             'Thursday'=>'Jeudi','Friday'=>'Vendredi','Saturday'=>'Samedi'][date('l')];
+
+$avis = $pdo->query("SELECT * FROM avis WHERE statut='approuvé' ORDER BY created_at DESC LIMIT 6")->fetchAll();
+$horaires = [];
+foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $horaires[$h['jour']] = $h;
+
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -96,3 +110,134 @@
         </div>
     </div>
 </section>
+
+
+                            <!-- A PROPOS -->
+<section style="background:var(--dark);padding:6rem 0;">
+    <div class="container">
+        <div class="row align-items-center g-5">
+            <div class="col-lg-6">
+                <div class="section-label" style="color:var(--gold);">À propos de nous</div>
+                <h2 class="display-font text-white mt-2">Une passion transmise <em style="color:var(--gold);font-style:italic;">depuis 2008</em></h2>
+                <div style="width:60px;height:3px;background:var(--gold);margin:1.5rem 0;"></div>
+                <p style="color:rgba(255,255,255,.75);font-size:1.05rem;line-height:1.8;">
+                Fondé par Julie & José , Vite &amp; Gourmand est né d'une conviction simple : la gastronomie artisanale mérite d'être accessible à tous. Depuis plus de 25 ans, notre équipe de chefs passionnés élabore chaque jour des recettes authentiques avec des produits soigneusement sélectionnés auprès de producteurs locaux.
+                </p>
+                <p style="color:rgba(255,255,255,.65);line-height:1.8;">
+                Que ce soit pour un déjeuner d'entreprise, un événement familial ou une occasion spéciale, nous mettons tout notre savoir-faire au service de votre satisfaction. Chaque plat est une promesse : celle de vous offrir le meilleur de la cuisine française, avec chaleur et générosité.
+                </p>
+                <div class="row g-3 mt-4">
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">25+</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">ans d'expérience</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">98%</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">clients statisfaits</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">100%</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">produits frais</div>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div style="border-left:3px solid var(--gold);padding-left:1rem;">
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">2</div>
+                        <div style="color:rgba(255,255,255,.6);font-size:.9rem;">chefs cuisiniers</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5">
+                    <a href="contact.php" class="btn btn-gold btn-lg me-3">Nous contacter</a>
+                    <a href="menus.php" class="btn btn-outline-gold btn-lg">Voir la carte</a>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="row g-3">
+                <div class="col-12">
+                    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,151,61,.2);border-radius:14px;padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;">
+                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">👨‍🍳</div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Notre équipe</h6>
+                        <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Trois chefs diplômés, passionnés et complémentaires. Chacun apporte son expertise — pâtisserie, plats chauds, plateaux froids — pour un résultat d'exception.</p>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,151,61,.2);border-radius:14px;padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;">
+                    <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">🌿</div>
+                    <div>
+                        <h6 class="fw-bold text-white mb-1">Nos engagements</h6>
+                        <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Produits de saison, circuits courts, fournisseurs locaux. Nous travaillons avec des artisans qui partagent nos valeurs de qualité et de durabilité.</p>
+                    </div>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div style="background:rgba(255,255,255,.05);border:1px solid rgba(201,151,61,.2);border-radius:14px;padding:1.75rem;display:flex;gap:1rem;align-items:flex-start;">
+                        <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">🏆</div>
+                            <div>
+                                <h6 class="fw-bold text-white mb-1">Reconnus et primés</h6>
+                                <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Lauréat du prix "Meilleur Traiteur Île-de-France" en 2019 et 2022. Notre engagement pour la qualité est reconnu par nos pairs et nos clients.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+                            <!--  AVIS CLIENT -->
+
+<section class="py-5" id="avis" style="background:var(--cream);padding:5rem 0!important;">
+    <div class="container">
+        <div class="text-center mb-5">
+            <div class="section-label">Ils nous font confiance</div>
+            <h2 class="display-font mt-2">Avis de nos clients</h2>
+        </div>
+        <?php if ($avis): ?>
+        <div class="row g-4">
+            <?php foreach ($avis as $a): ?>
+            <div class="col-md-6 col-lg-4">
+                <div class="avis-card">
+                    <div class="d-flex align-items-start mb-3">
+                        <div class="avis-quote me-2">"</div>
+                        <div>
+                            <div class="stars"><?= stars($a['note']) ?></div>
+                            <div class="fw-bold mt-1"><?= htmlspecialchars($a['nom']) ?></div>
+                            <div class="text-muted small"><?= date('M Y', strtotime($a['created_at'])) ?></div>
+                        </div>
+                    </div>
+                    <p class="text-muted mb-0 fst-italic small"><?= htmlspecialchars($a['contenu']) ?></p>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <?php else: ?>
+        <p class="text-center text-muted">Aucun avis pour le moment.</p>
+        <?php endif; ?>
+        <?php if ($is_logged && $role === 'client'): ?>
+        <div class="text-center mt-4">
+            <a href="user/profile.php#avis" class="btn btn-outline-dark">Laisser un avis</a>
+        </div>
+        <?php elseif (!$is_logged): ?>
+        <div class="text-center mt-4">
+            <a href="register.php" class="btn btn-outline-dark">Rejoindre et laisser un avis</a>
+        </div>
+        <?php endif; ?>
+    </div>
+</section>
+
+                            <!-- HORAIRES -->
+                            <!-- FOOTER -->
+<?php include 'include/partials/footer.php'; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        
+</body>
+</html>
