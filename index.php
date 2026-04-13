@@ -6,7 +6,6 @@ $role = '';
 $avis = []; // Pas d'avis pour l'instant
 $horaires = [];
 
-// Fonction stars manquante
 function stars($note) {
     $html = '';
     for($i=1; $i<=5; $i++) {
@@ -15,6 +14,63 @@ function stars($note) {
     return $html;
 }
 ?>
+
+<!-- session_start();
+
+// Connexions et includes
+include 'includes/db.php';
+include 'includes/auth.php';
+
+// Vérification si l'utilisateur est connecté
+$is_logged = isset($_SESSION['user_id']);
+$role = '';
+if (isset($_SESSION['role'])) {
+    $role = $_SESSION['role'];
+}
+
+// Jour de la semaine en français
+$jour_fr = [
+    'Sunday'    => 'Dimanche',
+    'Monday'    => 'Lundi',
+    'Tuesday'   => 'Mardi',
+    'Wednesday' => 'Mercredi',
+    'Thursday'  => 'Jeudi',
+    'Friday'    => 'Vendredi',
+    'Saturday'  => 'Samedi'
+];
+$today_fr = $jour_fr[date('l')];
+
+// Récupération des 6 derniers avis approuvés
+$avis = [];
+$sql_avis = "SELECT * FROM avis WHERE statut='approuvé' ORDER BY created_at DESC LIMIT 6";
+$stmt_avis = $pdo->query($sql_avis);
+if ($stmt_avis) {
+    $avis = $stmt_avis->fetchAll();
+}
+
+// Récupération des horaires
+$horaires = [];
+$sql_horaires = "SELECT * FROM horaires ORDER BY id";
+$stmt_horaires = $pdo->query($sql_horaires);
+if ($stmt_horaires) {
+    while ($h = $stmt_horaires->fetch()) {
+        $horaires[$h['jour']] = $h;
+    }
+}
+
+// Fonction d'affichage des étoiles (à avoir dans ton projet)
+function stars($note) {
+    $note = (int) $note;
+    $html = '';
+    for ($i = 0; $i < 5; $i++) {
+        if ($i < $note) {
+            $html .= '<span class="star">★</span>';
+        } else {
+            $html .= '<span class="star">☆</span>';
+        }
+    }
+    return $html;
+} -->
 
 <!DOCTYPE html>
 <html lang="fr">
