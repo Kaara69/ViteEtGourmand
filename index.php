@@ -15,7 +15,8 @@ function stars($note) {
 }
 ?>
 
-<!-- session_start();
+<!--
+// Démarre la session PHP (pour accéder à $_SESSION) session_start();
 
 // Connexions et includes
 include 'includes/db.php';
