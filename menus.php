@@ -688,7 +688,7 @@ if (slider) {
 }
 
 
-==
+
 // RÉINITIALISATION DES FILTRES
 // Remet tout à zéro : état JS + interface visuelle
 

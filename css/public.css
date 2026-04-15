@@ -69,15 +69,24 @@
 
                             /* feature card (index) */
 .feature-card {
-    border: none;
     border-radius: 12px;
     padding: 2rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
+    background: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,.08);
+
+    transition:
+        transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+
+    will-change: transform;
+    transform: translate3d(0,0,0);
+
+    isolation: isolate;
 }
 
 .feature-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, .1);
+    transform: translate3d(0,-8px,0);
+ 
 }
 
 .feature-icon {
@@ -145,14 +154,14 @@
     background: #fff; 
     border-bottom: 1px solid rgba(0,0,0,.08);
     padding: .65rem 0; 
-    position: sticky; 
+    position: sticky;
     top: 56px; 
     z-index: 200;
     box-shadow: 0 2px 12px rgba(0,0,0,.06);
 }
 
 .fbar-inner {
-    display: flex;
+    display: flex !important;
     align-items: center;
     gap: .5rem;
     flex-wrap: wrap;

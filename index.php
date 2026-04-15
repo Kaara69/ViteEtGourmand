@@ -139,28 +139,28 @@ if ($stmt_horaires) {
             <p class="text-muted mx-auto" style="max-width:520px;">Chaque prestation est pensée dans les moindres détails pour vous offrir une expérience culinaire mémorable.</p>
         </div>
         <div class="row g-4">
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6 d-flex">
                 <div class="feature-card text-center">
                     <div class="feature-icon mx-auto"><i class="bi bi-award-fill"></i></div>
                     <h5 class="fw-bold">Qualité premium</h5>
                     <p class="text-muted small mb-0">Produits frais, circuits courts et fournisseurs locaux sélectionnés avec soin.</p>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6 d-flex">
                 <div class="feature-card text-center">
                 <div class="feature-icon mx-auto"><i class="bi bi-clock-fill"></i></div>
                 <h5 class="fw-bold">Ponctualité</h5>
                 <p class="text-muted small mb-0">Livraisons dans les délais convenus, toujours. Votre temps est précieux.</p>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6 d-flex">
                 <div class="feature-card text-center">
                     <div class="feature-icon mx-auto"><i class="bi bi-heart-fill"></i></div>
                     <h5 class="fw-bold">Fait maison</h5>
                     <p class="text-muted small mb-0">Recettes artisanales élaborées quotidiennement par nos chefs cuisiniers.</p>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
+            <div class="col-md-3 col-sm-6 d-flex">
                 <div class="feature-card text-center">
                 <div class="feature-icon mx-auto"><i class="bi bi-headset"></i></div>
                 <h5 class="fw-bold">Service dédié</h5>
