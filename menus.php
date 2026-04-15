@@ -427,5 +427,45 @@ $categories = array_keys($menus_par_categorie);
                 <?php endforeach; ?>
         </div>
     </div>
-
+                            <!-- modal detail -->
+    <div class="modal fade" id="detailModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
+                            <!-- en tête modal -->
+                <div class="modal-header border-0 pb-0">
+                    <div>
+                        <p id="m-cat" class="mb-0" style="color: var(--gold); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase;"></p>
+                        <h4 id="m-nom" class="text-white fw-bold mb-0" syle="font-family: 'Playfair Display', serif;"></h4>
+                    </div>
+                    <button class="btn-close btn-close-white ms-auto" type="button" data-bs-dismiss="modal"></button>
+                </div> <!-- modal header-->
+                                <!-- corps modal  -->
+                
+                <div class="modal-body p-0">
+                    <div class="row g-0">
+                                <!-- img injecté par js-->
+                        <div class="col-md-5" id="m-img-wrap"></div> 
+                                <!-- infos injecté par js-->
+                        <div class="col-md-7 p-4">
+                            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                                <span id="m-prix"></span>
+                                <div id="m-pers"></div>
+                            </div>
+                            <p id="m-desc" class="text-muted mb-4" style="line-height:1.75;"></p>
+                            <div class="mb-3">
+                                <p class="fw-bold small mb-1">🥗 Régime alimentaire</p>
+                                <div id="m-regimes"></div>
+                            </div>
+                            <div class="mb-4">
+                                <p class="fw-bold small mb-1">⚠️ Allergènes présents</p>
+                                <div id="m-allergens"></div>
+                            </div>
+                            <div id="m-cta"></div>
+                        </div>
+                        
+                    </div> <!-- row -->
+                </div> <!-- modal body -->          
+            </div> <!-- modal content -->
+        </div> <!-- modal-dialog -->
+    </div> <!--modal fade-->
 </body>
