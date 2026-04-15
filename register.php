@@ -33,3 +33,55 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inscription – Vite &amp; Gourmand</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/global.css">
+    <link rel="stylesheet" href="css/public.css">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
+                <div class="text-center mb-4">
+                    <a href="index.php" class="text-decoration-none" style="color:#C9973D;font-family:'Playfair Display',serif;font-size:1.4rem;">Vite &amp; Gourmand</a>
+                </div>
+                <div class="card shadow-sm p-4 mb-5">
+                    <h4 class="fw-bold mb-1">Créer un compte</h4>
+                    <p class="text-muted small-mb-4">Inscrivez-vous pour commander en ligne et suivre vos commandes.</p>
+                    <?php if($error):?>
+                        <div class="alert alert-danger"> <?htmlspecialchars($error) ?></div>
+                    <?php endif; ?>
+                    <form method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Nom complet*</label>
+                            <input type="text" name="nom" class="form-control" required value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Adresse email*</label>
+                            <input type="email" name="email" class="form-control" required value="<?= htmlspecialchars($_POST['email'] ?? '') ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Mot de passe * <small class="text-muted">(min. 6 caractères)</small></label>
+                            <input type="password" name="password" class="form-control" required minlength="6">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Confirmer le mot de passe *</label>
+                            <input type="password" name="password2" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn w-100 fw-bold text-white" style="background:#C9973D;">Créer mon compte</button>
+                    </form>
+                    <hr>
+                    <p class="text-center mb-0 small">Déjà un compte ? <a href="login.php" style="color:#C9973D">Se connecter</a></p>
+                </div> <!-- card -->
+            </div> <!-- col -->
+        </div> <!-- row -->
+    </div> <!-- container -->
+<?php include 'include/partials/footer.php';?>
+</body>
+</html>
