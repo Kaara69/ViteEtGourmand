@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include 'includes/db.php';
+include 'include/db.php';
 
 
 $active_page = 'menus';
@@ -462,10 +462,15 @@ $categories = array_keys($menus_par_categorie);
                             </div>
                             <div id="m-cta"></div>
                         </div>
-                        
                     </div> <!-- row -->
                 </div> <!-- modal body -->          
             </div> <!-- modal content -->
         </div> <!-- modal-dialog -->
     </div> <!--modal fade-->
+
+<?php include 'include/partials/footer.php'; ?>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!-- passer php en json pour les utiliser en js ici! -->
 </body>

@@ -1,6 +1,10 @@
 /*  Pages publiques : index, menus, contact, login, register */
 
                             /* HERO */
+.hero .container {
+    position: relative;
+    z-index: 1;
+}
 .hero {
     min-height: 100vh;
     background: linear-gradient(135deg,#1C1210 0%, #2D1F14 45%, #1C1510 100%);
@@ -15,6 +19,7 @@
     inset: 0;
     background-image: repeating-linear-gradient(45deg, rgba(201,151,61,.04) 0, rgba(201,151,61,.04) 1px, transparent 0, transparent 50%);
     background-size: 24px 24px;
+    pointer-events: none;
 }
 .hero-badge {
     display: inline-block;
@@ -133,4 +138,51 @@
     background: rgba(201,151,61,.08); 
     border-radius: 8px; 
     padding: .6rem .75rem; 
+}
+
+/* barre filtres */
+.filter-bar {
+    display: flex;
+    gap:.5rem;
+    flex-wrap: wrap;
+}
+.fbar-label {
+    font-size: .68rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    color: #bbb;
+    white-space: nowrap;
+    margin-right: .25rem;
+}
+.fbar-right {
+    margin-left: auto;
+    display: flex;
+    gap: .75rem;
+}
+.fbar-count {
+    font-size: .8rem;
+    font-weight: 600;
+    color: var(--gold);
+    white-space: nowrap;
+}
+
+/* btn dropdown */
+.fbar-drp {
+    position: relative;
+}
+.fbar-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 8px;
+    padding: .42rem .9rem;
+    background: #fff;
+    font-family: 'Nunito', sans-serif;
+    font-size: .85rem;
+    font-weight: 600;
+    color: #444 ;
+    cursor: pointer;
+    transition: border-color .18s, color .18s, background .18s;
+    white-space: nowrap;
 }

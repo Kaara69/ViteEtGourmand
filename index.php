@@ -1,26 +1,26 @@
 <?php
 // TEMPORAIRE : pour voir le site sans erreurs
-session_start();
-$is_logged = false;
-$role = '';
-$avis = []; // Pas d'avis pour l'instant
-$horaires = [];
+// session_start();
+// $is_logged = false;
+// $role = '';
+// $avis = []; // Pas d'avis pour l'instant
+// $horaires = [];
 
-function stars($note) {
-    $html = '';
-    for($i=1; $i<=5; $i++) {
-        $html .= ($i <= $note) ? '★' : '☆';
-    }
-    return $html;
-}
-?>
+// function stars($note) {
+//     $html = '';
+//     for($i=1; $i<=5; $i++) {
+//         $html .= ($i <= $note) ? '★' : '☆';
+//     }
+//     return $html;
+// }
 
-<!--
+
+
 // Démarre la session PHP (pour accéder à $_SESSION) session_start();
 
 // Connexions et includes
-include 'includes/db.php';
-include 'includes/auth.php';
+include 'include/db.php';
+include 'include/auth.php';
 
 // Vérification si l'utilisateur est connecté
 $is_logged = isset($_SESSION['user_id']);
@@ -59,19 +59,20 @@ if ($stmt_horaires) {
     }
 }
 
-// Fonction d'affichage des étoiles (à avoir dans ton projet)
-function stars($note) {
-    $note = (int) $note;
-    $html = '';
-    for ($i = 0; $i < 5; $i++) {
-        if ($i < $note) {
-            $html .= '<span class="star">★</span>';
-        } else {
-            $html .= '<span class="star">☆</span>';
-        }
-    }
-    return $html;
-} -->
+
+// function stars($note) {
+//     $note = (int) $note;
+//     $html = '';
+//     for ($i = 0; $i < 5; $i++) {
+//         if ($i < $note) {
+//             $html .= '<span class="star">★</span>';
+//         } else {
+//             $html .= '<span class="star">☆</span>';
+//         }
+//     }
+//     return $html;
+// }
+?>
 
 <!DOCTYPE html>
 <html lang="fr">
