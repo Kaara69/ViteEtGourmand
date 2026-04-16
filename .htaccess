@@ -1,0 +1,8 @@
+Options -Indexes
+
+# Bloquer l’accès direct aux fichiers de sauvegarde / SQL
+<FilesMatch "\.(txt|sql|bak|log|dump)$">
+    Require all denied
+</FilesMatch>
+
+DirectoryIndex index.php

@@ -8,6 +8,8 @@
 
 1. [Présentation](#1-présentation)
 2. [Structure des fichiers](#2-structure-des-fichiers)
+3. [Architecture bi-base](#3-architecture-bi-base)
+4. [Schéma de base de données](#4-schéma-de-base-de-données)
 
 
 
@@ -39,7 +41,8 @@ viteetgourmand/
 ├── menus.php                   ← Carte des menus + filtres
 ├── contact.php                 ← Contact
 ├── login.php / register.php / logout.php
-├── .htaccess                   ← Sécurité (protection dossiers)
+├── .htaccess                   ← désactive l’affichage des listes de fichiers et protège certains types de fichiers sensibles 
+                                (comme .sql, .bak, etc) qui pourraient contenir des données de la base MySQL.
 │
 ├── css/
 │   ├── global.css              ← Variables, navbar, boutons (toutes les pages)
@@ -59,3 +62,56 @@ viteetgourmand/
 └── api/
     └── order_status.php        ← API JSON pour le polling statut commandes
 ```
+## 3. Architecture bi-base
+
+L'application utilise **une seule base MySQL**, mais avec deux usages distincts, illustrant
+le concept de base relationnelle et base orientée document :
+
+```
+
+MySQL
+|── Tables relationnelles (données métier)
+|   |── users, menus, horaires
+|   |── commandes, commande_items
+|   |── avis
+|
+|── Tables orientée document (donées analytiques)
+    |── nosql_documents -> stocke des JSON par collection
+        |── collection : "stats_menus (stats par menu)
+        |── collection : "stats_daily (stats par jour)
+
+```
+
+La table `nosql_db` imite le fonctionnement d'une base NoSQL orientée documents (comme MongoDB) : 
+chaque ligne contient un document JSON indépendant, sans schéma fixe.
+La classe PHP `NoSQLStore` expose une API identique à MongoDB (`find`, `findOne`
+`insertOne`, `updateOne`, `upsertOne`, `deleteMany`).
+
+La classe `StatsSync` synchronise les données relationnelles vers la partie document
+après chaque commande, et à la demande depuis le panneau admin.
+
+---
+
+## 4. Schéma de base de données
+
+### Tables relationnelles
+
+| Table | Description |
+|-------|-------------|
+| `users` | Comptes (admin, employee, client) |
+| `menus` | Catalogue des menus avec allergènes, régimes, personnes_min |
+| `horaires` | Horaires d'ouverture par jour |
+| `commandes` | Commandes avec livraison km et remise |
+| `commande_items` | Détail des articles par commandes |
+| `avis` | Avis clients avec modération |
+
+### Table orientée document
+
+| Table | Description |
+|-------|-------------|
+| `nosql_documents` | Stockage JSON par collection (stats_menu_ stats_daily) |
+
+Chaque document est une ligne avec `collection` (nom logique), `doc_id` (identifiant unique)
+et `data` (colonne JSON native MySQL 5.7+).
+
+---
