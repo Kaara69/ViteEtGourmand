@@ -112,7 +112,7 @@ if ($stmt_horaires) {
                         <div class="label">ans d'expérience</div>
                     </div>
                     <div class="hero-stat">
-                        <div class="number">500+</div>
+                        <div class="number">98%</div>
                         <div class="label">clients satisfaits</div>
                     </div>
                     <div class="hero-stat">
@@ -122,8 +122,9 @@ if ($stmt_horaires) {
                 </div>
             </div>
             <div class="col-lg-5 d-none d-lg-block text-center">
-                <div style="width:360px;height:360px;margin:auto;border-radius:50%;background:linear-gradient(135deg,rgba(201,151,61,.15),rgba(201,151,61,.05));border:2px solid rgba(201,151,61,.2);display:flex;align-items:center;justify-content:center;">
-                    <span style="font-size:8rem;">🍽️</span>
+                <div style="width: 360px;height: 360px;margin: auto;border-radius: 50%;background: linear-gradient(135deg, rgba(201,151,61,.15), rgba(201,151,61,.05));
+                    border: 2px solid var(--gold);display: flex;align-items: center;justify-content: center;">
+                    <img src="uploads/chefs.jpg" alt="Julie et José" style="width: 320px;height: 320px;object-fit: cover; border-radius:50%;">
                 </div>
             </div>
         </div>
@@ -178,7 +179,7 @@ if ($stmt_horaires) {
         <div class="row align-items-center g-5">
             <div class="col-lg-6">
                 <div class="section-label" style="color:var(--gold);">À propos de nous</div>
-                <h2 class="display-font text-white mt-2">Une passion transmise <em style="color:var(--gold);font-style:italic;">depuis 2008</em></h2>
+                <h2 class="display-font text-white mt-2">Une passion transmise <em style="color:var(--gold);font-style:italic;">depuis 2001</em></h2>
                 <div style="width:60px;height:3px;background:var(--gold);margin:1.5rem 0;"></div>
                 <p style="color:rgba(255,255,255,.75);font-size:1.05rem;line-height:1.8;">
                 Fondé par Julie & José , Vite &amp; Gourmand est né d'une conviction simple : la gastronomie artisanale mérite d'être accessible à tous. Depuis plus de 25 ans, notre équipe de chefs passionnés élabore chaque jour des recettes authentiques avec des produits soigneusement sélectionnés auprès de producteurs locaux.

@@ -1,54 +1,63 @@
 <?php
+// Démarrer la session
 session_start();
+
+// Inclure la connexion à la base de données
 include 'include/db.php';
+
+// Message d'erreur, vide au départ
 $error = '';
-// On vérifie si le formulaire à été envoyé
+
+// Vérifier si le formulaire a été envoyé (méthode POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 1. Récupérer les données du formulaire (avec ?? pour éviter les undefined index)
+    $nom   = trim($_POST['nom']       ?? '');
+    $email = trim($_POST['email']     ?? '');
+    $pass  =      $_POST['password']  ?? '';
+    $pass2 =      $_POST['password2'] ?? '';
 
-// on récupère les données du formulaire
-    $nom   = trim($_POST['nom']);
-    $email = trim(strtolower($_POST['email']));
-    $pass  = $_POST['password'];
-    $pass2 = $_POST['password2'];
-
-    // On vérifie que les champs obligatoires ne sont pas vides
+    // 2. Vérifier que les champs obligatoires ne sont pas vides
     if (empty($nom) || empty($email) || empty($pass)) {
         $error = 'Tous les champs sont obligatoires.';
     }
-    // On vérifie que le mdp fait au moins 6 caractères
-    } elseif (strlen($pass) < 6) {
+    // 3. Vérifier que le mot de passe fait au moins 6 caractères
+    elseif (strlen($pass) < 6) {
         $error = 'Le mot de passe doit contenir au moins 6 caractères.';
-    } elseif ($pass !== $pass2) {
-    // On vérifie que les deux mots de passe sont identiques
+    }
+    // 4. Vérifier que les deux mots de passe sont identiques
+    elseif ($pass !== $pass2) {
         $error = 'Les mots de passe ne correspondent pas.';
-    } 
-    // Si tout es OK on essaye d'enregistrer l'utilisateur
+    }
+    // 5. Si tout est OK, on tente d’enregistrer l’utilisateur
     else {
-       try {
-    // Hacher le mot de passe
-    $hash = password_hash($pass, PASSWORD_DEFAULT);
+        try {
+            // Hacher le mot de passe
+            $hash = password_hash($pass, PASSWORD_DEFAULT);
 
-    // On insère le nouvel utilisateur
-    $sql = "INSERT INTO users (nom, email, password, role) VALUES (?, ?, ?, 'client')";
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute([$nom, $email, $hash]);
+            // Insérer le nouvel utilisateur
+            $sql = "INSERT INTO users (nom, email, password, role) VALUES (?, ?, ?, 'client')";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute([$nom, $email, $hash]);
 
-    // On recharge les infos de l’utilisateur
-    $stmtUser = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
-    $stmtUser->execute([$email]);
-    $user = $stmtUser->fetch();
+            // Recharger les infos de l’utilisateur
+            $stmtUser = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+            $stmtUser->execute([$email]);
+            $user = $stmtUser->fetch();
 
-    // Connecter l'utilisateur
-    $_SESSION['user_id'] = $user['id'];
-    $_SESSION['nom']     = $user['nom'];
-    $_SESSION['email']   = $user['email'];
-    $_SESSION['role']    = 'client';
+            // Connecter l’utilisateur automatiquement
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['nom']     = $user['nom'];
+            $_SESSION['email']   = $user['email'];
+            $_SESSION['role']    = $user['role'] ?? $user['role'];
 
-    header('Location: user/dashboard.php');
-    exit;
-    } 
-    catch (PDOException $e) {
-    $error = 'Cette adresse email est déjà utilisée.';
+            // Rediriger vers le dashboard
+            header('Location: user/dashboard.php');
+            exit;
+        }
+        catch (PDOException $e) {
+            // Gérer le cas où l’email existe déjà
+            $error = 'Cette adresse email est déjà utilisée.';
+        }
     }
 }
 ?>
