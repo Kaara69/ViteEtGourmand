@@ -88,10 +88,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <button type="submit" class="btn btn-lg w-100 fw-bold text-white" style="background:#C9973D;">Se connecter</button>
                     </form>
                     <hr class="my-4">
-                    <p></p>
+                <p class="text-center mb-0">Pas de compte ? <a href="register.php" style="color:#C9973D;">S'inscrire</a></p>
+                <p class="text-center mt-1"><a href="index.php" class="text-muted small"> Retour a l'accueil</a></p>
             </div> <!-- w-100 -->
         </div> <!-- col-->
     </div> <!-- row-->
-    
+    <?php include 'include/partials/footer.php'; ?>
 </body>
 </html>
