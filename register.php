@@ -2,34 +2,53 @@
 session_start();
 include 'include/db.php';
 $error = '';
+// On vérifie si le formulaire à été envoyé
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+// on récupère les données du formulaire
     $nom   = trim($_POST['nom']);
     $email = trim(strtolower($_POST['email']));
     $pass  = $_POST['password'];
     $pass2 = $_POST['password2'];
-    if (!$nom || !$email || !$pass) {
+
+    // On vérifie que les champs obligatoires ne sont pas vides
+    if (empty($nom) || empty($email) || empty($pass)) {
         $error = 'Tous les champs sont obligatoires.';
+    }
+    // On vérifie que le mdp fait au moins 6 caractères
     } elseif (strlen($pass) < 6) {
         $error = 'Le mot de passe doit contenir au moins 6 caractères.';
     } elseif ($pass !== $pass2) {
+    // On vérifie que les deux mots de passe sont identiques
         $error = 'Les mots de passe ne correspondent pas.';
-    } else {
-        try {
-            $pdo->prepare("INSERT INTO users (nom,email,password,role) VALUES (?,?,?,'client')")
-                ->execute([$nom, $email, password_hash($pass, PASSWORD_DEFAULT)]);
-// auto login
-            $user = $pdo->prepare("SELECT * FROM users WHERE email=?");
-            $user->execute([$email]);
-            $user = $user->fetch();
-            $_SESSION['user_id'] = $user['id'];
-            $_SESSION['nom']     = $user['nom'];
-            $_SESSION['email']   = $user['email'];
-            $_SESSION['role']    = 'client';
-            header('Location: user/dashboard.php');
-            exit;
-        } catch (PDOException $e) {
-            $error = 'Cette adresse email est déjà utilisée.';
-        }
+    } 
+    // Si tout es OK on essaye d'enregistrer l'utilisateur
+    else {
+       try {
+    // Hacher le mot de passe
+    $hash = password_hash($pass, PASSWORD_DEFAULT);
+
+    // On insère le nouvel utilisateur
+    $sql = "INSERT INTO users (nom, email, password, role) VALUES (?, ?, ?, 'client')";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute([$nom, $email, $hash]);
+
+    // On recharge les infos de l’utilisateur
+    $stmtUser = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
+    $stmtUser->execute([$email]);
+    $user = $stmtUser->fetch();
+
+    // Connecter l'utilisateur
+    $_SESSION['user_id'] = $user['id'];
+    $_SESSION['nom']     = $user['nom'];
+    $_SESSION['email']   = $user['email'];
+    $_SESSION['role']    = 'client';
+
+    header('Location: user/dashboard.php');
+    exit;
+    } 
+    catch (PDOException $e) {
+    $error = 'Cette adresse email est déjà utilisée.';
     }
 }
 ?>
