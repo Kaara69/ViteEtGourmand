@@ -10,10 +10,18 @@ $active = $active_page ?? '';
             </button>
             <div class="collapse navbar-collapse" id="userNav">
                 <ul class="navbar-nav me-auto">
-                    <li class="nav-item"><a class="nav-link <?= $active==='dashboard'?'active':'' ?>" href="dashboard.php">Mon espace</a></li>
-                    <li class="nav-item"><a class="nav-link <?= $active==='menu'?'active':'' ?>" href="menu.php">Commander</a></li>
-                    <li class="nav-item"><a class="nav-link <?= $active==='orders'?'active':'' ?>" href="orders.php">Mes commandes</a></li>
-                    <li class="nav-item"><a class="nav-link <?= $active==='profile'?'active':'' ?>" href="profile.php">Mon profil</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $active==='dashboard'?'active':'' ?>" href="dashboard.php">Mon espace</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $active==='menu'?'active':'' ?>" href="menu.php">Commander</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $active==='orders'?'active':'' ?>" href="orders.php">Mes commandes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link <?= $active==='profile'?'active':'' ?>" href="profile.php">Mon profil</a>
+                    </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item"><span class="nav-link text-muted small">👤 <?= htmlspecialchars($_SESSION['nom']) ?></span></li>
