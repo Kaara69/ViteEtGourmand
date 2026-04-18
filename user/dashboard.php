@@ -58,10 +58,10 @@ $total_cmd = $stmt->fetchColumn(); // renvoie un nombre entier
 </head>
 <body>
     <?php include '../include/partials/user_nav.php'; ?>
-    <div class="container">
+    <div class="container mt-4">
         <div class="row g-4">
             <div class="col-12">
-                <h4 class="fw-bold mb-0">Bonjour, <?=htmlspecialchars($_SESSION['nom']) ?> 👋</h4>
+                <h4 class="fw-bold mt-4 mb-0">Bonjour, <?=htmlspecialchars($_SESSION['nom']) ?> 👋</h4>
                 <p class="text-muted">Bienvenue dans votre espace personnel.</p>
             </div>
                             <!-- sttut aujourd'hui -->
@@ -151,5 +151,6 @@ $total_cmd = $stmt->fetchColumn(); // renvoie un nombre entier
         </div> <!--row-->
     </div><!--container-->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>
