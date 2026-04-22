@@ -6,8 +6,26 @@ include 'include/db.php';
 
 $active_page = 'menus';
 
-// true si l'utilisateur est connecté, false sinon
+// Vérification de connexion + rôle
 $is_logged = isset($_SESSION['user_id']);
+$role      = '';
+if ($is_logged && isset($_SESSION['role'])) {
+    $role = $_SESSION['role'];
+}
+
+// Chargement de la navbar adaptée
+if ($is_logged) {
+    if ($role === 'admin') {
+        include 'include/partials/admin_nav.php';
+    } elseif ($role === 'employee') {
+        include 'include/partials/employee_nav.php';
+    } else {
+        // Par défaut : simple utilisateur connecté
+        include 'include/partials/user_nav.php';
+    }
+} else {
+    include 'include/partials/public_nav.php';
+}
 
 
 // TABLEAUX DE CONFIGURATION

@@ -157,7 +157,7 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 
     // Synchroniser les stats (NoSQL)
-    include_once '../includes/nosql_db.php';
+    include_once '../include/nosql_db.php';
     $statsSync = new StatsSync($pdo, new NoSQLStore());
     $statsSync->syncOrder($cid);
 
@@ -208,7 +208,7 @@ $cat_style = [
 </head>
 <body>
 
-<?php include 'include/partials/user_nav.php'; ?>
+<?php include '../include/partials/user_nav.php'; ?>
 
     <div class="container-fluid py-4 px-3 px-lg-4">
         <!-- affichage du message de confirmation de cmd -->
@@ -350,7 +350,7 @@ $cat_style = [
                                 </div>
                                 <div id="liv-result" class="liv-result" style="display:none"></div>
                                 <div class="text-muted" style="font-size:.68rem;margin-top:.25rem;">
-                                    <i class="bi bi-info-circle me-1">5 € fixes + 0,54 €/km depuis Bordeaux centre</i>
+                                    <i class="bi bi-info-circle me-1"> 5 € fixes + 0,54 €/km depuis Bordeaux centre</i>
                                 </div>
                             </div>
 
@@ -431,6 +431,531 @@ $cat_style = [
             </div> <!-- col-lg-5 -->
         </div> <!-- row g-4-->
     </div> <!-- container -->
+
+<script>
+
+    // CONSTANTES LIVRAISON
+    // Coordonnées du centre de Bordeaux
+    const BDX_LAT  = <?= BDX_LAT ?>;
+    const BDX_LNG  = <?= BDX_LNG ?>;
+
+    // Frais de base : 5€ fixe + 0,54 €/km
+    const LIV_FIXE = <?= LIV_FIXE ?>;
+    const LIV_KM   = <?= LIV_KM ?>;
+
+    // ETAT DU PANIER 
+    // Données du panier chargées depuis PHP
+    let cart        = <?= json_encode(array_values($_SESSION['cart'])) ?>;
+    // Nb de personnes pour l'event
+    let nbPersonnes = 1;
+    // Distance en km entre Bordeaux et l'adresse de livraison
+    let kmLivraison = 0
+    // Adresse texte complète (affichage+calcul)
+    let adresseLiv  = '';
+
+    // CALCUL DE DISTANCE (haversine)
+    // Converti deux positions (lat et lng) en km
+    function haversine(lat1, lng1, lat2, lng2) {
+        const R  = 6371; // Rayon de la Terre en km
+        const dL = (lat2 - lat1) * Math.PI / 180;
+        const dl = (lng2 - lng1) * Math.PI / 180;
+        const a  = Math.sin(dL / 2) ** 2 +
+                    Math.cos(lat1 * Math.PI / 180) *
+                    Math.cos(lat2 * Math.PI / 180) *
+                    Math.sin(dl / 2) ** 2;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    }
+    
+    // CALCUL DES FRAIS DE LIVRAISON
+    // Renvoie le montant de la livraison
+    function calcFraisLiv(km) {
+        const montant = LIV_FIXE + km * LIV_KM;
+        const centimes = Math.round(montant * 100) / 100;
+        return Math.max(LIV_FIXE, centimes);
+    }
+
+    // formatage des nombre (prix/km)
+    // ex: 12.5 -> 15,50 €
+    function fmt(n) {
+        return n.toFixed(2).replace('.',',') + ' €';
+    }
+
+    // ex: 0.7 -> "<1 km" ; 12.3 -> "12km"
+    function fmtKm(n) {
+        return n < 1 ? '< 1 km' : Math.round(n) + 'km';
+    }
+
+    // CALCUL DES TOTAUX(sous total,remise,livraison...)
+    function calcTotals() {
+        let subtotal = 0;
+        let remise = 0;
+
+
+        // seulement les lignes actives (qty > 0)
+        cart
+        .filter(item => item.qty > 0)
+        .forEach(item => {
+            const line = item.prix * item.qty;
+            subtotal += line;
+
+            // si le menu a un min de pesronnes
+            const pmin = parseInt(item.personnes_min) || 1;
+            if (pmin > 1 && nbPersonnes >= pmin + 5) {
+                // remise de 10%
+                const lineRemise = Math.round(line * 0.10 * 100) / 100;
+                remise += lineRemise;
+            }
+        })
+        const livraison = calcFraisLiv(kmLivraison);
+        const total = subtotal - remise + livraison;
+
+        return {
+            subtotal: subtotal,
+            remise: remise,
+            livraison: livraison,
+            total: total
+  };
+}
+
+                            // affichage du panier (html + totaux)
+        function renderCart(){
+            const items     = cart.filter(item => item.qty > 0);
+            const count     = items.reduce((sum, item) => sum + item.qty, 0);
+            const totals    = calcTotals();
+
+            // Maj le badge du panier
+            document.getElementById('cart-count').textContent = count;
+
+            const itemsEl = document.getElementById('cart-items');
+            const orderEl = document.getElementById('order-form');
+
+            // si le panier est vide
+            if (!items.length) {
+            itemsEl.innerHTML = '<p class="text-muted text-center py-3 small mb-0">Votre panier est vide.</p>';
+            orderEl.classList.add('d-none');
+            return;
+  }
+
+    // Sinon on affiche le formulaire
+    orderEl.classList.remove('d-none');
+
+  // Si une distance est déjà calculée, on réaffiche le résultat
+  if (kmLivraison > 0 && livResultEl.style.display === 'none') {
+    showLivResult(kmLivraison, adresseLiv);
+  }
+
+  let html = '';
+  items.forEach(item => {
+    const pmin        = parseInt(item.personnes_min) || 1;
+    const hasDisc     = pmin > 1 && nbPersonnes >= pmin + 5;
+    const lineTotal   = item.prix * item.qty;
+    const lineRemise  = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
+
+    html += `
+      <div class="cart-item">
+        <div class="d-flex justify-content-between align-items-start gap-2">
+          <div class="flex-grow-1">
+            <div class="small fw-semibold">
+              ${item.nom}
+              ${hasDisc ? '<span class="discount-badge ms-1">-10%</span>' : ''}
+            </div>
+            <div class="text-muted" style="font-size:.72rem;">${fmt(item.prix)}/u</div>
+          </div>
+          <div class="d-flex align-items-center gap-1 flex-shrink-0">
+            <button class="btn btn-sm btn-outline-secondary py-0 px-1"
+                    onclick="cartAction({action:'update', menu_id:${item.id}, qty:${item.qty - 1}})">−</button>
+            <span class="px-1 fw-semibold small">${item.qty}</span>
+            <button class="btn btn-sm btn-outline-secondary py-0 px-1"
+                    onclick="cartAction({action:'update', menu_id:${item.id}, qty:${item.qty + 1}})">+</button>
+            <button class="btn btn-sm btn-outline-danger py-0 px-1"
+                    onclick="cartAction({action:'remove', menu_id:${item.id}})">✕</button>
+          </div>
+        </div>
+        <div class="text-end small fw-bold mt-1" style="color:var(--gold);">
+          ${lineRemise > 0
+            ? `<span class="text-muted text-decoration-line-through me-1">${fmt(lineTotal)}</span>${fmt(lineTotal - lineRemise)}`
+            : fmt(lineTotal)}
+        </div>
+      </div>`;
+  });
+
+  itemsEl.innerHTML = html;
+
+  // Mise à jour du récapitulatif
+  document.getElementById('sum-subtotal').textContent  = fmt(totals.subtotal);
+  document.getElementById('sum-livraison').textContent = fmt(totals.livraison);
+  document.getElementById('sum-total').textContent     = fmt(totals.total);
+
+  // Ajouter les km entre parenthèses
+  const kmLabel = document.getElementById('sum-km-label');
+  kmLabel.textContent = kmLivraison > 0 ? `(${fmtKm(kmLivraison)})` : '';
+
+  // Gérer l’affichage de la remise et du message
+  const remRow   = document.getElementById('sum-remise-row');
+  const discInfo = document.getElementById('discount-info');
+
+  if (totals.remise > 0) {
+    document.getElementById('sum-remise').textContent = '- ' + fmt(totals.remise);
+    remRow.classList.remove('d-none');
+    discInfo.classList.remove('d-none');
+  } else {
+    remRow.classList.add('d-none');
+    discInfo.classList.add('d-none');
+  }
+
+  // Synchroniser les champs cachés du formulaire
+  document.getElementById('input-nb-personnes').value = nbPersonnes;
+  document.getElementById('input-km').value           = kmLivraison;
+  document.getElementById('input-adresse').value      = adresseLiv;
+}
+
+// AJAX : GESTION DU PANIER
+async function cartAction(data) {
+  const fd = new FormData();
+  for (const [k, v] of Object.entries(data)) {
+    fd.append(k, v);
+  }
+
+  const response = await fetch('menu.php', {
+    method: 'POST',
+    body: fd
+  });
+
+  const result = await response.json();
+  cart = result.cart;
+  renderCart();
+  updateNbPersonnesUI();
+}
+
+// Bouton "+ Ajouter" sur chaque carte
+document.querySelectorAll('.btn-add').forEach(btn => {
+  btn.addEventListener('click', () => {
+    cartAction({action: 'add', menu_id: btn.dataset.id});
+  });
+});
+
+// Bouton "Vider le panier"
+document.getElementById('btn-clear').addEventListener('click', () => {
+  cartAction({action: 'clear', menu_id: 0});
+});
+
+//  GESTION DU NB DE PERSONNES
+const nbInput = document.getElementById('nb-personnes');
+
+// Renvoie le minimum de personnes requis par le panier
+function getCartMin() {
+  return cart
+    .filter(item => item.qty > 0)
+    .reduce((max, item) => {
+      const pmin = parseInt(item.personnes_min) || 1;
+      return Math.max(max, pmin);
+    }, 1);
+}
+
+// Met à jour l’affichage du champ nb_personnes
+function updateNbPersonnesUI() {
+  const min = getCartMin();
+
+  if (nbPersonnes < min) {
+    nbPersonnes = min;
+    nbInput.value = min;
+  }
+
+  nbInput.min = min;
+
+  let hint = document.getElementById('pers-min-hint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.id = 'pers-min-hint';
+    hint.className = 'mt-1 small';
+    nbInput.closest('.mb-3').appendChild(hint);
+  }
+
+  if (min > 1) {
+    hint.innerHTML = `<i class="bi bi-info-circle me-1" style="color:var(--gold);"></i>
+                      Minimum <strong>${min} personnes</strong> requis pour ce menu`;
+    hint.style.color = '#C9973D';
+  } else {
+    hint.innerHTML = '';
+  }
+
+  // Désactiver le bouton "–" si on est au minimum
+  document.getElementById('pers-minus').disabled = (nbPersonnes <= min);
+}
+
+// Bouton -
+document.getElementById('pers-minus').addEventListener('click', () => {
+  const min = getCartMin();
+  nbPersonnes = Math.max(min, nbPersonnes - 1);
+  nbInput.value = nbPersonnes;
+  updateNbPersonnesUI();
+  renderCart();
+});
+
+// Bouton +
+document.getElementById('pers-plus').addEventListener('click', () => {
+  nbPersonnes = Math.min(999, nbPersonnes + 1);
+  nbInput.value = nbPersonnes;
+  updateNbPersonnesUI();
+  renderCart();
+});
+
+// Si l’utilisateur tape un nombre
+nbInput.addEventListener('input', () => {
+  const min = getCartMin();
+  nbPersonnes = Math.max(min, parseInt(nbInput.value) || min);
+  nbInput.value = nbPersonnes;
+  updateNbPersonnesUI();
+  renderCart();
+});
+
+// ADRESSE + GEOCODAGE (nominatim)
+const adresseInput   = document.getElementById('adresse-input');
+const suggestionsEl  = document.getElementById('adresse-suggestions');
+const livResultEl    = document.getElementById('liv-result');
+const spinnerEl      = document.getElementById('spinner-liv');
+let nominatimTimer   = null;
+
+
+// Affiche le résultat de livraison (km + prix)
+function showLivResult(km, label) {
+  const frais = calcFraisLiv(km);
+
+  if (km === 0) {
+    livResultEl.className = 'liv-result bordeaux';
+    livResultEl.innerHTML = `✅ <strong>Bordeaux centre</strong> — Frais de livraison : <strong>${fmt(frais)}</strong>`;
+  } else {
+    livResultEl.className = 'liv-result ok';
+    livResultEl.innerHTML = `📍 <strong>${fmtKm(km)}</strong> de Bordeaux centre — Frais : <strong>${fmt(frais)}</strong>`;
+  }
+
+  livResultEl.style.display = '';
+}
+
+// Cherche des adresses (Nominatim OpenStreetMap)
+async function fetchSuggestions(query) {
+  if (query.length < 4) {
+    suggestionsEl.innerHTML = '';
+    return;
+  }
+
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?
+                  q=${encodeURIComponent(query + ', France')}
+                  &format=json&limit=5&addressdetails=1&countrycodes=fr`;
+
+    const response = await fetch(url, {headers: {'Accept-Language': 'fr'}});
+    const results = await response.json();
+
+    if (!results.length) {
+      suggestionsEl.innerHTML = '<div class="sugg-item text-muted">Aucune adresse trouvée</div>';
+      return;
+    }
+
+    suggestionsEl.innerHTML = results.map((r, i) => {
+      const label = r.display_name.replace(/"/g, '&quot;');
+      const short = r.display_name.split(',').slice(0,3).join(', ');
+
+      return `<div class="sugg-item"
+                    data-idx="${i}"
+                    data-lat="${r.lat}"
+                    data-lng="${r.lon}"
+                    data-label="${label}">
+                📍 ${short}
+              </div>`;
+    }).join('');
+
+    suggestionsEl.querySelectorAll('.sugg-item').forEach(el => {
+      el.addEventListener('click', () => {
+        const lat   = parseFloat(el.dataset.lat);
+        const lng   = parseFloat(el.dataset.lng);
+        const label = el.dataset.label;
+
+        adresseInput.value = el.textContent.trim().replace('📍 ', '');
+        adresseLiv = label;
+        suggestionsEl.innerHTML = '';
+
+        kmLivraison = haversine(BDX_LAT, BDX_LNG, lat, lng);
+        showLivResult(kmLivraison, label);
+        renderCart();
+      });
+    });
+  } catch (e) {
+    suggestionsEl.innerHTML = '<div class="sugg-item text-muted small">Erreur réseau — vérifiez votre connexion</div>';
+  }
+}
+
+// Lorsque l’utilisateur tape dans l’adresse
+adresseInput.addEventListener('input', () => {
+  clearTimeout(nominatimTimer);
+  suggestionsEl.innerHTML = '';
+  livResultEl.style.display = 'none';
+  kmLivraison = 0;
+  adresseLiv = adresseInput.value;
+  renderCart();
+
+  nominatimTimer = setTimeout(() => fetchSuggestions(adresseInput.value), 500);
+});
+
+// Cacher les suggestions si on clique ailleurs
+document.addEventListener('click', e => {
+  if (!adresseInput.contains(e.target) && !suggestionsEl.contains(e.target)) {
+    suggestionsEl.innerHTML = '';
+  }
+});
+
+// INIT AU CHARGEMENT DE LA PAGE
+
+// Prendre l’adresse du profil si déjà remplie
+adresseLiv = adresseInput.value;
+
+// Si une adresse est déjà saisie, on calcule la distance automatiquement
+if (adresseInput.value.trim().length > 4) {
+  (async () => {
+    try {
+      const url = `https://nominatim.openstreetmap.org/search?
+                    q=${encodeURIComponent(adresseInput.value + ', France')}
+                    &format=json&limit=1&countrycodes=fr`;
+
+      const response = await fetch(url, {headers: {'Accept-Language': 'fr'}});
+      const results = await response.json();
+
+      if (results.length) {
+        const lat = parseFloat(results[0].lat);
+        const lng = parseFloat(results[0].lng);
+        kmLivraison = haversine(BDX_LAT, BDX_LNG, lat, lng);
+        adresseLiv = results[0].display_name;
+        showLivResult(kmLivraison, adresseLiv);
+        renderCart();
+      }
+    } catch (e) {}
+  })();
+}
+
+// Afficher le panier et ajuster le nombre de personnes
+renderCart();
+updateNbPersonnesUI();
+</script>
+<!-- Bootstrap DOIT être chargé avant le script du modal -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<!--  Modal détail -->
+<div class="modal fade" id="detailModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:16px;overflow:hidden;">
+            <div class="modal-header border-0 pb-0" style="background:var(--dark);">
+                <div>
+                <p id="m-cat" class="mb-0" style="color:var(--gold);font-size:.72rem;letter-spacing:2px;text-transform:uppercase;"></p>
+                <h4 id="m-nom" class="text-white fw-bold mb-0" style="font-family:'Playfair Display',serif;"></h4>
+                </div>
+                <button type="button" class="btn-close btn-close-white ms-auto" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="row g-0">
+                    <div class="col-md-5" id="m-img-wrap"></div>
+                    <div class="col-md-7 p-4">
+                        <div class="mb-3">
+                            <div id="m-prix"></div>
+                            <div id="m-pers" class="mt-1"></div>
+                        </div>
+                        <p id="m-desc" class="text-muted mb-4" style="line-height:1.75;"></p>
+                        <div class="mb-3">
+                            <p class="fw-bold small mb-1">🥗 Régime alimentaire</p>
+                            <div id="m-regimes"></div>
+                        </div>
+                        <div class="mb-4">
+                            <p class="fw-bold small mb-1">⚠️ Allergènes présents</p>
+                            <div id="m-allergens"></div>
+                        </div>
+                        <div id="m-cta"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Labels allergènes & régimes
+const AL = <?= json_encode([
+  'gluten'         => ['e'=>'🌾','l'=>'Gluten'],
+  'lactose'        => ['e'=>'🥛','l'=>'Lactose'],
+  'oeufs'          => ['e'=>'🥚','l'=>'Oeufs'],
+  'fruits_a_coque' => ['e'=>'🥜','l'=>'Fruits à coque'],
+  'poisson'        => ['e'=>'🐟','l'=>'Poisson'],
+  'crustaces'      => ['e'=>'🦐','l'=>'Crustacés'],
+  'soja'           => ['e'=>'🫘','l'=>'Soja'],
+  'arachides'      => ['e'=>'🥜','l'=>'Arachides'],
+  'celeri'         => ['e'=>'🥬','l'=>'Céleri'],
+  'moutarde'       => ['e'=>'🌿','l'=>'Moutarde'],
+  'sesame'         => ['e'=>'🌱','l'=>'Sésame'],
+  'sulfites'       => ['e'=>'🍷','l'=>'Sulfites'],
+], JSON_UNESCAPED_UNICODE) ?>;
+
+const RG = <?= json_encode([
+  'vegetarien'   => ['e'=>'🥗','l'=>'Végétarien'],
+  'vegan'        => ['e'=>'🌱','l'=>'Vegan'],
+  'sans_gluten'  => ['e'=>'🚫','l'=>'Sans gluten'],
+  'sans_lactose' => ['e'=>'🥛','l'=>'Sans lactose'],
+], JSON_UNESCAPED_UNICODE) ?>;
+
+const detailModal = new bootstrap.Modal(document.getElementById('detailModal'));
+
+document.querySelectorAll('.btn-detail').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const d = btn.dataset;
+
+    document.getElementById('m-cat').textContent  = d.cat;
+    document.getElementById('m-nom').textContent  = d.nom;
+    document.getElementById('m-desc').textContent = d.desc;
+
+    // Prix - par personne si applicable
+    const prixEl = document.getElementById('m-prix');
+    if (d.ppp) {
+      prixEl.innerHTML = `
+        <span style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">${d.ppp} €</span>
+        <span style="font-size:.8rem;color:#888;display:block;">par personne &nbsp;•&nbsp; Total ${d.prix} €</span>`;
+    } else {
+      prixEl.innerHTML = `<span style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">${d.prix} €</span>`;
+    }
+
+    // Badge minimum personnes
+    const pers = parseInt(d.pers) || 1;
+    document.getElementById('m-pers').innerHTML = pers > 1
+      ? `<span style="display:inline-flex;align-items:center;gap:.3rem;background:linear-gradient(90deg,${d.color},${d.color}cc);color:#fff;border-radius:50px;padding:3px 10px;font-size:.75rem;font-weight:700;">👥 À partir de ${pers} personnes</span>`
+      : '';
+
+    // Image
+    const iw = document.getElementById('m-img-wrap');
+    iw.innerHTML = d.img
+      ? `<img src="${d.img}" alt="${d.nom}" style="width:100%;height:100%;min-height:300px;object-fit:cover;border-radius:0;">`
+      : `<div style="height:100%;min-height:300px;background:${d.color};display:flex;align-items:center;justify-content:center;font-size:5rem;border-radius:0;">${d.emoji}</div>`;
+
+    // Régimes
+    const rgs = d.regimes.split(',').map(s => s.trim()).filter(Boolean);
+    document.getElementById('m-regimes').innerHTML = rgs.length
+      ? rgs.map(r => { const x = RG[r]||{e:'',l:r}; return `<span style="display:inline-flex;align-items:center;gap:.2rem;background:#E8F5E9;border:1px solid #A5D6A7;color:#1B5E20;border-radius:6px;padding:3px 9px;font-size:.78rem;font-weight:600;margin:2px;">${x.e} ${x.l}</span>`; }).join('')
+      : '<span class="text-muted small">Aucune mention spécifique</span>';
+
+    // Allergènes
+    const als = d.allergens.split(',').map(s => s.trim()).filter(Boolean);
+    document.getElementById('m-allergens').innerHTML = als.length
+      ? als.map(a => { const x = AL[a]||{e:'⚠️',l:a}; return `<span style="display:inline-flex;align-items:center;gap:.2rem;background:#FFF3E0;border:1px solid #FFCC80;color:#BF360C;border-radius:6px;padding:3px 9px;font-size:.78rem;font-weight:600;margin:2px;">${x.e} ${x.l}</span>`; }).join('')
+      : '<span style="display:inline-flex;align-items:center;gap:.2rem;background:#E8F5E9;border:1px solid #A5D6A7;color:#1B5E20;border-radius:6px;padding:3px 9px;font-size:.78rem;font-weight:600;margin:2px;">✅ Aucun allergène majeur déclaré</span>';
+
+    // CTA - bouton ajouter au panier depuis le modal
+    document.getElementById('m-cta').innerHTML = `
+      <button class="btn w-100 fw-bold text-white"
+              style="background:${d.color};"
+              data-bs-dismiss="modal"
+              onclick="cartAction({action:'add',menu_id:'${btn.dataset.id ?? ''}'})">
+        <i class="bi bi-cart-plus me-2"></i>Ajouter au panier
+      </button>`;
+
+    detailModal.show();
+  });
+});
+</script>
     
 </body>
 </html>

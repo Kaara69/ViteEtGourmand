@@ -1,19 +1,27 @@
 <?php
 session_start();
 
-// Si l'utilisateur est déjà connecté, on le redirige selon son rôle
-if (isset($_SESSION['user_id'])) {
-    if ($_SESSION['role'] === 'client') {
-        header('Location: user/dashboard.php');
-        exit;
-    } elseif ($_SESSION['role'] === 'employee') {
-        header('Location: employee/dashboard.php');
-        exit;
-    } else {
-        header('Location: admin/dashboard.php');
-        exit;
-    }
+// Vérification de connexion + rôle
+$is_logged = isset($_SESSION['user_id']);
+$role      = '';
+if ($is_logged && isset($_SESSION['role'])) {
+    $role = $_SESSION['role'];
 }
+
+// Chargement de la navbar adaptée
+if ($is_logged) {
+    if ($role === 'admin') {
+        include 'include/partials/admin_nav.php';
+    } elseif ($role === 'employee') {
+        include 'include/partials/employee_nav.php';
+    } else {
+        // Par défaut : simple utilisateur connecté
+        include 'include/partials/user_nav.php';
+    }
+} else {
+    include 'include/partials/public_nav.php';
+}
+
 include 'include/db.php';
 
 // Message d'erreur (vide au départ)

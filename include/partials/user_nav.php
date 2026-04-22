@@ -11,22 +11,22 @@ $active = $active_page ?? '';
             <div class="collapse navbar-collapse" id="userNav">
                 <ul class="navbar-nav me-auto">
                     <li class="nav-item">
-                        <a class="nav-link <?= $active==='dashboard'?'active':'' ?>" href="dashboard.php">Mon espace</a>
+                        <a class="nav-link <?= $active==='dashboard'?'active':'' ?>" href="/viteetgourmand/user/dashboard.php">Mon espace</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= $active==='menu'?'active':'' ?>" href="menu.php">Commander</a>
+                        <a class="nav-link <?= $active==='menu'?'active':'' ?>" href="/viteetgourmand/user/menu.php">Commander</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= $active==='orders'?'active':'' ?>" href="orders.php">Mes commandes</a>
+                        <a class="nav-link <?= $active==='orders'?'active':'' ?>" href="/viteetgourmand/user/orders.php">Mes commandes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link <?= $active==='profile'?'active':'' ?>" href="profile.php">Mon profil</a>
+                        <a class="nav-link <?= $active==='profile'?'active':'' ?>" href="/viteetgourmand/user/profile.php">Mon profil</a>
                     </li>
                 </ul>
                 <ul class="navbar-nav">
                     <li class="nav-item"><span class="nav-link small" style="color:#fff;">👤 <?= htmlspecialchars($_SESSION['nom']) ?></span></li>
-                    <li class="nav-item"><a class="nav-link text-warning" href="../index.php">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="../logout.php">Déconnexion</a></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="index.php">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="logout.php">Déconnexion</a></li>
                 </ul>
             </div>
     </div>

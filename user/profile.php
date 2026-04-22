@@ -128,7 +128,7 @@ $mes_avis = $stmt->fetchAll();
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <?php include 'include/partials/user_nav.php'; ?>
+    <?php include '../include/partials/user_nav.php'; ?>
 
     <div class="container py-4" style="max-width:900px">
         <!-- affiche le message de succès -->
