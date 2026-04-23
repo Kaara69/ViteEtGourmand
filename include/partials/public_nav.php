@@ -5,7 +5,7 @@ $_role   = $_SESSION['role'] ?? '';
 ?>
 <nav class="navbar navbar-expand-lg navbar-main sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="<?= strpos($_SERVER['PHP_SELF'],'/user/')!==false||strpos($_SERVER['PHP_SELF'],'/admin/')!==false||strpos($_SERVER['PHP_SELF'],'/employee/')!==false ? '../index.php' : 'index.php' ?>"> Vite &amp; Gourmand></a>
+        <a class="navbar-brand" href="<?= strpos($_SERVER['PHP_SELF'],'/user/')!==false||strpos($_SERVER['PHP_SELF'],'/admin/')!==false||strpos($_SERVER['PHP_SELF'],'/employee/')!==false ? '../index.php' : 'index.php' ?>"> Vite &amp; Gourmand</a>
         <button class="navbar-toggler border-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#pubNav">
             <span class="navbar-toggler-icon"></span>
         </button>

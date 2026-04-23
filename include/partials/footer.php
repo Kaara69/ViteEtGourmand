@@ -46,7 +46,7 @@ if (!isset($horaires) || !isset($today_fr)) {
              <div class="col-md-3">
                 <h5 style="color:var(--gold);font-family:'Playfair Display',serif;font-size:1.3rem;">Vite &amp; Gourmand</h5>
                 <p class="small mt-2" style="color:rgba(255,255,255,.55);line-height:1.7;">
-                Cuisine artisanale d'exception depuis 2008. Nous mettons notre passion au service de vos événements.
+                Cuisine artisanale d'exception depuis 2001. Nous mettons notre passion au service de vos événements.
                 </p>
             </div>
 
@@ -76,7 +76,7 @@ if (!isset($horaires) || !isset($today_fr)) {
                             text-transform:uppercase;">Contact
                 </h6>
                 <ul class="list-unstyled small" style="color:rgba(255,255,255,.6);line-height:2;">
-                    <li>12 rue des Saveurs, 33000 Bordeaux</li>
+                    <li>7 rue des Saveurs, 33000 Bordeaux</li>
                     <li>05 12 34 56 78</li>
                     <li>contact@vitegourmand.fr</li>
                 </ul>
