@@ -179,6 +179,77 @@
     font-family: 'Playfair Display', serif; 
     flex-shrink: 0; 
 }
+/* ── Suivi commandes (user/orders.php) ───────────────────── */
+.step-done { 
+    color: #198754; 
+}
+.step-active { 
+    color: var(--gold); 
+    font-weight: 700; 
+}
+.step-todo { 
+    color: #adb5bd; 
+}
+.progress-track { 
+    display: flex; 
+    gap: 0; 
+    margin: .75rem 0; 
+}
+.step-dot { 
+    flex: 1; 
+    text-align: center; 
+    position: relative; 
+    font-size: .72rem; 
+}
+.step-dot::before { 
+    content: ''; 
+    position: absolute; 
+    top: 12px; 
+    left: -50%; 
+    width: 100%; 
+    height: 2px; 
+    background: #dee2e6; 
+    z-index: 0; 
+}
+.step-dot:first-child::before { 
+    display: none; 
+}
+.step-dot.done::before,
+.step-dot.active::before { 
+    background: var(--gold); 
+}
 
-/* suivi commandes */
+.dot { 
+    width: 26px; 
+    height: 26px; 
+    border-radius: 50%; 
+    margin: 0 auto 4px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: .75rem; 
+    position: relative; 
+    z-index: 1; 
+}
+.dot-done { 
+    background: #198754; 
+    color: #fff; 
+}
+.dot-active { 
+    background: var(--gold); 
+    color: #fff; 
+}
+.dot-todo { 
+    background: #dee2e6; 
+    color: #adb5bd; 
+}
+
+.accordion-button:not(.collapsed) { 
+    background: #fff; 
+    box-shadow: none; 
+}
+.accordion-item { 
+    border-radius: 10px !important; 
+    overflow: hidden; 
+}
 /*  stats admin */

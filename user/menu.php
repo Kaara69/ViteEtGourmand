@@ -9,9 +9,8 @@ $active_page = 'menu';
 
 // Initialisation du panier
 // Si le panier n’existe pas encore, on crée un tableau vide
-if (!isset($_SESSION['cart'])) {
-    $_SESSION['cart'] = [];
-}
+if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
+
 
 // Coordonnées livraison Bordeaux (Bordeaux centre – Place de la Comédie)
 define('BDX_LAT',  44.8412);   // latitude
@@ -333,26 +332,26 @@ $cat_style = [
                                 <p class="text-muted text-center py-3 small mb-0"> Votre panier est vide.</p>
                             </div>
                         
-                                        <!-- Adresse de livraispn -->
+                                  <!-- ── Adresse livraison — toujours visible ── -->
                             <div class="mt-3">
                                 <label class="form-label fw-semibold small">
                                     <i class="bi bi-geo-alt-fill me-1" style="color:var(--gold);"></i>Adresse de livraison
                                 </label>
-                                <div class="liv-input-wrap" style="position:relative;">
-                                    <input type="text" id="adresse-input" class="form-control form-control-sm"
-                                            placeholder="Ex : 5 rue de la Paix, Bordeaux"
-                                            value="<?= htmlspecialchars($adresse_client) ?>"
-                                            autocomplete="off">
-                                    <div id="spinner-liv" class="spinner">
-                                        <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
-                                    </div>
-                                    <div id="adresse-suggestions"></div>
+                            <div class="liv-input-wrap" style="position:relative;">
+                                <input type="text" id="adresse-input" class="form-control form-control-sm"
+                                    placeholder="Ex : 5 rue de la Paix, Bordeaux"
+                                    value="<?= htmlspecialchars($adresse_client) ?>"
+                                    autocomplete="off">
+                                <div id="spinner-liv" class="spinner">
+                                    <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
                                 </div>
-                                <div id="liv-result" class="liv-result" style="display:none;"></div>
-                                    <div class="text-muted" style="font-size:.68rem;margin-top:.25rem;">
-                                        <i class="bi bi-info-circle me-1"></i>5 € fixes + 0,54 €/km depuis Bordeaux centre
-                                    </div>
+                                <div id="adresse-suggestions"></div>
+                            </div>
+                            <div id="liv-result" class="liv-result" style="display:none;"></div>
+                                <div class="text-muted" style="font-size:.68rem;margin-top:.25rem;">
+                                    <i class="bi bi-info-circle me-1"></i>5 € fixes + 0,54 €/km depuis Bordeaux centre
                                 </div>
+                            </div>
 
                                         <!-- form caché jusqu'à ce qu'il y est article dans la cmd -->
                             <div class="d-none" id="order-form">
@@ -433,167 +432,107 @@ $cat_style = [
     </div> <!-- container -->
 
 <script>
+// ── Constantes livraison ───────────────────────────────────
+const BDX_LAT  = <?= BDX_LAT ?>;
+const BDX_LNG  = <?= BDX_LNG ?>;
+const LIV_FIXE = <?= LIV_FIXE ?>;
+const LIV_KM   = <?= LIV_KM ?>;
 
-    // CONSTANTES LIVRAISON
-    // Coordonnées du centre de Bordeaux
-    const BDX_LAT  = <?= BDX_LAT ?>;
-    const BDX_LNG  = <?= BDX_LNG ?>;
+// ── État ──────────────────────────────────────────────────
+let cart        = <?= json_encode(array_values($_SESSION['cart'])) ?>;
+let nbPersonnes = 1;
+let kmLivraison = 0;      // distance calculée en km
+let adresseLiv  = '';     // adresse textuelle
 
-    // Frais de base : 5€ fixe + 0,54 €/km
-    const LIV_FIXE = <?= LIV_FIXE ?>;
-    const LIV_KM   = <?= LIV_KM ?>;
-
-    // ETAT DU PANIER 
-    // Données du panier chargées depuis PHP
-    let cart        = <?= json_encode(array_values($_SESSION['cart'])) ?>;
-    // Nb de personnes pour l'event
-    let nbPersonnes = 1;
-    // Distance en km entre Bordeaux et l'adresse de livraison
-    let kmLivraison = 0
-    // Adresse texte complète (affichage+calcul)
-    let adresseLiv  = '';
-
-    // CALCUL DE DISTANCE (haversine)
-    // Converti deux positions (lat et lng) en km
-    function haversine(lat1, lng1, lat2, lng2) {
-        const R  = 6371; // Rayon de la Terre en km
-        const dL = (lat2 - lat1) * Math.PI / 180;
-        const dl = (lng2 - lng1) * Math.PI / 180;
-        const a  = Math.sin(dL / 2) ** 2 +
-                    Math.cos(lat1 * Math.PI / 180) *
-                    Math.cos(lat2 * Math.PI / 180) *
-                    Math.sin(dl / 2) ** 2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-    
-    // CALCUL DES FRAIS DE LIVRAISON
-    // Renvoie le montant de la livraison
-    function calcFraisLiv(km) {
-        const montant = LIV_FIXE + km * LIV_KM;
-        const centimes = Math.round(montant * 100) / 100;
-        return Math.max(LIV_FIXE, centimes);
-    }
-
-    // formatage des nombre (prix/km)
-    // ex: 12.5 -> 15,50 €
-    function fmt(n) {
-        return n.toFixed(2).replace('.',',') + ' €';
-    }
-
-    // ex: 0.7 -> "<1 km" ; 12.3 -> "12km"
-    function fmtKm(n) {
-        return n < 1 ? '< 1 km' : Math.round(n) + 'km';
-    }
-
-    // CALCUL DES TOTAUX(sous total,remise,livraison...)
-    function calcTotals() {
-        let subtotal = 0;
-        let remise = 0;
-
-
-        // seulement les lignes actives (qty > 0)
-        cart
-        .filter(item => item.qty > 0)
-        .forEach(item => {
-            const line = item.prix * item.qty;
-            subtotal += line;
-
-            // si le menu a un min de pesronnes
-            const pmin = parseInt(item.personnes_min) || 1;
-            if (pmin > 1 && nbPersonnes >= pmin + 5) {
-                // remise de 10%
-                const lineRemise = Math.round(line * 0.10 * 100) / 100;
-                remise += lineRemise;
-            }
-        })
-        const livraison = calcFraisLiv(kmLivraison);
-        const total = subtotal - remise + livraison;
-
-        return {
-            subtotal: subtotal,
-            remise: remise,
-            livraison: livraison,
-            total: total
-  };
+// ── Haversine distance (km) ───────────────────────────────
+function haversine(lat1, lng1, lat2, lng2) {
+  const R  = 6371;
+  const dL = (lat2 - lat1) * Math.PI / 180;
+  const dl = (lng2 - lng1) * Math.PI / 180;
+  const a  = Math.sin(dL/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dl/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
 }
 
-                            // affichage du panier (html + totaux)
-        function renderCart(){
-            const items     = cart.filter(item => item.qty > 0);
-            const count     = items.reduce((sum, item) => sum + item.qty, 0);
-            const totals    = calcTotals();
+function calcFraisLiv(km) {
+  return Math.max(LIV_FIXE, Math.round((LIV_FIXE + km * LIV_KM) * 100) / 100);
+}
 
-            // Maj le badge du panier
-            document.getElementById('cart-count').textContent = count;
+// ── Formatage ─────────────────────────────────────────────
+function fmt(n) { return n.toFixed(2).replace('.', ',') + ' €'; }
+function fmtKm(n){ return n < 1 ? '< 1 km' : Math.round(n) + ' km'; }
 
-            const itemsEl = document.getElementById('cart-items');
-            const orderEl = document.getElementById('order-form');
+// ── Recalcul totaux ───────────────────────────────────────
+function calcTotals() {
+  let subtotal = 0, remise = 0;
+  cart.filter(i => i.qty > 0).forEach(i => {
+    const line = i.prix * i.qty;
+    subtotal += line;
+    const pmin = parseInt(i.personnes_min) || 1;
+    if (pmin > 1 && nbPersonnes >= pmin + 5) remise += Math.round(line * 0.10 * 100) / 100;
+  });
+  const livraison = calcFraisLiv(kmLivraison);
+  return { subtotal, remise, livraison, total: subtotal - remise + livraison };
+}
 
-            // si le panier est vide
-            if (!items.length) {
-            itemsEl.innerHTML = '<p class="text-muted text-center py-3 small mb-0">Votre panier est vide.</p>';
-            orderEl.classList.add('d-none');
-            return;
+// ── Rendu panier ──────────────────────────────────────────
+function renderCart() {
+  const items  = cart.filter(i => i.qty > 0);
+  const count  = items.reduce((s,i) => s + i.qty, 0);
+  const totals = calcTotals();
+  document.getElementById('cart-count').textContent = count;
+
+  const itemsEl = document.getElementById('cart-items');
+  const orderEl = document.getElementById('order-form');
+  if (!items.length) {
+    itemsEl.innerHTML = '<p class="text-muted text-center py-3 small mb-0">Votre panier est vide.</p>';
+    orderEl.classList.add('d-none'); return;
   }
+  orderEl.classList.remove('d-none');
 
-    // Sinon on affiche le formulaire
-    orderEl.classList.remove('d-none');
-
-  // Si une distance est déjà calculée, on réaffiche le résultat
+  // Si un km est déjà calculé (adresse pré-remplie), réafficher le résultat
   if (kmLivraison > 0 && livResultEl.style.display === 'none') {
     showLivResult(kmLivraison, adresseLiv);
   }
 
   let html = '';
-  items.forEach(item => {
-    const pmin        = parseInt(item.personnes_min) || 1;
-    const hasDisc     = pmin > 1 && nbPersonnes >= pmin + 5;
-    const lineTotal   = item.prix * item.qty;
-    const lineRemise  = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
-
+  items.forEach(i => {
+    const pmin       = parseInt(i.personnes_min) || 1;
+    const hasDisc    = pmin > 1 && nbPersonnes >= pmin + 5;
+    const lineTotal  = i.prix * i.qty;
+    const lineRemise = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
     html += `
-      <div class="cart-item">
-        <div class="d-flex justify-content-between align-items-start gap-2">
-          <div class="flex-grow-1">
-            <div class="small fw-semibold">
-              ${item.nom}
-              ${hasDisc ? '<span class="discount-badge ms-1">-10%</span>' : ''}
-            </div>
-            <div class="text-muted" style="font-size:.72rem;">${fmt(item.prix)}/u</div>
-          </div>
-          <div class="d-flex align-items-center gap-1 flex-shrink-0">
-            <button class="btn btn-sm btn-outline-secondary py-0 px-1"
-                    onclick="cartAction({action:'update', menu_id:${item.id}, qty:${item.qty - 1}})">−</button>
-            <span class="px-1 fw-semibold small">${item.qty}</span>
-            <button class="btn btn-sm btn-outline-secondary py-0 px-1"
-                    onclick="cartAction({action:'update', menu_id:${item.id}, qty:${item.qty + 1}})">+</button>
-            <button class="btn btn-sm btn-outline-danger py-0 px-1"
-                    onclick="cartAction({action:'remove', menu_id:${item.id}})">✕</button>
-          </div>
+    <div class="cart-item">
+      <div class="d-flex justify-content-between align-items-start gap-2">
+        <div class="flex-grow-1">
+          <div class="small fw-semibold">${i.nom}${hasDisc ? '<span class="discount-badge ms-1">-10%</span>' : ''}</div>
+          <div class="text-muted" style="font-size:.72rem;">${fmt(i.prix)}/u</div>
         </div>
-        <div class="text-end small fw-bold mt-1" style="color:var(--gold);">
-          ${lineRemise > 0
-            ? `<span class="text-muted text-decoration-line-through me-1">${fmt(lineTotal)}</span>${fmt(lineTotal - lineRemise)}`
-            : fmt(lineTotal)}
+        <div class="d-flex align-items-center gap-1 flex-shrink-0">
+          <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="cartAction({action:'update',menu_id:${i.id},qty:${i.qty-1}})">−</button>
+          <span class="px-1 fw-semibold small">${i.qty}</span>
+          <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="cartAction({action:'update',menu_id:${i.id},qty:${i.qty+1}})">+</button>
+          <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="cartAction({action:'remove',menu_id:${i.id}})">✕</button>
         </div>
-      </div>`;
+      </div>
+      <div class="text-end small fw-bold mt-1" style="color:var(--gold);">
+        ${lineRemise > 0
+          ? `<span class="text-muted text-decoration-line-through me-1">${fmt(lineTotal)}</span>${fmt(lineTotal - lineRemise)}`
+          : fmt(lineTotal)}
+      </div>
+    </div>`;
   });
-
   itemsEl.innerHTML = html;
 
-  // Mise à jour du récapitulatif
+  // Récapitulatif
   document.getElementById('sum-subtotal').textContent  = fmt(totals.subtotal);
   document.getElementById('sum-livraison').textContent = fmt(totals.livraison);
   document.getElementById('sum-total').textContent     = fmt(totals.total);
 
-  // Ajouter les km entre parenthèses
   const kmLabel = document.getElementById('sum-km-label');
   kmLabel.textContent = kmLivraison > 0 ? `(${fmtKm(kmLivraison)})` : '';
 
-  // Gérer l’affichage de la remise et du message
-  const remRow   = document.getElementById('sum-remise-row');
+  const remRow = document.getElementById('sum-remise-row');
   const discInfo = document.getElementById('discount-info');
-
   if (totals.remise > 0) {
     document.getElementById('sum-remise').textContent = '- ' + fmt(totals.remise);
     remRow.classList.remove('d-none');
@@ -603,66 +542,45 @@ $cat_style = [
     discInfo.classList.add('d-none');
   }
 
-  // Synchroniser les champs cachés du formulaire
+  // Sync inputs cachés
   document.getElementById('input-nb-personnes').value = nbPersonnes;
   document.getElementById('input-km').value           = kmLivraison;
   document.getElementById('input-adresse').value      = adresseLiv;
 }
 
-// AJAX : GESTION DU PANIER
+// AJAX panie
 async function cartAction(data) {
   const fd = new FormData();
-  for (const [k, v] of Object.entries(data)) {
-    fd.append(k, v);
-  }
-
-  const response = await fetch('menu.php', {
-    method: 'POST',
-    body: fd
-  });
-
-  const result = await response.json();
-  cart = result.cart;
+  for (const [k,v] of Object.entries(data)) fd.append(k, v);
+  const d = await (await fetch('menu.php', {method:'POST', body:fd})).json();
+  cart = d.cart;
   renderCart();
   updateNbPersonnesUI();
 }
-
-// Bouton "+ Ajouter" sur chaque carte
 document.querySelectorAll('.btn-add').forEach(btn => {
-  btn.addEventListener('click', () => {
-    cartAction({action: 'add', menu_id: btn.dataset.id});
-  });
+  btn.addEventListener('click', () => cartAction({action:'add', menu_id:btn.dataset.id}));
 });
+document.getElementById('btn-clear').addEventListener('click', () => cartAction({action:'clear', menu_id:0}));
 
-// Bouton "Vider le panier"
-document.getElementById('btn-clear').addEventListener('click', () => {
-  cartAction({action: 'clear', menu_id: 0});
-});
-
-//  GESTION DU NB DE PERSONNES
+// ── Nombre de personnes
 const nbInput = document.getElementById('nb-personnes');
 
-// Renvoie le minimum de personnes requis par le panier
+// Calcule le minimum requis par les menus dans le panier
 function getCartMin() {
-  return cart
-    .filter(item => item.qty > 0)
-    .reduce((max, item) => {
-      const pmin = parseInt(item.personnes_min) || 1;
-      return Math.max(max, pmin);
-    }, 1);
+  return cart.filter(i => i.qty > 0)
+    .reduce((max, i) => Math.max(max, parseInt(i.personnes_min) || 1), 1);
 }
 
-// Met à jour l’affichage du champ nb_personnes
 function updateNbPersonnesUI() {
   const min = getCartMin();
-
+  // Forcer nbPersonnes au minimum si en dessous
   if (nbPersonnes < min) {
     nbPersonnes = min;
     nbInput.value = min;
   }
-
   nbInput.min = min;
 
+  // Afficher/masquer le message de minimum requis
   let hint = document.getElementById('pers-min-hint');
   if (!hint) {
     hint = document.createElement('div');
@@ -670,20 +588,17 @@ function updateNbPersonnesUI() {
     hint.className = 'mt-1 small';
     nbInput.closest('.mb-3').appendChild(hint);
   }
-
   if (min > 1) {
-    hint.innerHTML = `<i class="bi bi-info-circle me-1" style="color:var(--gold);"></i>
-                      Minimum <strong>${min} personnes</strong> requis pour ce menu`;
+    hint.innerHTML = `<i class="bi bi-info-circle me-1" style="color:var(--gold);"></i>Minimum <strong>${min} personnes</strong> requis pour ce menu`;
     hint.style.color = '#C9973D';
   } else {
     hint.innerHTML = '';
   }
 
-  // Désactiver le bouton "–" si on est au minimum
+  // Griser le bouton − si on est au minimum
   document.getElementById('pers-minus').disabled = (nbPersonnes <= min);
 }
 
-// Bouton -
 document.getElementById('pers-minus').addEventListener('click', () => {
   const min = getCartMin();
   nbPersonnes = Math.max(min, nbPersonnes - 1);
@@ -691,16 +606,12 @@ document.getElementById('pers-minus').addEventListener('click', () => {
   updateNbPersonnesUI();
   renderCart();
 });
-
-// Bouton +
 document.getElementById('pers-plus').addEventListener('click', () => {
   nbPersonnes = Math.min(999, nbPersonnes + 1);
   nbInput.value = nbPersonnes;
   updateNbPersonnesUI();
   renderCart();
 });
-
-// Si l’utilisateur tape un nombre
 nbInput.addEventListener('input', () => {
   const min = getCartMin();
   nbPersonnes = Math.max(min, parseInt(nbInput.value) || min);
@@ -709,18 +620,16 @@ nbInput.addEventListener('input', () => {
   renderCart();
 });
 
-// ADRESSE + GEOCODAGE (nominatim)
+// ── Nominatim autocomplete + géocodage ────────────────────
 const adresseInput   = document.getElementById('adresse-input');
 const suggestionsEl  = document.getElementById('adresse-suggestions');
 const livResultEl    = document.getElementById('liv-result');
 const spinnerEl      = document.getElementById('spinner-liv');
 let nominatimTimer   = null;
+let isGeocoding      = false;
 
-
-// Affiche le résultat de livraison (km + prix)
 function showLivResult(km, label) {
   const frais = calcFraisLiv(km);
-
   if (km === 0) {
     livResultEl.className = 'liv-result bordeaux';
     livResultEl.innerHTML = `✅ <strong>Bordeaux centre</strong> — Frais de livraison : <strong>${fmt(frais)}</strong>`;
@@ -728,111 +637,77 @@ function showLivResult(km, label) {
     livResultEl.className = 'liv-result ok';
     livResultEl.innerHTML = `📍 <strong>${fmtKm(km)}</strong> de Bordeaux centre — Frais : <strong>${fmt(frais)}</strong>`;
   }
-
   livResultEl.style.display = '';
 }
 
-// Cherche des adresses (Nominatim OpenStreetMap)
 async function fetchSuggestions(query) {
-  if (query.length < 4) {
-    suggestionsEl.innerHTML = '';
-    return;
-  }
-
+  if (query.length < 4) { suggestionsEl.innerHTML = ''; return; }
   try {
-    const url = `https://nominatim.openstreetmap.org/search?
-                  q=${encodeURIComponent(query + ', France')}
-                  &format=json&limit=5&addressdetails=1&countrycodes=fr`;
+    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query + ', France')}&format=json&limit=5&addressdetails=1&countrycodes=fr`;
+    const results = await (await fetch(url, {headers:{'Accept-Language':'fr'}})).json();
 
-    const response = await fetch(url, {headers: {'Accept-Language': 'fr'}});
-    const results = await response.json();
-
-    if (!results.length) {
-      suggestionsEl.innerHTML = '<div class="sugg-item text-muted">Aucune adresse trouvée</div>';
-      return;
-    }
-
-    suggestionsEl.innerHTML = results.map((r, i) => {
-      const label = r.display_name.replace(/"/g, '&quot;');
-      const short = r.display_name.split(',').slice(0,3).join(', ');
-
-      return `<div class="sugg-item"
-                    data-idx="${i}"
-                    data-lat="${r.lat}"
-                    data-lng="${r.lon}"
-                    data-label="${label}">
-                📍 ${short}
-              </div>`;
-    }).join('');
+    if (!results.length) { suggestionsEl.innerHTML = '<div class="sugg-item text-muted">Aucune adresse trouvée</div>'; return; }
+    suggestionsEl.innerHTML = results.map((r,i) =>
+      `<div class="sugg-item" data-idx="${i}" data-lat="${r.lat}" data-lng="${r.lon}" data-label="${r.display_name.replace(/"/g,'&quot;')}">
+         📍 ${r.display_name.split(',').slice(0,3).join(', ')}
+       </div>`
+    ).join('');
 
     suggestionsEl.querySelectorAll('.sugg-item').forEach(el => {
       el.addEventListener('click', () => {
-        const lat   = parseFloat(el.dataset.lat);
-        const lng   = parseFloat(el.dataset.lng);
+        const lat = parseFloat(el.dataset.lat);
+        const lng = parseFloat(el.dataset.lng);
         const label = el.dataset.label;
-
-        adresseInput.value = el.textContent.trim().replace('📍 ', '');
+        adresseInput.value = el.textContent.trim().replace('📍 ','');
         adresseLiv = label;
         suggestionsEl.innerHTML = '';
-
         kmLivraison = haversine(BDX_LAT, BDX_LNG, lat, lng);
         showLivResult(kmLivraison, label);
         renderCart();
       });
     });
-  } catch (e) {
+  } catch(e) {
     suggestionsEl.innerHTML = '<div class="sugg-item text-muted small">Erreur réseau — vérifiez votre connexion</div>';
   }
 }
 
-// Lorsque l’utilisateur tape dans l’adresse
 adresseInput.addEventListener('input', () => {
   clearTimeout(nominatimTimer);
   suggestionsEl.innerHTML = '';
   livResultEl.style.display = 'none';
-  kmLivraison = 0;
-  adresseLiv = adresseInput.value;
+  kmLivraison = 0; adresseLiv = adresseInput.value;
   renderCart();
-
   nominatimTimer = setTimeout(() => fetchSuggestions(adresseInput.value), 500);
 });
 
-// Cacher les suggestions si on clique ailleurs
+// Cacher suggestions si clic ailleurs
 document.addEventListener('click', e => {
   if (!adresseInput.contains(e.target) && !suggestionsEl.contains(e.target)) {
     suggestionsEl.innerHTML = '';
   }
 });
 
-// INIT AU CHARGEMENT DE LA PAGE
-
-// Prendre l’adresse du profil si déjà remplie
+// ── Init ──────────────────────────────────────────────────
 adresseLiv = adresseInput.value;
 
-// Si une adresse est déjà saisie, on calcule la distance automatiquement
+// Si une adresse est pré-remplie (depuis le profil), géocoder automatiquement
 if (adresseInput.value.trim().length > 4) {
   (async () => {
     try {
-      const url = `https://nominatim.openstreetmap.org/search?
-                    q=${encodeURIComponent(adresseInput.value + ', France')}
-                    &format=json&limit=1&countrycodes=fr`;
-
-      const response = await fetch(url, {headers: {'Accept-Language': 'fr'}});
-      const results = await response.json();
-
+      const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(adresseInput.value + ', France')}&format=json&limit=1&countrycodes=fr`;
+      const results = await (await fetch(url, {headers:{'Accept-Language':'fr'}})).json();
       if (results.length) {
         const lat = parseFloat(results[0].lat);
-        const lng = parseFloat(results[0].lng);
+        const lng = parseFloat(results[0].lon);
         kmLivraison = haversine(BDX_LAT, BDX_LNG, lat, lng);
-        adresseLiv = results[0].display_name;
+        adresseLiv  = results[0].display_name;
         showLivResult(kmLivraison, adresseLiv);
         renderCart();
       }
-    } catch (e) {}
+    } catch(e) {}
   })();
 }
 
-// Afficher le panier et ajuster le nombre de personnes
 renderCart();
 updateNbPersonnesUI();
 </script>
