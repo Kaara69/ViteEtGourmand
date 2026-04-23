@@ -1,0 +1,184 @@
+/* Panier user/menu.php*/
+
+.cart-panel {
+    position: sticky;
+    top: 72px;
+}
+
+.menu-card {
+    border: 2px solid transparent;
+    border-radius: 12px;
+    transition: .2s;
+    background: #fff;
+    overflow: hidden;
+}
+
+.menu-img {
+    height: 150px;
+    object-fit: cover;
+    width: 100%;
+}
+
+.menu-img-ph {
+    height: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.prix-tag {
+    font-family: 'Playfair Display', serif;
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+.pers-tag {
+    font-size: .7rem;
+    border-radius: 50px;
+    padding: 2px 8px;
+    font-weight: 600;
+}
+.cat-header {
+    font-size: .75rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: .5rem 1rem;
+    border-radius: 8px;
+    color: #fff;
+    margin-bottom: 1rem;
+
+}
+.cart-item {
+    border-bottom: 1px solid #f0ebe3;
+    padding: .6rem 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: .3rem 0;
+    font-size: .9rem;
+}
+
+.summary-row.discount {
+    color: #198754;
+    font-weight: 600;
+}
+.summary-row.livraison {
+    color: #1565c0;
+}
+.summary-row.total {
+    font-weight: 700;
+    font-size: 1.1rem;
+    border-top: 2px solid var(--gold);
+    margin-top: .4rem;
+    padding-top: .6rem;
+}
+.discount-badge {
+    font-size: .65rem;
+    background: #d4edda;
+    color: #155724;
+    border-radius: 50px;
+    padding: 1px 7px;
+    margin-left: 4px;
+}
+
+/* livraison */
+.liv-input-wrap { 
+    position: relative; 
+}
+.liv-input-wrap .spinner { 
+    position: absolute; 
+    right: 10px; 
+    top: 50%; 
+    transform: translateY(-50%); 
+    display: none; 
+}
+.liv-result { 
+    font-size: .8rem; 
+    border-radius: 8px; 
+    padding: .5rem .75rem; 
+    margin-top: .4rem; 
+}
+.liv-result.ok { 
+    background: #E3F2FD; 
+    color: #1565C0; 
+    border: 1px solid #90CAF9; 
+}
+.liv-result.bordeaux { 
+    background: #E8F5E9; 
+    color: #1B5E20; 
+    border: 1px solid #A5D6A7; 
+}
+.liv-result.error { 
+    background: #FFF3E0; 
+    color: #E65100; 
+    border: 1px solid #FFCC80; 
+}
+#adresse-suggestions { 
+    position: absolute; 
+    z-index: 200; 
+    background: #fff; 
+    border: 1px solid #ddd; 
+    border-top: none; 
+    border-radius: 0 0 8px 8px; 
+    width: 100%; 
+    max-height: 200px; 
+    overflow-y: auto; 
+    box-shadow: 0 4px 12px rgba(0,0,0,.1); 
+}
+#adresse-suggestions .sugg-item { 
+    padding: .5rem .75rem; 
+    cursor: pointer; 
+    font-size: .85rem; 
+    border-bottom: 1px solid #f0f0f0; 
+}
+#adresse-suggestions .sugg-item:hover { 
+    background: #FFF9F0; 
+}
+
+/* profil client */
+.section-header { 
+    background: var(--dark); 
+    color: #fff; 
+    padding: .75rem 1.25rem; 
+    border-radius: 10px 10px 0 0; 
+    font-weight: 700; }
+.section-header i { 
+    color: var(--gold); 
+}
+.card-section { 
+    border: none; 
+    border-radius: 10px; 
+    box-shadow: 0 2px 14px rgba(0,0,0,.07); 
+    overflow: hidden; }
+.star-label { 
+    cursor: pointer; 
+    font-size: 1.8rem; 
+    color: #dee2e6; 
+    transition: .15s; 
+}
+.star-label:hover,
+.star-label.active { 
+    color: var(--gold); 
+}
+.avatar { 
+    width: 72px; 
+    height: 72px; 
+    border-radius: 50%; 
+    background: linear-gradient(135deg, var(--dark), #3D2A18); 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    font-size: 1.8rem; 
+    color: var(--gold); 
+    font-weight: 700; 
+    font-family: 'Playfair Display', serif; 
+    flex-shrink: 0; 
+}
+
+/* suivi commandes */
+/*  stats admin */

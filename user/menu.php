@@ -246,8 +246,7 @@ $cat_style = [
                     <div class="col-md-6">
                         <div class="menu-card shadow-sm h-100">
                             <?php if (!empty($m['image_url'])): ?>
-                                <img src="<?= htmlspecialchars($m['image_url']) ?>"class="menu-img"alt="<?= htmlspecialchars($m['nom']) ?>"
-                                loading="lazy">
+                                <img src="/viteetgourmand/<?= htmlspecialchars($m['image_url']) ?>" class="menu-img" alt="<?= htmlspecialchars($m['nom'])  ?>"loading="lazy">
                             <?php else: ?>
                             <div class="menu-img-ph" style="background:<?= $cs[1] ?>;"><?= $cs[0] ?></div>
                             <?php endif; ?>
@@ -319,7 +318,7 @@ $cat_style = [
 
 
              <!-- PANIER -->
-            <div class="col-lg-5">
+            <div class="col-lg-4">
                 <div class="cart-panel">
                     <div class="card border-0 shadow">
                                         <!-- En tête panier -->
@@ -337,22 +336,23 @@ $cat_style = [
                                         <!-- Adresse de livraispn -->
                             <div class="mt-3">
                                 <label class="form-label fw-semibold small">
-                                    <i class="bi bi-geo-alt-fill me-1" style="color:var(--gold);"></i>
-                                    Adresse de livraison
+                                    <i class="bi bi-geo-alt-fill me-1" style="color:var(--gold);"></i>Adresse de livraison
                                 </label>
                                 <div class="liv-input-wrap" style="position:relative;">
-                                    <input type="text" id="adresse-input" class="form-control form-control-sm" 
-                                    placeholder="Ex: 6 rue de la Paix, Bordeaux" value="<?=htmlspecialchars($adresse_client) ?>" autocomplête="off">
+                                    <input type="text" id="adresse-input" class="form-control form-control-sm"
+                                            placeholder="Ex : 5 rue de la Paix, Bordeaux"
+                                            value="<?= htmlspecialchars($adresse_client) ?>"
+                                            autocomplete="off">
                                     <div id="spinner-liv" class="spinner">
                                         <div class="spinner-border spinner-border-sm text-secondary" role="status"></div>
                                     </div>
-                                    <div id="adresse-suggestion"></div>
+                                    <div id="adresse-suggestions"></div>
                                 </div>
-                                <div id="liv-result" class="liv-result" style="display:none"></div>
-                                <div class="text-muted" style="font-size:.68rem;margin-top:.25rem;">
-                                    <i class="bi bi-info-circle me-1"> 5 € fixes + 0,54 €/km depuis Bordeaux centre</i>
+                                <div id="liv-result" class="liv-result" style="display:none;"></div>
+                                    <div class="text-muted" style="font-size:.68rem;margin-top:.25rem;">
+                                        <i class="bi bi-info-circle me-1"></i>5 € fixes + 0,54 €/km depuis Bordeaux centre
+                                    </div>
                                 </div>
-                            </div>
 
                                         <!-- form caché jusqu'à ce qu'il y est article dans la cmd -->
                             <div class="d-none" id="order-form">
