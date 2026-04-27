@@ -4,6 +4,7 @@ session_start();
 
 // Inclure la connexion à la base de données
 include 'include/db.php';
+include 'include/partials/public_nav.php';
 
 // Message d'erreur, vide au départ
 $error = '';
@@ -73,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="css/public.css">
 </head>
 <body>
-    <div class="container">
+    <div class="container py-5">
         <div class="row justify-content-center">
             <div class="col-md-5">
                 <div class="text-center mb-4">

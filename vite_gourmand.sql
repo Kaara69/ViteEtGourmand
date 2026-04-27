@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3307
--- Généré le : dim. 12 avr. 2026 à 16:55
+-- Généré le : sam. 25 avr. 2026 à 21:30
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -70,6 +70,15 @@ CREATE TABLE `commandes` (
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Déchargement des données de la table `commandes`
+--
+
+INSERT INTO `commandes` (`id`, `user_id`, `total`, `statut`, `notes`, `nb_personnes`, `adresse_livraison`, `km_livraison`, `frais_livraison`, `remise`, `date_evenement`, `created_at`) VALUES
+(1, 3, 485.00, 'annulé', '', 1, '8 cours du Chapeau Rouge, 33000 Bordeaux', 0.00, 5.00, 0.00, '2026-04-23', '2026-04-22 18:15:28'),
+(2, 3, 190.00, 'annulé', '', 1, '8 cours du Chapeau Rouge, 33000 Bordeaux', 0.00, 5.00, 0.00, '2026-04-30', '2026-04-22 18:19:28'),
+(3, 3, 225.00, 'annulé', '', 1, '8 cours du Chapeau Rouge, 33000 Bordeaux', 0.00, 5.00, 0.00, '2026-04-30', '2026-04-22 18:20:34');
+
 -- --------------------------------------------------------
 
 --
@@ -84,6 +93,15 @@ CREATE TABLE `commande_items` (
   `quantite` int(11) NOT NULL DEFAULT 1,
   `prix_unitaire` decimal(10,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Déchargement des données de la table `commande_items`
+--
+
+INSERT INTO `commande_items` (`id`, `commande_id`, `menu_id`, `nom_menu`, `quantite`, `prix_unitaire`) VALUES
+(1, 1, 7, 'Cocktail Dinatoire Mariage', 1, 480.00),
+(2, 2, 4, 'Noël Végétal', 1, 185.00),
+(3, 3, 5, 'Agneau de Pâques', 1, 220.00);
 
 -- --------------------------------------------------------
 
@@ -162,6 +180,14 @@ CREATE TABLE `nosql_documents` (
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Stockage orienté document (NoSQL-like)';
 
+--
+-- Déchargement des données de la table `nosql_documents`
+--
+
+INSERT INTO `nosql_documents` (`id`, `collection`, `doc_id`, `data`, `created_at`, `updated_at`) VALUES
+(1, 'stats_menu', '982413a946eb43aa71ba77a64a938fa6', '{\"menu_id\":5,\"nom_menu\":\"Agneau de Pâques\",\"nb_commandes\":1,\"chiffre_affaires\":220,\"prix_moyen\":220,\"premiere_commande\":\"2026-04-22 18:20:34\",\"derniere_commande\":\"2026-04-22 18:20:34\",\"_created_at\":\"2026-04-22 18:20:34\",\"_id\":\"982413a946eb43aa71ba77a64a938fa6\"}', '2026-04-22 18:20:34', '2026-04-22 18:20:34'),
+(2, 'stats_daily', '93e4591b88f2435531630bea306c8403', '{\"menu_id\":5,\"nom_menu\":\"Agneau de Pâques\",\"jour\":\"2026-04-22\",\"nb_commandes\":1,\"chiffre_affaires\":220,\"_created_at\":\"2026-04-22 18:20:34\",\"_id\":\"93e4591b88f2435531630bea306c8403\"}', '2026-04-22 18:20:34', '2026-04-22 18:20:34');
+
 -- --------------------------------------------------------
 
 --
@@ -170,12 +196,12 @@ CREATE TABLE `nosql_documents` (
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
-  `nom` varchar(100) NOT NULL,
-  `email` varchar(150) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `nom` varchar(25) NOT NULL,
+  `email` varchar(25) NOT NULL,
+  `password` varchar(100) NOT NULL,
   `role` enum('admin','employee','client') NOT NULL DEFAULT 'client',
-  `prenom` varchar(100) DEFAULT '',
-  `telephone` varchar(30) DEFAULT '',
+  `prenom` varchar(25) DEFAULT NULL,
+  `telephone` varchar(15) DEFAULT NULL,
   `adresse` text DEFAULT '',
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
@@ -188,7 +214,7 @@ INSERT INTO `users` (`id`, `nom`, `email`, `password`, `role`, `prenom`, `teleph
 (1, 'Silva', 'admin@vitegourmand.fr', '$2y$10$MrpUI3MO.b0ZLFml3G9EWuoHpX/AD1x3OFhRcXQA3TdC8sFklrWiC', 'admin', 'Julie', '', '7 rue des Saveurs, 33000 Bordeaux', '2026-03-14 10:02:54'),
 (2, 'Lopez', 'employe@vitegourmand.fr', '$2y$10$OYpqZ4InkPQFlVBAcgC8Zek3cAZPV4P3bc80UqDqelStBQAkbJuiq', 'employee', 'Gabrielle', '', '4 allée des Pins, 33300 Bordeaux', '2026-03-14 10:13:22'),
 (3, 'Lefebvre', 'marie@client.fr', '$2y$10$toQjDgyVkwCJS7PVRafD5.mt53eA2OwIpNcnQ9WrcqBrDIt6uVhBe', 'client', 'Marie', '', '8 cours du Chapeau Rouge, 33000 Bordeaux', '2026-03-14 10:21:25'),
-(4, 'Martin', 'pierre@client.fr', '$2y$10$F8Rldf0Q1BUCtugi9wQ22ePj43FLFmfO1A3/1DoiT6hGcPEi7REMy', 'client', 'Pierre', '', '15 rue de la Paix, 33160 Saint-Médard-en-Jalles', '2026-03-14 10:29:59');
+(4, 'Martin', 'pierre@client.fr', '$2y$10$F8Rldf0Q1BUCtugi9wQ22ePj43FLFmfO1A3/1DoiT6hGcPEi7REMy', 'client', 'Pierre', '', '13 rue des Poilus, 33600 Pessac', '2026-03-14 10:29:59');
 
 --
 -- Index pour les tables déchargées
@@ -254,43 +280,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `avis`
 --
 ALTER TABLE `avis`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT pour la table `commandes`
 --
 ALTER TABLE `commandes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `commande_items`
 --
 ALTER TABLE `commande_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT pour la table `horaires`
 --
 ALTER TABLE `horaires`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT pour la table `menus`
 --
 ALTER TABLE `menus`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT pour la table `nosql_documents`
 --
 ALTER TABLE `nosql_documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- Contraintes pour les tables déchargées

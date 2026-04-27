@@ -121,7 +121,7 @@ $total_cmd = $stmt->fetchColumn(); // renvoie un nombre entier
                 <div class="card border-0 shadow-sm">
                     <div class="card-header bg-white fw-bold d-flex justify-content-between">
                         <span>📦 Mes dernières commandes</span>
-                        <a href="order.php" class="btn btn-sm btn-outline-primary">Toutes mes commandes</a>
+                        <a href="orders.php" class="btn btn-sm btn-outline-primary">Toutes mes commandes</a>
                     </div>
                     <div class="card-body p-0">
                         <table class="table table-hover mb-0 align-middle">

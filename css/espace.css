@@ -179,7 +179,7 @@
     font-family: 'Playfair Display', serif; 
     flex-shrink: 0; 
 }
-/* ── Suivi commandes (user/orders.php) ───────────────────── */
+/*  Suivi commandes (user/orders.php) */
 .step-done { 
     color: #198754; 
 }

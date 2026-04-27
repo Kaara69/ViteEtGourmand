@@ -292,7 +292,7 @@ $cat_style = [
                                             data-ppp="<?= $ppp ? number_format($ppp, 2, ',', ' ') : '' ?>"
                                             data-pers="<?= $pers ?>"
                                             data-cat="<?= htmlspecialchars($cat, ENT_QUOTES) ?>"
-                                            data-img="<?= htmlspecialchars($m['image_url'] ?? '', ENT_QUOTES) ?>"
+                                            data-img="<?= htmlspecialchars('/viteetgourmand/' . ($m['image_url'] ?? ''), ENT_QUOTES) ?>"
                                             data-allergens="<?= htmlspecialchars($m['allergenes'] ?? '', ENT_QUOTES) ?>"
                                             data-regimes="<?= htmlspecialchars($m['regime'] ?? '', ENT_QUOTES) ?>"
                                             data-color="<?= $cs[1] ?>"
@@ -364,7 +364,7 @@ $cat_style = [
                                     <div class="input-group input-group-sm">
                                         <button class="btn btn-outline-secondary" id="pers-minus" type="button">−</button>
                                         <input type="number" id="nb-personnes" class="form-control text-center fw-bold" value="1" min="1" max="999">
-                                        <button class="btn btn-outline-secondary" id="pers-plus" type="button">−</button>
+                                        <button class="btn btn-outline-secondary" id="pers-plus" type="button">+</button>
                                     </div>
                                     <div id="discount-info" class="mt-1 small text-success d-none">
                                         <i class="bi bi-tag-fill me-1"></i>Remise de 10% appliquée sur certains menus !
@@ -548,7 +548,7 @@ function renderCart() {
   document.getElementById('input-adresse').value      = adresseLiv;
 }
 
-// AJAX panie
+// AJAX panier
 async function cartAction(data) {
   const fd = new FormData();
   for (const [k,v] of Object.entries(data)) fd.append(k, v);
@@ -620,7 +620,7 @@ nbInput.addEventListener('input', () => {
   renderCart();
 });
 
-// ── Nominatim autocomplete + géocodage ────────────────────
+//  Nominatim autocomplete + géocodage 
 const adresseInput   = document.getElementById('adresse-input');
 const suggestionsEl  = document.getElementById('adresse-suggestions');
 const livResultEl    = document.getElementById('liv-result');
@@ -687,7 +687,7 @@ document.addEventListener('click', e => {
   }
 });
 
-// ── Init ──────────────────────────────────────────────────
+// Init 
 adresseLiv = adresseInput.value;
 
 // Si une adresse est pré-remplie (depuis le profil), géocoder automatiquement
