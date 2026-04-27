@@ -57,9 +57,9 @@ $pending_cmd  = $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en att
                         👤 <?= htmlspecialchars($_SESSION['nom']) ?>
                     </span>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="../index.php">← Site public</a></li>
+                        <li><a class="dropdown-item" href="/viteetgourmand/index.php">← Site public</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="../logout.php">Déconnexion</a></li>
+                        <li><a class="dropdown-item text-danger" href="/viteetgourmand/logout.php">Déconnexion</a></li>
                     </ul>
                 </li>
             </ul>
