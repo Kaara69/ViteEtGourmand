@@ -527,7 +527,7 @@ let filtres = {
 // FONCTION PRINCIPALE : appliquer les filtres
 // Parcours toutes les cartes et les affiche/masque selon filtres
 
-function appliquerFiltres() {
+function applyFilter() {
     let nbVisibles = 0;
 
     document.querySelectorAll('.menu-item-wrap').forEach(carte => {
@@ -628,7 +628,7 @@ document.querySelectorAll('#panel-cat input[type="radio"]').forEach(radio => {
         document.getElementById('label-cat').textContent = (radio.value === 'all') ? 'Catégorie' : texteOption;
         document.getElementById('btn-cat').classList.toggle('has-selection', radio.value !== 'all');
 
-        appliquerFiltres();
+        applyFilter();
     });
 });
 
@@ -657,7 +657,7 @@ document.querySelectorAll('#panel-regime input[type="checkbox"]').forEach(checkb
         document.getElementById('label-regime').textContent = nb ? `Régime (${nb})` : 'Régime';
         document.getElementById('btn-regime').classList.toggle('has-selection', nb > 0);
 
-        appliquerFiltres();
+        applyFilter();
     });
 });
 
@@ -681,7 +681,7 @@ document.querySelectorAll('#panel-allergen input[type="checkbox"]').forEach(chec
         document.getElementById('label-allergen').textContent = nb ? `Allergènes (${nb})` : 'Allergènes';
         document.getElementById('btn-allergen').classList.toggle('has-selection', nb > 0);
 
-        appliquerFiltres();
+        applyFilter();
     });
 });
 
@@ -701,7 +701,7 @@ if (slider) {
         document.getElementById('label-pers').textContent = (valeur === 1) ? '👥 Personnes' : `👥 ${valeur}+ pers.`;
         document.getElementById('btn-pers').classList.toggle('has-selection', valeur > 1);
 
-        appliquerFiltres();
+        applyFilter();
     });
 }
 
@@ -748,7 +748,7 @@ function reinitialiserFiltres() {
     if (labelPers) labelPers.textContent = '👥 Personnes';
     if (btnPers)   btnPers.classList.remove('has-selection');
 
-    appliquerFiltres();
+    applyFilter();
 }
 
 document.getElementById('btn-reset').addEventListener('click', reinitialiserFiltres);
@@ -835,6 +835,6 @@ document.querySelectorAll('.btn-detail').forEach(btn => {
     });
 });
 
-appliquerFiltres();
+applyFilter();
 </script>
 </body>

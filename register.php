@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 5. Si tout est OK, on tente d’enregistrer l’utilisateur
     else {
         try {
-            // Hacher le mot de passe
+            // Hasher le mot de passe
             $hash = password_hash($pass, PASSWORD_DEFAULT);
 
             // Insérer le nouvel utilisateur

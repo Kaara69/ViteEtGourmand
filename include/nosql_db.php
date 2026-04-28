@@ -119,18 +119,16 @@ class NoSQLStore
         return $results;
     }
 
-    /**
-     * Récupère le premier document qui correspond au filtre
-     */
+    /* Récupère le premier document qui correspond au filtre */
+
     public function findOne(string $col, array $filter = []): ?array
     {
         $results = $this->find($col, $filter);
         return $results[0] ?? null;
     }
 
-    /**
-     * Insère un nouveau document
-     */
+    /* Insère un nouveau document */
+
     public function insertOne(string $col, array $doc): array
     {
         $id  = $this->newId();
@@ -154,9 +152,7 @@ class NoSQLStore
         return $doc;
     }
 
-    /**
-     * Met à jour le premier document trouvé
-     */
+    /* Met à jour le premier document trouvé */
     public function updateOne(string $col, array $filter, array $update): bool
     {
         $docs = $this->fetchAll($col);
@@ -194,9 +190,8 @@ class NoSQLStore
         return false;
     }
 
-    /**
-     * Insert si n’existe pas, sinon met à jour
-     */
+    /* Insert si n’existe pas, sinon met à jour */
+    
     public function upsertOne(string $col, array $filter, array $doc): array
     {
         $existing = $this->findOne($col, $filter);
