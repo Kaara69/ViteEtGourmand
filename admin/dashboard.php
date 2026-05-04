@@ -1,7 +1,7 @@
 <?php
 session_start();
 include '../include/auth.php';
-checkAdminOrEmployee();
+checkAdmin();
 include '../include/db.php';
 include_once '../include/nosql_db.php';
 $active_page = 'dashboard';
