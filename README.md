@@ -10,7 +10,10 @@
 2. [Structure des fichiers](#2-structure-des-fichiers)
 3. [Architecture bi-base](#3-architecture-bi-base)
 4. [Schéma de base de données](#4-schéma-de-base-de-données)
-
+5. [Fonctionnalités](#5-fonctionnalités)
+6. [Prérequis](#6-prérequis)
+7. [Installation locale (XAMPP)](#7-installation-locale-xampp)
+8. [Déploiement](#8-déploiement)
 
 
 ## 1. Présentation
@@ -115,3 +118,30 @@ Chaque document est une ligne avec `collection` (nom logique), `doc_id` (identif
 et `data` (colonne JSON native MySQL 5.7+).
 
 ---
+
+## 5. Fonctionnalités
+
+### Calcul de livraison kilométrique
+- Géocodage via **Nominatim (OpenStreetMap)** - sans clé API
+- Autocomplète avec debounce 500ms
+- Distance calculé par **formule de Haversine** depuis Bordeaux centre
+- Tarif : **5€ fixe + 0.54 €/km** affiché en temps réel dans le panier
+
+### Remise fidélité 10%
+- S'active si `nb_personnes >/= personnes_min +5`
+- Pirx barré + badge `-10%` dans le panier
+- Recalcul côté serveur à la validation
+
+### Minimum de personnes
+- Panier vérrouilé au `personnes_min` le plus élevé des menus sélectionnés
+- Bouton `-` grisé avec message explicatif
+
+### Suivi en temps réel
+- Polling JSON 
+- Barre de progression : En attente -> En préparation -> Prêt -> Livré
+
+### Statistiques bi-base
+- KPIs depuis les tables relationnelles MySQL
+- Graphique d'évolution depuis la table `nosql_documents`
+- Resynchronisation manuelle (Admin -> Statistique -> Resync)
+Synchronisation automatique après chaque nouvelle commande
