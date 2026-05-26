@@ -11,18 +11,18 @@ if ($is_logged && isset($_SESSION['role'])) {
 // Chargement de la navbar adaptée
 if ($is_logged) {
     if ($role === 'admin') {
-        include 'include/partials/admin_nav.php';
+        include 'includes/partials/admin_nav.php';
     } elseif ($role === 'employee') {
-        include 'include/partials/employee_nav.php';
+        include 'includes/partials/employee_nav.php';
     } else {
         // Par défaut : simple utilisateur connecté
-        include 'include/partials/user_nav.php';
+        include 'includes/partials/user_nav.php';
     }
 } else {
-    include 'include/partials/public_nav.php';
+    include 'includes/partials/public_nav.php';
 }
 
-include 'include/db.php';
+include 'includes/db.php';
 
 // Message d'erreur (vide au départ)
 $error = '';
@@ -101,6 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div> <!-- w-100 -->
         </div> <!-- col-->
     </div> <!-- row-->
-    <?php include 'include/partials/footer.php'; ?>
+    <?php include 'includes/partials/footer.php'; ?>
 </body>
 </html>

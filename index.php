@@ -19,8 +19,8 @@
 // Démarre la session PHP (pour accéder à $_SESSION) session_start();
 
 // Connexions et includes
-include 'include/db.php';
-include 'include/auth.php';
+include 'includes/db.php';
+include 'includes/auth.php';
 
 
 // Vérification de connexion + rôle
@@ -33,15 +33,15 @@ if ($is_logged && isset($_SESSION['role'])) {
 // Chargement de la navbar adaptée
 if ($is_logged) {
     if ($role === 'admin') {
-        include 'include/partials/admin_nav.php';
+        include 'includes/partials/admin_nav.php';
     } elseif ($role === 'employee') {
-        include 'include/partials/employee_nav.php';
+        include 'includes/partials/employee_nav.php';
     } else {
         // Par défaut : simple utilisateur connecté
-        include 'include/partials/user_nav.php';
+        include 'includes/partials/user_nav.php';
     }
 } else {
-    include 'include/partials/public_nav.php';
+    include 'includes/partials/public_nav.php';
 }
 
 // Jour de la semaine en français

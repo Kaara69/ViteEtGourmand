@@ -1,9 +1,9 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdminOrEmployee();
 if ($_SESSION['role']==='admin') { header('Location: ../admin/dashboard.php'); exit; }
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page='dashboard';
 $stats=[
     'total' => $pdo->query("SELECT COUNT(*) FROM commandes")->fetchColumn(),
@@ -26,7 +26,7 @@ $avis_att=$pdo->query("SELECT * FROM avis WHERE statut='en attente' ORDER BY cre
     <link rel="stylesheet" href="../css/espace.css">
 </head>
 <body class="bg-light">
-    <?php include '../include/partials/employee_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>
     <div class="contrainer-fluid py-4">
         <h4 class="mb-4 fw-bold">Bonjour, <?= htmlspecialchars($_SESSION['nom']) ?></h4>
         <div class="row g-3 mb-4">

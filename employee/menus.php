@@ -1,10 +1,10 @@
 <?php 
 session_start();
 
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdminOrEmployee();
 if ($_SESSION['role']==='admin') {header('Location: ../admin/menus.php'); exit;}
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 
 $active_page = 'menus';
 
@@ -58,7 +58,7 @@ foreach ($menus as $m) $by_cat[$m['categorie']][] = $m;
     <link rel="stylesheet" href="../css/espace.css">
     </head>
 <body class="bg-light">
-    <?php include '../include/partials/employee_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold mb-0">Gestion des menus</h4>

@@ -1,7 +1,7 @@
 <?php
 session_start();
 
-include 'include/db.php';
+include 'includes/db.php';
 
 
 $active_page = 'menus';
@@ -16,15 +16,15 @@ if ($is_logged && isset($_SESSION['role'])) {
 // Chargement de la navbar adaptée
 if ($is_logged) {
     if ($role === 'admin') {
-        include 'include/partials/admin_nav.php';
+        include 'includes/partials/admin_nav.php';
     } elseif ($role === 'employee') {
-        include 'include/partials/employee_nav.php';
+        include 'includes/partials/employee_nav.php';
     } else {
         // Par défaut : simple utilisateur connecté
-        include 'include/partials/user_nav.php';
+        include 'includes/partials/user_nav.php';
     }
 } else {
-    include 'include/partials/public_nav.php';
+    include 'includes/partials/public_nav.php';
 }
 
 
@@ -485,7 +485,7 @@ $categories = array_keys($menus_par_categorie);
         </div> <!-- modal-dialog -->
     </div> <!--modal fade-->
 
-<?php include 'include/partials/footer.php'; ?>
+<?php include 'includes/partials/footer.php'; ?>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

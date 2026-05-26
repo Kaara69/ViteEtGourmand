@@ -1,9 +1,9 @@
 <?php
 session_start();
-include '../includes/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdminOrEmployee();
 if ($_SESSION['role']==='admin') { header('Location: ../admin/reviews.php'); exit; }
-include '../includes/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = 'reviews';
 
 // Actions rapides
@@ -50,7 +50,7 @@ $avis = $stmt->fetchAll();
     <link rel="stylesheet" href="../css/espace.css">
 </head>
 <body class="bg-light">
-    <?php include '../include/partials/employee_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>
     <div class="container-fluid py-4">
         <h4 class="fw-bold mb-3">Modération des avis clients</h4>
         <?php if (isset($_GET['ok'])): ?>

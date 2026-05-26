@@ -1,8 +1,8 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkLogin('../login.php');
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 
 $active_page = 'orders';
 
@@ -63,7 +63,7 @@ function renderTrack($statut, $id) {
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-<?php include '../include/partials/user_nav.php'; ?>
+<?php include __DIR__ . '/../includes/partials/user_nav.php'; ?>
 
     <div class="container py-4">
         <?php if (!empty($cancel_msg)): ?>

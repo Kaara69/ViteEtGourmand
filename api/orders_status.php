@@ -2,8 +2,8 @@
 session_start();
 if (!isset($_SESSION['user_id'])) { http_response_code(401); echo '[]'; exit; }
 
-include '../include/db.php';
-include '../include/auth.php';
+include '../includes/db.php';
+include '../includes/auth.php';
 
 header('Content-Type: application/json');
 

@@ -1,10 +1,10 @@
 <?php
 session_start();
 
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkLogin('../login.php');
 
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = 'menu'; 
 
 // Initialisation du panier
@@ -156,7 +156,7 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     $_SESSION['cart'] = [];
 
     // Synchroniser les stats (NoSQL)
-    include_once '../include/nosql_db.php';
+    include_once __DIR__ . '/../includes/nosql_db.php';
     $statsSync = new StatsSync($pdo, new NoSQLStore());
     $statsSync->syncOrder($cid);
 
@@ -207,7 +207,7 @@ $cat_style = [
 </head>
 <body>
 
-<?php include '../include/partials/user_nav.php'; ?>
+<?php include __DIR__ . '/../includes/partials/user_nav.php'; ?>
 
     <div class="container-fluid py-4 px-3 px-lg-4">
         <!-- affichage du message de confirmation de cmd -->

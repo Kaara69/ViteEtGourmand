@@ -2,10 +2,10 @@
 session_start();
 
 // Inclure le fichier d'authentification (vérifie si utilisateur connecté)
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkLogin('../login.php'); // si pas connecté, redirige vers la page de login
 
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 
 $active_page = 'dashboard';
 
@@ -57,7 +57,7 @@ $total_cmd = $stmt->fetchColumn(); // renvoie un nombre entier
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <?php include '../include/partials/user_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/user_nav.php'; ?>
     <div class="container mt-4">
         <div class="row g-4">
             <div class="col-12">

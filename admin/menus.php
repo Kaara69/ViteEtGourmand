@@ -1,8 +1,8 @@
 <?php 
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkadminOrEmployee();
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = 'menus';
 
 // Suppresion menu (GET ?delete=ID)
@@ -111,7 +111,7 @@ foreach ($menus as $m) {
 </head>
 <body class="bg-light">
 
-    <?php include '../include/partials/admin_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
     <div class="container-fluid py-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h4 class="fw-bold mb-0">Gestion des menus</h4>

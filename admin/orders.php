@@ -1,8 +1,8 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdminOrEmployee();
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = 'orders';
 
 // AJAX statut
@@ -49,7 +49,7 @@ if (isset($_GET['id'])) {
     <link rel="stylesheet" href="../css/espace.css">
 </head>
 <body class="bg-light">
-    <?php include '../include/partials/admin_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
     <div class="container-fluid py-4">
         <h4 class="fw-bold mb-3">Gestion des commandes</h4>
         <?php if (isset($_GET['ok'])): ?><div class="alert alert-success">Commande supprimée.</div><?php endif; ?>

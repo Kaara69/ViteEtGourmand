@@ -1,9 +1,9 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdmin();
-include '../include/db.php';
-include_once '../include/nosql_db.php';
+include __DIR__ . '/../includes/db.php';
+include_once __DIR__ . '/../includes/nosql_db.php';
 $active_page = 'dashboard';
 
 $stats = [
@@ -33,7 +33,7 @@ $top3 = array_slice($top_menus, 0, 3);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body class="bg-light">
-    <?php include '../include/partials/admin_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
     <div class="container-fluid py-4">
         <h4 class="mb-4 fw-bold">Tableau de bord &nbsp; <small class="text-muted fs-6 fw-normal">Bonjour, <?= htmlspecialchars($_SESSION['nom']) ?></small></h4>
 

@@ -1,6 +1,6 @@
 <?php   
 session_start();
-include 'include/db.php';
+include 'includes/db.php';
 
 $active_page = 'contact';
 
@@ -43,7 +43,7 @@ foreach($horaires_rows as $h) {
     <link rel="stylesheet" href="css/public.css">
 </head>
 <body>
-    <?php include 'include/partials/public_nav.php'; ?>
+    <?php include 'includes/partials/public_nav.php'; ?>
 
     <div class="page-hero">
         <div class="container">
@@ -129,7 +129,7 @@ foreach($horaires_rows as $h) {
             </div>
         </div> <!-- row -->
     </div> <!-- container -->
-    <?php include 'include/partials/footer.php'; ?>
+    <?php include 'includes/partials/footer.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

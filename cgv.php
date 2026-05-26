@@ -1,6 +1,6 @@
 <?php
-require_once 'include/db.php';
-require_once 'include/auth.php';
+require_once 'includes/db.php';
+require_once 'includes/auth.php';
 $active_page = '';
 ?>
 
@@ -16,7 +16,7 @@ $active_page = '';
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <?php include 'include/partials/public_nav.php'; ?>
+    <?php include 'includes/partials/public_nav.php'; ?>
 
     <section style="background:var(--dark);padding:4rem 0 2.5rem;">
         <div class="container">
@@ -138,7 +138,7 @@ $active_page = '';
                 </p>
         </div>
     </main>
-    <?php include 'include/partials/footer.php'; ?>
+    <?php include 'includes/partials/footer.php'; ?>
 
 <style>
 .cgv-h2 {

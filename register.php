@@ -3,8 +3,8 @@
 session_start();
 
 // Inclure la connexion à la base de données
-include 'include/db.php';
-include 'include/partials/public_nav.php';
+include 'includes/db.php';
+include 'includes/partials/public_nav.php';
 
 // Message d'erreur, vide au départ
 $error = '';
@@ -111,6 +111,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div> <!-- col -->
         </div> <!-- row -->
     </div> <!-- container -->
-<?php include 'include/partials/footer.php';?>
+<?php include 'includes/partials/footer.php';?>
 </body>
 </html>

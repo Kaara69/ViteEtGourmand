@@ -1,9 +1,9 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdminOrEmployee();
 if ($_SESSION['role']==='admin') { header('Location: ../admin/schedules.php'); exit; }
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = 'schedules';
 
 $msg = '';
@@ -32,7 +32,7 @@ foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $h
     <link rel="stylesheet" href="../css/espace.css">
 </head>
 <body class="bg-light">
-    <?php include '../includes/partials/employee_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>
     <div class="container py-4">
         <h4 class="fw-bold mb-4">Gestion des horaires d'ouverture</h4>
         <?php if ($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>

@@ -1,8 +1,8 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdmin();
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = 'reviews';
 
 if (isset($_GET['approve'])) {
@@ -49,7 +49,7 @@ $avis = $stmt->fetchAll();
     <link rel="stylesheet" href="../css/espace.css">
 </head>
 <body class="bg-light">
-    <?php include '../include/partials/admin_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
     <div class="container-fluid py-4">
         <h4 class="fw-bold mb-3">Modération des avis clients</h4>
 

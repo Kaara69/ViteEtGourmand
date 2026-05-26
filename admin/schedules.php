@@ -1,8 +1,8 @@
 <?php
 session_start();
-include '../include/auth.php';
+include __DIR__ . '/../includes/auth.php';
 checkAdmin();
-include '../include/db.php';
+include __DIR__ . '/../includes/db.php';
 $active_page = "schedules";
 
 $msg = '';
@@ -30,7 +30,7 @@ foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $h
     <link rel="stylesheet" href="../css/espace.css">
 </head>
 <body class="bg-light">
-    <?php include '../include/partials/admin_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
 
     <div class="container">
         <h4 class="fw-bold mb-4">Gestion des horaires d'ouverture</h4>
