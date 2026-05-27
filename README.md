@@ -144,4 +144,9 @@ et `data` (colonne JSON native MySQL 5.7+).
 - KPIs depuis les tables relationnelles MySQL
 - Graphique d'évolution depuis la table `nosql_documents`
 - Resynchronisation manuelle (Admin -> Statistique -> Resync)
-Synchronisation automatique après chaque nouvelle commande
+- Synchronisation automatique après chaque nouvelle commande
+
+---
+
+
+
