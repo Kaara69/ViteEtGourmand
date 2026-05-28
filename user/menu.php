@@ -1,6 +1,6 @@
 <?php
 session_start();
-
+include __DIR__ . '/../config.php';
 include __DIR__ . '/../includes/auth.php';
 checkLogin('../login.php');
 
@@ -17,6 +17,8 @@ define('BDX_LAT',  44.8412);   // latitude
 define('BDX_LNG', -0.5712);   // longitude
 define('LIV_FIXE', 5.00);     // frais de base (5 €)
 define('LIV_KM',   0.54);     // € par km
+
+
 
 
 // AJAX panier (ajouter, modifier, supprimer, vider)
@@ -152,13 +154,156 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
         $stmt->execute([$cid, $item['id'], $item['nom'], $item['qty'], $item['prix']]);
     }
 
-    // Vider le panier après la commande
-    $_SESSION['cart'] = [];
 
-    // Synchroniser les stats (NoSQL)
+// Synchroniser les stats (NoSQL)
     include_once __DIR__ . '/../includes/nosql_db.php';
     $statsSync = new StatsSync($pdo, new NoSQLStore());
     $statsSync->syncOrder($cid);
+
+    // ── Envoi email de confirmation ──────────────────────
+    include_once __DIR__ . '/../includes/mailer.php';
+
+    // Récupère l'email du client
+    $stmt_user = $pdo->prepare("SELECT email, prenom FROM users WHERE id = ?");
+    $stmt_user->execute([$_SESSION['user_id']]);
+    $client = $stmt_user->fetch();
+
+    // Construit le récap des menus commandés
+    $lignes_email = '';
+    foreach ($_SESSION['cart'] as $item) {
+        // Note : le panier est déjà vidé ici, donc on utilise les données avant le clear
+    }
+
+    // Récupère les items depuis la BDD (panier déjà vidé en session)
+    $stmt_items = $pdo->prepare("
+        SELECT nom_menu, quantite, prix_unitaire
+        FROM commande_items
+        WHERE commande_id = ?
+    ");
+    $stmt_items->execute([$cid]);
+    $items_email = $stmt_items->fetchAll();
+
+    foreach ($items_email as $item) {
+        $ligne_total = number_format($item['quantite'] * $item['prix_unitaire'], 2, ',', ' ');
+        $lignes_email .= "
+        <tr>
+            <td style='padding:8px;border-bottom:1px solid #f0ebe3;'>{$item['nom_menu']}</td>
+            <td style='padding:8px;border-bottom:1px solid #f0ebe3;text-align:center;'>{$item['quantite']}</td>
+            <td style='padding:8px;border-bottom:1px solid #f0ebe3;text-align:right;'>{$ligne_total} €</td>
+        </tr>";
+    }
+
+    $date_affiche = $date_ev
+        ? date('d/m/Y', strtotime($date_ev))
+        : 'Non précisée';
+
+    $contenu_email = "
+    <div style='font-family:Nunito,sans-serif;max-width:600px;margin:0 auto;background:#FAF7F2;'>
+
+        <!-- En-tête -->
+        <div style='background:#1C1510;padding:2rem;text-align:center;'>
+            <h1 style='color:#C9973D;font-family:Georgia,serif;margin:0;font-size:1.8rem;'>
+                🍽️ Vite &amp; Gourmand
+            </h1>
+            <p style='color:rgba(255,255,255,.6);margin:.5rem 0 0;font-size:.9rem;'>
+                Confirmation de commande
+            </p>
+        </div>
+
+        <!-- Corps -->
+        <div style='padding:2rem;'>
+            <p style='font-size:1.1rem;'>
+                Bonjour <strong>{$client['prenom']}</strong>,
+            </p>
+            <p style='color:#555;line-height:1.7;'>
+                Votre commande <strong>#$cid</strong> a bien été enregistrée.
+                Notre équipe va l'examiner et vous confirmera sa prise en charge très prochainement.
+            </p>
+
+            <!-- Récap commande -->
+            <div style='background:#fff;border-radius:8px;padding:1.5rem;margin:1.5rem 0;border:1px solid rgba(201,151,61,.2);'>
+                <h3 style='color:#1C1510;font-family:Georgia,serif;margin:0 0 1rem;font-size:1.1rem;'>
+                    Récapitulatif
+                </h3>
+                <table style='width:100%;border-collapse:collapse;'>
+                    <thead>
+                        <tr style='background:#1C1510;color:#C9973D;'>
+                            <th style='padding:8px;text-align:left;font-size:.85rem;'>Menu</th>
+                            <th style='padding:8px;text-align:center;font-size:.85rem;'>Qté</th>
+                            <th style='padding:8px;text-align:right;font-size:.85rem;'>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        $lignes_email
+                    </tbody>
+                </table>
+
+                <!-- Totaux -->
+                <div style='margin-top:1rem;padding-top:1rem;border-top:2px solid rgba(201,151,61,.3);'>
+                    <div style='display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.9rem;color:#555;'>
+                        <span>Sous-total</span>
+                        <span>" . number_format($subtotal, 2, ',', ' ') . " €</span>
+                    </div>
+                    " . ($remise > 0 ? "
+                    <div style='display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.9rem;color:#2E7D32;'>
+                        <span>🏷️ Remise</span>
+                        <span>- " . number_format($remise, 2, ',', ' ') . " €</span>
+                    </div>" : "") . "
+                    <div style='display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.9rem;color:#555;'>
+                        <span>🚚 Livraison</span>
+                        <span>" . number_format($frais_liv, 2, ',', ' ') . " €</span>
+                    </div>
+                    <div style='display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:#C9973D;margin-top:.5rem;'>
+                        <span>Total TTC</span>
+                        <span>" . number_format($total, 2, ',', ' ') . " €</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Infos événement -->
+            <div style='background:#fff;border-radius:8px;padding:1.5rem;border:1px solid rgba(201,151,61,.2);'>
+                <h3 style='color:#1C1510;font-family:Georgia,serif;margin:0 0 1rem;font-size:1.1rem;'>
+                    Informations de livraison
+                </h3>
+                <p style='margin:.3rem 0;font-size:.9rem;color:#555;'>
+                    📅 <strong>Date :</strong> $date_affiche
+                </p>
+                <p style='margin:.3rem 0;font-size:.9rem;color:#555;'>
+                    📍 <strong>Adresse :</strong> $adresse_liv
+                </p>
+                " . ($notes ? "<p style='margin:.3rem 0;font-size:.9rem;color:#555;'>📝 <strong>Notes :</strong> $notes</p>" : "") . "
+            </div>
+
+            <p style='margin-top:1.5rem;color:#555;font-size:.9rem;line-height:1.7;'>
+                Vous pouvez suivre l'avancement de votre commande depuis votre espace client.
+            </p>
+
+            <div style='text-align:center;margin-top:1.5rem;'>
+                <a href='http://localhost/ViteEtGourmand/user/orders.php'
+                   style='background:#C9973D;color:#1C1510;padding:.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:700;'>
+                    Suivre ma commande →
+                </a>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div style='background:#1C1510;padding:1.5rem;text-align:center;'>
+            <p style='color:rgba(255,255,255,.4);font-size:.8rem;margin:0;'>
+                © " . date('Y') . " Vite &amp; Gourmand — 12 rue des Saveurs, 33000 Bordeaux
+            </p>
+        </div>
+
+    </div>";
+
+// Debug temporaire — à supprimer après
+error_log("=== Tentative envoi email à : " . $client['email']);
+
+$result = envoyerEmail($client['email'], "Confirmation de votre commande #$cid — Vite & Gourmand", $contenu_email);
+
+error_log("=== Résultat envoi : " . ($result ? 'OK' : 'ECHEC'));
+
+    envoyerEmail($client['email'], "Confirmation de votre commande #$cid — Vite & Gourmand", $contenu_email);
+    // ── Fin envoi email ──────────────────────────────────
 
     $order_ok = true;
     $order_id = $cid;

@@ -148,5 +148,10 @@ et `data` (colonne JSON native MySQL 5.7+).
 
 ---
 
+## 6. Prérequis
+- **xampp** 8.1+ - https://apachefriends.org
+    - Apage + MySQL inclus
+    - PHP 8.1 avec PDO_MySQL (actif par défaut dans xampp)
 
-
+<!-- installation composer phpmailer -->
+<!-- config mail trap -->

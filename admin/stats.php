@@ -154,7 +154,7 @@ $pie_colors = generateColors(count($top_labels));
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
 </head>
 <body>
-    <?php include __DIR__ . '/includes/partials/admin_nav.php'; ?>
+    <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
 
     <div class="container-fluid py-4 px-4">
         <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
@@ -190,7 +190,7 @@ $pie_colors = generateColors(count($top_labels));
                         <label class="form-label fw-semibold small">Période rapide</label>
                         <div class="btn-group btn-group-sm flew-wrap" role="group">
                             <?php
-                            $periodes = ['7j'=>'7 jours','30j'=>'30 jours','3m'=>'3 mois','annee'=>'Cette année','tout'=>'Tout'];
+                            $periode = ['7j'=>'7 jours','30j'=>'30 jours','3m'=>'3 mois','annee'=>'Cette année','tout'=>'Tout'];
                             foreach ($periode as $val => $label):
                             ?>
                             <a href="?periode=<?= $val ?>&menu_id=<?= $menu_filter ?>"
