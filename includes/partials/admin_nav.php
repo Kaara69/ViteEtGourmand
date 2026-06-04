@@ -10,7 +10,7 @@ $pending_cmd  = $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en att
 
 <nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background:#1C1510">
     <div class="container-fluid">
-        <a href="admin/dashboard.php" class="navbar-brand fw-bold">Administration</a>
+        <a href="<?= BASE_URL ?>admin/dashboard.php" class="navbar-brand fw-bold">Administration</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#adminNav">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -50,19 +50,11 @@ $pending_cmd  = $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en att
                 </li>
                 <?php endif; ?>
             </ul>
-            
             <ul class="navbar-nav">
-                <li class="nav-item dropdown">
-                    <span class="nav-link small dropdown-toggle" data-bs-toggle="dropdown">
-                        👤 <?= htmlspecialchars($_SESSION['nom']) ?>
-                    </span>
-                    <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="<?= BASE_URL ?>index.php">← Site public</a></li>
-                        <li><hr class="dropdown-divider"></li>
-                        <li><a class="dropdown-item text-danger" href="<?= BASE_URL ?>logout.php">>Déconnexion</a></li>
-                    </ul>
-                </li>
-            </ul>
+                    <li class="nav-item" ><span class="nav-link small" style="color:#fff;">👤 <a class="text-warning text-decoration-none" href="<?=BASE_URL ?>admin/dashboard.php"><?= htmlspecialchars($_SESSION['nom']) ?></a></span></li>
+                    <li class="nav-item"><a class="nav-link text-warning" href="<?= BASE_URL ?>index.php">Accueil</a></li>
+                    <li class="nav-item"><a class="nav-link text-danger" href="<?= BASE_URL ?>logout.php">Déconnexion</a></li>
+                </ul>
         </div> <!-- collapse -->
     </div> <!-- container -->
 </nav>

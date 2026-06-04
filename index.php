@@ -223,7 +223,7 @@ if ($stmt_horaires) {
                     </div>
                     <div class="col-6">
                         <div style="border-left:3px solid var(--gold);padding-left:1rem;">
-                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">2</div>
+                        <div style="font-family:'Playfair Display',serif;font-size:2rem;color:var(--gold);font-weight:700;">3</div>
                         <div style="color:rgba(255,255,255,.6);font-size:.9rem;">chefs cuisiniers</div>
                         </div>
                     </div>
@@ -258,7 +258,7 @@ if ($stmt_horaires) {
                         <div style="width:48px;height:48px;border-radius:12px;background:rgba(201,151,61,.15);display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;">🏆</div>
                             <div>
                                 <h6 class="fw-bold text-white mb-1">Reconnus et primés</h6>
-                                <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Lauréat du prix "Meilleur Traiteur Île-de-France" en 2019 et 2022. Notre engagement pour la qualité est reconnu par nos pairs et nos clients.</p>
+                                <p style="color:rgba(255,255,255,.6);font-size:.9rem;margin:0;">Meilleur ouvrier de France en 2019 et 2022. Notre engagement pour la qualité est reconnu par nos pairs et nos clients.</p>
                             </div>
                         </div>
                     </div>

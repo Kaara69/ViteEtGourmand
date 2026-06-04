@@ -84,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h4 class="fw-bold mb-1">Créer un compte</h4>
                     <p class="text-muted small-mb-4">Inscrivez-vous pour commander en ligne et suivre vos commandes.</p>
                     <?php if($error):?>
-                        <div class="alert alert-danger"> <?htmlspecialchars($error) ?></div>
+                        <div class="alert alert-danger"> <?=htmlspecialchars($error) ?></div>
                     <?php endif; ?>
                     <form method="post">
                         <div class="mb-3">
@@ -112,5 +112,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </div> <!-- row -->
     </div> <!-- container -->
 <?php include 'includes/partials/footer.php';?>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

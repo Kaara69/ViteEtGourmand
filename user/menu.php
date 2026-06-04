@@ -160,7 +160,7 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     $statsSync = new StatsSync($pdo, new NoSQLStore());
     $statsSync->syncOrder($cid);
 
-    // ── Envoi email de confirmation ──────────────────────
+    // ── Envoi email de confirmation 
     include_once __DIR__ . '/../includes/mailer.php';
 
     // Récupère l'email du client
@@ -294,22 +294,7 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
         </div>
 
     </div>";
-
-// Debug temporaire — à supprimer après
-error_log("=== Tentative envoi email à : " . $client['email']);
-
-$result = envoyerEmail($client['email'], "Confirmation de votre commande #$cid — Vite & Gourmand", $contenu_email);
-
-error_log("=== Résultat envoi : " . ($result ? 'OK' : 'ECHEC'));
-
-    envoyerEmail($client['email'], "Confirmation de votre commande #$cid — Vite & Gourmand", $contenu_email);
-    // ── Fin envoi email ──────────────────────────────────
-
-    $order_ok = true;
-    $order_id = $cid;
 }
-
-
 // Chargement des menus et regroupement par cat.
 $menus = $pdo->query("
     SELECT *
@@ -577,19 +562,19 @@ $cat_style = [
     </div> <!-- container -->
 
 <script>
-// ── Constantes livraison ───────────────────────────────────
+// ── Constantes livraison
 const BDX_LAT  = <?= BDX_LAT ?>;
 const BDX_LNG  = <?= BDX_LNG ?>;
 const LIV_FIXE = <?= LIV_FIXE ?>;
 const LIV_KM   = <?= LIV_KM ?>;
 
-// ── État ──────────────────────────────────────────────────
+// ── État
 let cart        = <?= json_encode(array_values($_SESSION['cart'])) ?>;
 let nbPersonnes = 1;
 let kmLivraison = 0;      // distance calculée en km
 let adresseLiv  = '';     // adresse textuelle
 
-// ── Haversine distance (km) ───────────────────────────────
+// ── Haversine distance (km)
 function haversine(lat1, lng1, lat2, lng2) {
   const R  = 6371;
   const dL = (lat2 - lat1) * Math.PI / 180;
@@ -602,24 +587,38 @@ function calcFraisLiv(km) {
   return Math.max(LIV_FIXE, Math.round((LIV_FIXE + km * LIV_KM) * 100) / 100);
 }
 
-// ── Formatage ─────────────────────────────────────────────
+// ── Formatage 
 function fmt(n) { return n.toFixed(2).replace('.', ',') + ' €'; }
 function fmtKm(n){ return n < 1 ? '< 1 km' : Math.round(n) + ' km'; }
 
-// ── Recalcul totaux ───────────────────────────────────────
+// ── Recalcul totaux (debug prix/personnes)
+
 function calcTotals() {
-  let subtotal = 0, remise = 0;
-  cart.filter(i => i.qty > 0).forEach(i => {
-    const line = i.prix * i.qty;
-    subtotal += line;
-    const pmin = parseInt(i.personnes_min) || 1;
-    if (pmin > 1 && nbPersonnes >= pmin + 5) remise += Math.round(line * 0.10 * 100) / 100;
-  });
-  const livraison = calcFraisLiv(kmLivraison);
-  return { subtotal, remise, livraison, total: subtotal - remise + livraison };
+    let subtotal = 0, remise = 0;
+    cart.filter(i => i.qty > 0).forEach(i => {
+        const pmin = parseInt(i.personnes_min) || 1;
+
+        // Menu collectif (ex: 750€ pour 20 pers min)
+        // → prix par personne × nb personnes choisi
+        // Menu individuel (ex: 19.90€/pers)
+        // → prix × quantité
+        const line = pmin > 1
+            ? (i.prix / pmin) * nbPersonnes * i.qty
+            : i.prix * i.qty;
+
+        subtotal += line;
+
+        // Remise 10% si nb personnes >= min + 5
+        if (pmin > 1 && nbPersonnes >= pmin + 5) {
+            remise += Math.round(line * 0.10 * 100) / 100;
+        }
+    });
+
+    const livraison = calcFraisLiv(kmLivraison);
+    return { subtotal, remise, livraison, total: subtotal - remise + livraison };
 }
 
-// ── Rendu panier ──────────────────────────────────────────
+// ── Rendu panier
 function renderCart() {
   const items  = cart.filter(i => i.qty > 0);
   const count  = items.reduce((s,i) => s + i.qty, 0);
@@ -643,8 +642,10 @@ function renderCart() {
   items.forEach(i => {
     const pmin       = parseInt(i.personnes_min) || 1;
     const hasDisc    = pmin > 1 && nbPersonnes >= pmin + 5;
-    const lineTotal  = i.prix * i.qty;
-    const lineRemise = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
+    const lineTotal  = pmin > 1
+    ? (i.prix / pmin) * nbPersonnes * i.qty
+    : i.prix * i.qty;
+const lineRemise = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
     html += `
     <div class="cart-item">
       <div class="d-flex justify-content-between align-items-start gap-2">

@@ -24,7 +24,7 @@ $active = $active_page ?? '';
                     </li>
                 </ul>
                 <ul class="navbar-nav">
-                    <li class="nav-item"><span class="nav-link small" style="color:#fff;">👤 <?= htmlspecialchars($_SESSION['nom']) ?></span></li>
+                    <li class="nav-item" ><span class="nav-link small" style="color:#fff;">👤 <a class="text-warning text-decoration-none" href="<?=BASE_URL ?>user/profile.php"><?= htmlspecialchars($_SESSION['nom']) ?></a></span></li>
                     <li class="nav-item"><a class="nav-link text-warning" href="<?= BASE_URL ?>index.php">Accueil</a></li>
                     <li class="nav-item"><a class="nav-link text-danger" href="<?= BASE_URL ?>logout.php">Déconnexion</a></li>
                 </ul>

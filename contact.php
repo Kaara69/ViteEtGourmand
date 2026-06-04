@@ -91,7 +91,7 @@ foreach($horaires_rows as $h) {
             <div class="col-lg-8">
                 <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5">
                     <h4 class="fw-bold mb-1" style="font-family:'Playfair Display',serif;">Envoyez-nous un message</h4>
-                    <p class="text-muted mb-4">Nous repondons sous 24h en jours ouvres.</p>
+                    <p class="text-muted mb-4">Nous répondons généralement sous 24h en jours ouvrés.</p>
                     <?php if($msg): ?><div class="alert alert-success"><i class="bi bi-check-circle me-2"></i><?= $msg ?></div><?php endif; ?>
                     <?php if($error): ?><div class="alert alert-danger"><?= htmlspecialchars($error) ?></div><?php endif; ?>
                     <form method="post">
@@ -116,7 +116,7 @@ foreach($horaires_rows as $h) {
                             </div>
                             <div class="col-12">
                                 <label class="form-label fw-semibold">Message *</label>
-                                <textarea name="message" class="form-control" rows="6" required placeholder="Decrivez votre demande..."><?= htmlspecialchars($_POST['message']??'') ?></textarea>
+                                <textarea name="message" class="form-control" rows="6" required placeholder="Décrivez votre demande..."><?= htmlspecialchars($_POST['message']??'') ?></textarea>
                             </div>
                             <div class="col-12">
                                 <button type="submit" class="btn btn-gold btn-lg px-5">

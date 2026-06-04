@@ -86,15 +86,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
 }
 
 
-// Soumettre un avis (si formulaire envoyé)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_avis'])) {
     $contenu = trim($_POST['contenu'] ?? '');
     $note = max(1, min(5, (int)($_POST['note'] ?? 5)));
 
-    if (empty($contenu) || strlen($contenu) < 20) {
+    // ── Vérification : a-t-il une commande livrée ou terminée ? ──
+    $stmtCheck = $pdo->prepare("
+        SELECT COUNT(*) FROM commandes
+        WHERE user_id = ?
+        AND statut IN ('livré', 'terminée')
+    ");
+    $stmtCheck->execute([$_SESSION['user_id']]);
+    $aCommande = (int)$stmtCheck->fetchColumn() > 0;
+
+    if (!$aCommande) {
+        $error = 'Vous devez avoir une commande livrée pour laisser un avis.';
+    } elseif (empty($contenu) || strlen($contenu) < 20) {
         $error = 'Votre commentaire doit faire au moins 20 caractères.';
-    }
-    else {
+    } else {
         $stmt = $pdo->prepare("
             INSERT INTO avis (user_id, nom, contenu, note, statut)
             VALUES (?, ?, ?, ?, 'en attente')
@@ -105,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_avis'])) {
             $contenu,
             $note
         ]);
-
         $msg = 'Votre avis a été soumis et sera publié après validation par notre équipe.';
     }
 }
@@ -114,6 +122,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_avis'])) {
 $stmt = $pdo->prepare("SELECT * FROM avis WHERE user_id = ? ORDER BY created_at DESC");
 $stmt->execute([$_SESSION['user_id']]);
 $mes_avis = $stmt->fetchAll();
+
+// Vérifie si l'utilisateur peut laisser un avis
+$stmtPeutAvis = $pdo->prepare("
+    SELECT COUNT(*) FROM commandes
+    WHERE user_id = ?
+    AND statut IN ('livré', 'terminée')
+");
+$stmtPeutAvis->execute([$_SESSION['user_id']]);
+$peutLaisserAvis = (int)$stmtPeutAvis->fetchColumn() > 0;
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -239,6 +257,8 @@ $mes_avis = $stmt->fetchAll();
 
                             <!-- Laisser un avis -->
             <div class="col-lg-6">
+
+                <?php if ($peutLaisserAvis): ?>
                 <div class="card card-section mb-4" id="avis">
                     <div class="section-header"><i class="bi bi-star-fill me-2"></i>Laisser un avis</div>
                     <div class="card-body p-4">
@@ -266,10 +286,21 @@ $mes_avis = $stmt->fetchAll();
                                 <i class="bi bi-send me-1"></i>Soumettre mon avis
                             </button>
                         </form>
-                    </div> <!-- card-body -->
-                </div> <!-- card -->
+                    </div>
+                </div>
+                <?php else: ?>
+                <div class="card card-section mb-4" id="avis">
+                    <div class="section-header"><i class="bi bi-star-fill me-2"></i>Laisser un avis</div>
+                    <div class="card-body p-4">
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle me-2"></i>
+                                Vous pourrez laisser un avis après avoir reçu votre première commande.
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
 
-                            <!-- Mes avis précédents -->
+                <!-- Mes avis précédents -->
                 <?php if ($mes_avis): ?>
                 <div class="card card-section">
                     <div class="section-header"><i class="bi bi-chat-left-text-fill me-2"></i>Mes avis soumis</div>
