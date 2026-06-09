@@ -150,8 +150,83 @@ et `data` (colonne JSON native MySQL 5.7+).
 
 ## 6. Prérequis
 - **xampp** 8.1+ - https://apachefriends.org
-    - Apage + MySQL inclus
-    - PHP 8.1 avec PDO_MySQL (actif par défaut dans xampp)
+- Apage + MySQL inclus
+- PHP 8.1 avec PDO_MySQL (actif par défaut dans xampp)
+
+---
+
+## 7. Installation locale (XAMPP)
+
+### Etape 1 - Cloner le dépôt
+
+Ourvrir un terminal et lancer :
+
+```
+git clone https://github.com/Kaara69/ViteEtGourmand.git
+```
+
+Copier le dossier cloné dans le répertoire htdocs de XAMPP
+
+### Etape 2 - Installer  les dépendances
+
+Dans le terminal, se placer dans le dossier du projet et lancer : 
+
+```
+cd C:\xampp\htdocs\ViteEtGourmand
+composer install
+```
+
+Cela crée automatiquement le dossier 'vendor/' avec PHPMailer.
+
+---
+
+### 3. Créer la base de données
+
+1. Lancer XAMPP et démarrer **Apache** et **MySQL**
+2. Ouvrir [phpMyAdmin](http://localhost/phpmyadmin)
+3. Cliquer sur **Nouvelle base de données**
+4. Nommer la base `vite_gourmand` et valider
+5. Cliquer sur **Importer**
+6. Sélectionner le fichier `vite_gourmand.sql` à la racine du projet
+7. Cliquer sur **Exécuter**
+
+---
+
+### 4. Configurer la connexion BDD
+
+Ouvrir `config.php` à la racine et vérifier les paramètres :
+
+```php
+define('DB_HOST', '127.0.0.1');
+define('DB_PORT', '3307');  // ou 3306 selon config XAMPP
+define('DB_NAME', 'vite_gourmand');
+define('DB_USER', 'root');
+define('DB_PASS', '');
+define('BASE_URL', '/ViteEtGourmand/');
+```
+
+---
+
+### 5. Configurer les mails
+
+Créer un fichier `.env` à la racine du projet (ce fichier n'est pzas sur GitHub) : 
+
+MAIL_USER=identifiant_mailtrap
+MAIL_PASS=mot_de_passe_mailtrap
+
+Les identifiants sont disponibles sur [Mailtrap.io](https://mailtrap.io) -> Boîte à sable -> Intégrations -> PHPMailer
+
+---
+
+### 6. Lancer le site
+
+Vérifier que **Apache** et **MySQL** sont bien démarrés dans le panneau XAMPP, puis ouvrir dans un navigateur : 
+
+http://localhost/ViteEtGourmand/
+
+
+## 8. Déploiement
+
 
 <!-- installation composer phpmailer -->
 <!-- config mail trap -->

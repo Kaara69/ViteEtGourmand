@@ -51,10 +51,10 @@ $pending_cmd  = $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en att
                 <?php endif; ?>
             </ul>
             <ul class="navbar-nav">
-                    <li class="nav-item" ><span class="nav-link small" style="color:#fff;">👤 <a class="text-warning text-decoration-none" href="<?=BASE_URL ?>admin/dashboard.php"><?= htmlspecialchars($_SESSION['nom']) ?></a></span></li>
-                    <li class="nav-item"><a class="nav-link text-warning" href="<?= BASE_URL ?>index.php">Accueil</a></li>
-                    <li class="nav-item"><a class="nav-link text-danger" href="<?= BASE_URL ?>logout.php">Déconnexion</a></li>
-                </ul>
+                <li class="nav-item" ><span class="nav-link small" style="color:#fff;">👤 <a class="text-warning text-decoration-none" href="<?=BASE_URL ?>admin/dashboard.php"><?= htmlspecialchars($_SESSION['nom']) ?></a></span></li>
+                <li class="nav-item"><a class="nav-link text-warning" href="<?= BASE_URL ?>index.php">Accueil</a></li>
+                <li class="nav-item"><a class="nav-link text-danger" href="<?= BASE_URL ?>logout.php">Déconnexion</a></li>
+            </ul>
         </div> <!-- collapse -->
     </div> <!-- container -->
 </nav>
