@@ -520,7 +520,7 @@ $cat_style = [
                                 </div>
 
                                 <textarea name="notes" class="form-control form-control-sm mb-2" rows="2"
-                                        placeholder="Instructions spéciales, allergies, horaire souahité..."></textarea>
+                                        placeholder="Instructions spéciales, allergies, horaire souhaité..."></textarea>
                                 <button class="btn w-100 fw-bold text-white" type="submit" style="background:var(--dark);">
                                     <i class="bi bi-check-lg me-1"></i>Valider la commande
                                 </button>
