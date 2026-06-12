@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Hôte : 127.0.0.1:3307
--- Généré le : sam. 25 avr. 2026 à 21:30
+-- Généré le : ven. 12 juin 2026 à 10:05
 -- Version du serveur : 10.4.32-MariaDB
 -- Version de PHP : 8.2.12
 
@@ -75,9 +75,16 @@ CREATE TABLE `commandes` (
 --
 
 INSERT INTO `commandes` (`id`, `user_id`, `total`, `statut`, `notes`, `nb_personnes`, `adresse_livraison`, `km_livraison`, `frais_livraison`, `remise`, `date_evenement`, `created_at`) VALUES
-(1, 3, 485.00, 'annulé', '', 1, '8 cours du Chapeau Rouge, 33000 Bordeaux', 0.00, 5.00, 0.00, '2026-04-23', '2026-04-22 18:15:28'),
-(2, 3, 190.00, 'annulé', '', 1, '8 cours du Chapeau Rouge, 33000 Bordeaux', 0.00, 5.00, 0.00, '2026-04-30', '2026-04-22 18:19:28'),
-(3, 3, 225.00, 'annulé', '', 1, '8 cours du Chapeau Rouge, 33000 Bordeaux', 0.00, 5.00, 0.00, '2026-04-30', '2026-04-22 18:20:34');
+(5, 3, 2615.06, 'livré', '', 35, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 290.00, '2026-06-05', '2026-05-27 21:48:18'),
+(8, 4, 25.87, 'annulé', '', 11, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, '2026-06-14', '2026-06-11 18:38:27'),
+(9, 4, 25.87, 'en attente', '', 1, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, NULL, '2026-06-11 18:38:32'),
+(10, 4, 25.87, 'annulé', '', 10, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, NULL, '2026-06-11 18:38:51'),
+(11, 4, 174.87, 'annulé', '', 40, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 18.50, NULL, '2026-06-11 18:50:27'),
+(12, 4, 174.87, 'en attente', '', 20, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 18.50, NULL, '2026-06-11 18:51:16'),
+(13, 3, 225.56, 'en attente', '', 15, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 24.50, NULL, '2026-06-11 21:05:46'),
+(14, 4, 228.87, 'annulé', '', 15, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 24.50, NULL, '2026-06-12 09:27:54'),
+(15, 4, 230.37, 'annulé', '', 20, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 24.67, NULL, '2026-06-12 09:41:03'),
+(16, 4, 339.12, 'en attente', '', 15, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 36.75, NULL, '2026-06-12 10:04:39');
 
 -- --------------------------------------------------------
 
@@ -91,17 +98,25 @@ CREATE TABLE `commande_items` (
   `menu_id` int(11) NOT NULL,
   `nom_menu` varchar(200) NOT NULL,
   `quantite` int(11) NOT NULL DEFAULT 1,
-  `prix_unitaire` decimal(10,2) NOT NULL
+  `prix_unitaire` decimal(10,2) NOT NULL,
+  `personnes_min` int(11) NOT NULL DEFAULT 1
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `commande_items`
 --
 
-INSERT INTO `commande_items` (`id`, `commande_id`, `menu_id`, `nom_menu`, `quantite`, `prix_unitaire`) VALUES
-(1, 1, 7, 'Cocktail Dinatoire Mariage', 1, 480.00),
-(2, 2, 4, 'Noël Végétal', 1, 185.00),
-(3, 3, 5, 'Agneau de Pâques', 1, 220.00);
+INSERT INTO `commande_items` (`id`, `commande_id`, `menu_id`, `nom_menu`, `quantite`, `prix_unitaire`, `personnes_min`) VALUES
+(5, 5, 9, 'Banquet Mariage Prestige', 2, 1450.00, 1),
+(9, 8, 2, 'Menu Vert & Saveurs', 1, 87.50, 1),
+(10, 9, 2, 'Menu Vert & Saveurs', 1, 87.50, 1),
+(11, 10, 2, 'Menu Vert & Saveurs', 1, 87.50, 1),
+(12, 11, 4, 'Noël Végétal', 1, 185.00, 1),
+(13, 12, 4, 'Noël Végétal', 1, 185.00, 1),
+(14, 13, 3, 'Réveillon Tradition', 1, 245.00, 1),
+(15, 14, 3, 'Réveillon Tradition', 1, 245.00, 1),
+(16, 15, 4, 'Noël Végétal', 1, 185.00, 1),
+(17, 16, 3, 'Réveillon Tradition', 1, 245.00, 10);
 
 -- --------------------------------------------------------
 
@@ -155,8 +170,8 @@ CREATE TABLE `menus` (
 --
 
 INSERT INTO `menus` (`id`, `nom`, `description`, `prix`, `categorie`, `disponible`, `image_url`, `allergenes`, `regime`, `personnes_min`, `created_at`) VALUES
-(1, 'Formule Gourmande', 'Velouté de butternut au lait de coco, suivi d\'un confit de canard aux pommes sarladaises et haricots verts, dessert du jour.', 19.90, 'Menu Classique', 1, 'uploads/menu_69b52a839e722.jpg', 'gluten,lactose,sulfites', '', 1, '2026-03-14 08:23:08'),
-(2, 'Menu Vert & Saveurs', 'Gaspacho de tomates anciennes, curry de pois chiches aux légumes du soleil et riz basmati, mousse de mangue à la noix de coco.', 17.50, 'Menu Classique', 1, 'uploads/menu_69b52aa3959e7.jpg', '', 'vegan,vegetarien,sans_gluten', 1, '2026-03-14 08:32:41'),
+(1, 'Formule Gourmande', 'Velouté de butternut au lait de coco, suivi d\'un confit de canard aux pommes sarladaises et haricots verts, dessert du jour.', 99.50, 'Menu Classique', 1, 'uploads/menu_69b52a839e722.jpg', 'gluten,lactose,sulfites', '', 5, '2026-03-14 08:23:08'),
+(2, 'Menu Vert & Saveurs', 'Gaspacho de tomates anciennes, curry de pois chiches aux légumes du soleil et riz basmati, mousse de mangue à la noix de coco.', 87.50, 'Menu Classique', 1, 'uploads/menu_69b52aa3959e7.jpg', '', 'vegan,vegetarien,sans_gluten', 5, '2026-03-14 08:32:41'),
 (3, 'Réveillon Tradition', 'Velouté de châtaignes au foie gras poêlé, pintade farcie aux marrons et cèpes, gratin dauphinois, bûche pralinée maison.', 245.00, 'Menu Noël', 1, 'uploads/menu_69b52d5eca498.jpg', 'gluten,lactose,oeufs,sulfites', '', 10, '2026-03-14 08:50:26'),
 (4, 'Noël Végétal', 'Velouté de panais à la truffe, risotto aux champignons des bois et parmesan, bûche au chocolat noir et fruits rouges.', 185.00, 'Menu Noël', 1, 'uploads/menu_69b52d507c3d3.jpg', 'gluten,lactose,oeufs', 'vegetarien', 15, '2026-03-14 08:56:47'),
 (5, 'Agneau de Pâques', 'Assiette de saumon gravlax, gigot d\'agneau de 7 heures et gratin dauphinois, charlotte aux fraises et rhubarbe.', 220.00, 'Menu Pâques', 1, 'uploads/menu_69b52d6c24d90.jpg', 'gluten,lactose,oeufs,poisson', '', 10, '2026-03-14 09:02:56'),
@@ -185,8 +200,16 @@ CREATE TABLE `nosql_documents` (
 --
 
 INSERT INTO `nosql_documents` (`id`, `collection`, `doc_id`, `data`, `created_at`, `updated_at`) VALUES
-(1, 'stats_menu', '982413a946eb43aa71ba77a64a938fa6', '{\"menu_id\":5,\"nom_menu\":\"Agneau de Pâques\",\"nb_commandes\":1,\"chiffre_affaires\":220,\"prix_moyen\":220,\"premiere_commande\":\"2026-04-22 18:20:34\",\"derniere_commande\":\"2026-04-22 18:20:34\",\"_created_at\":\"2026-04-22 18:20:34\",\"_id\":\"982413a946eb43aa71ba77a64a938fa6\"}', '2026-04-22 18:20:34', '2026-04-22 18:20:34'),
-(2, 'stats_daily', '93e4591b88f2435531630bea306c8403', '{\"menu_id\":5,\"nom_menu\":\"Agneau de Pâques\",\"jour\":\"2026-04-22\",\"nb_commandes\":1,\"chiffre_affaires\":220,\"_created_at\":\"2026-04-22 18:20:34\",\"_id\":\"93e4591b88f2435531630bea306c8403\"}', '2026-04-22 18:20:34', '2026-04-22 18:20:34');
+(16, 'stats_menu', '1aae7f83b4575798d03f10bbb95924d9', '{\"menu_id\":9,\"nom_menu\":\"Banquet Mariage Prestige\",\"categorie\":\"Menu Mariage\",\"nb_commandes\":2,\"chiffre_affaires\":2900,\"prix_moyen\":1450,\"nb_commandes_distinctes\":1,\"premiere_commande\":\"2026-05-27 21:48:18\",\"derniere_commande\":\"2026-05-27 21:48:18\",\"_created_at\":\"2026-06-11 17:54:52\",\"_id\":\"1aae7f83b4575798d03f10bbb95924d9\"}', '2026-06-11 17:54:52', '2026-06-11 17:54:52'),
+(17, 'stats_daily', 'd952806aedd611f482d9f936c948cc15', '{\"menu_id\":9,\"nom_menu\":\"Banquet Mariage Prestige\",\"jour\":\"2026-05-27\",\"nb_commandes\":2,\"chiffre_affaires\":2900,\"_created_at\":\"2026-06-11 17:54:52\",\"_id\":\"d952806aedd611f482d9f936c948cc15\"}', '2026-06-11 17:54:52', '2026-06-11 17:54:52'),
+(18, 'stats_menu', 'cb18dfc84976a3a9271338c26f19f88a', '{\"menu_id\":2,\"nom_menu\":\"Menu Vert & Saveurs\",\"nb_commandes\":3,\"chiffre_affaires\":52.5,\"prix_moyen\":17.5,\"premiere_commande\":\"2026-06-11 18:38:27\",\"derniere_commande\":\"2026-06-11 18:38:51\",\"_created_at\":\"2026-06-11 18:38:27\",\"_updated_at\":\"2026-06-11 18:38:51\"}', '2026-06-11 18:38:27', '2026-06-11 18:38:51'),
+(19, 'stats_daily', '3f20562dc8984ab63aa784de9abb59d4', '{\"menu_id\":2,\"nom_menu\":\"Menu Vert & Saveurs\",\"jour\":\"2026-06-11\",\"nb_commandes\":3,\"chiffre_affaires\":52.5,\"_created_at\":\"2026-06-11 18:38:27\",\"_updated_at\":\"2026-06-11 18:38:51\"}', '2026-06-11 18:38:27', '2026-06-11 18:38:51'),
+(20, 'stats_menu', 'dd621202bc16c3794257dcd0cf5aa863', '{\"menu_id\":4,\"nom_menu\":\"Noël Végétal\",\"nb_commandes\":3,\"chiffre_affaires\":555,\"prix_moyen\":185,\"premiere_commande\":\"2026-06-11 18:50:27\",\"derniere_commande\":\"2026-06-12 09:41:03\",\"_created_at\":\"2026-06-11 18:50:27\",\"_updated_at\":\"2026-06-12 09:41:03\"}', '2026-06-11 18:50:27', '2026-06-12 09:41:03'),
+(21, 'stats_daily', 'efb4118722b76c321c35069d48f16f27', '{\"menu_id\":4,\"nom_menu\":\"Noël Végétal\",\"jour\":\"2026-06-11\",\"nb_commandes\":2,\"chiffre_affaires\":370,\"_created_at\":\"2026-06-11 18:50:27\",\"_updated_at\":\"2026-06-11 18:51:16\"}', '2026-06-11 18:50:27', '2026-06-11 18:51:16'),
+(22, 'stats_menu', '5423495fa92f80be772c04d46cac854f', '{\"menu_id\":3,\"nom_menu\":\"Réveillon Tradition\",\"nb_commandes\":3,\"chiffre_affaires\":735,\"prix_moyen\":245,\"premiere_commande\":\"2026-06-11 21:05:46\",\"derniere_commande\":\"2026-06-12 10:04:39\",\"_created_at\":\"2026-06-11 21:05:46\",\"_updated_at\":\"2026-06-12 10:04:39\"}', '2026-06-11 21:05:46', '2026-06-12 10:04:39'),
+(23, 'stats_daily', '3acd6d15459a44218cf9224effbc3b49', '{\"menu_id\":3,\"nom_menu\":\"Réveillon Tradition\",\"jour\":\"2026-06-11\",\"nb_commandes\":1,\"chiffre_affaires\":245,\"_created_at\":\"2026-06-11 21:05:46\",\"_id\":\"3acd6d15459a44218cf9224effbc3b49\"}', '2026-06-11 21:05:46', '2026-06-11 21:05:46'),
+(24, 'stats_daily', '173f6c1ccec60f7e39b2675dfbfaf77a', '{\"menu_id\":3,\"nom_menu\":\"Réveillon Tradition\",\"jour\":\"2026-06-12\",\"nb_commandes\":2,\"chiffre_affaires\":490,\"_created_at\":\"2026-06-12 09:27:54\",\"_updated_at\":\"2026-06-12 10:04:39\"}', '2026-06-12 09:27:54', '2026-06-12 10:04:39'),
+(25, 'stats_daily', '35f19b30cfe879529d9da3f119ffeb6d', '{\"menu_id\":4,\"nom_menu\":\"Noël Végétal\",\"jour\":\"2026-06-12\",\"nb_commandes\":1,\"chiffre_affaires\":185,\"_created_at\":\"2026-06-12 09:41:03\",\"_id\":\"35f19b30cfe879529d9da3f119ffeb6d\"}', '2026-06-12 09:41:03', '2026-06-12 09:41:03');
 
 -- --------------------------------------------------------
 
@@ -286,13 +309,13 @@ ALTER TABLE `avis`
 -- AUTO_INCREMENT pour la table `commandes`
 --
 ALTER TABLE `commandes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT pour la table `commande_items`
 --
 ALTER TABLE `commande_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT pour la table `horaires`
@@ -310,13 +333,13 @@ ALTER TABLE `menus`
 -- AUTO_INCREMENT pour la table `nosql_documents`
 --
 ALTER TABLE `nosql_documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Contraintes pour les tables déchargées

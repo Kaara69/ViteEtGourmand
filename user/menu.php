@@ -100,33 +100,32 @@ $order_id = null;
 
 if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     // Données du formulaire
-    $notes   = trim($_POST['notes']           ?? '');
-    $date_ev = trim($_POST['date_evenement']  ?? '');
+    $notes   = trim($_POST['notes']          ?? '');
+    $date_ev = trim($_POST['date_evenement'] ?? '');
 
     // On valide la date : doit être dans le futur
     if ($date_ev && (strtotime($date_ev) === false || strtotime($date_ev) < strtotime('today'))) {
         $date_ev = '';
     }
 
-    $nb_pers       = max(1, (int)($_POST['nb_personnes']       ?? 1));
-    $adresse_liv   = trim($_POST['adresse_livraison']          ?? '');
-    $km            = max(0, (float)($_POST['km_livraison']     ?? 0));
-    $frais_liv     = max(LIV_FIXE, round(LIV_FIXE + $km * LIV_KM, 2));
-
-    // Calcul du sous‑total et de la remise
+    $nb_pers     = max(1, (int)($_POST['nb_personnes']  ?? 1));
+    $adresse_liv = trim($_POST['adresse_livraison']     ?? '');
+    $km          = max(0, (float)($_POST['km_livraison'] ?? 0));
+    $frais_liv   = max(LIV_FIXE, round(LIV_FIXE + $km * LIV_KM, 2));
+// Correction pb total avec personne_min 
+    // Calcul du sous-total et de la remise
     $subtotal = 0.0;
     $remise   = 0.0;
-
     foreach ($_SESSION['cart'] as $item) {
-        $line = $item['prix'] * $item['qty'];
-        $subtotal += $line;
-
         $pmin = (int)($item['personnes_min'] ?? 1);
+        $line = $pmin > 1
+            ? ($item['prix'] / $pmin) * $nb_pers * $item['qty']
+            : $item['prix'] * $item['qty'];
+        $subtotal += $line;
         if ($pmin > 1 && $nb_pers >= $pmin + 5) {
             $remise += round($line * 0.10, 2);
         }
     }
-
     $total = round($subtotal - $remise + $frais_liv, 2);
 
     // Enregistrer la commande
@@ -143,38 +142,38 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
 
     $cid = (int)$pdo->lastInsertId();
 
-    //Enregistrer les lignes de commande (menus commandés)
+    // Enregistrer les lignes de commande avec personnes_min
     $stmt = $pdo->prepare("
         INSERT INTO commande_items
-        (commande_id, menu_id, nom_menu, quantite, prix_unitaire)
-        VALUES (?, ?, ?, ?, ?)
+        (commande_id, menu_id, nom_menu, quantite, prix_unitaire, personnes_min)
+        VALUES (?, ?, ?, ?, ?, ?)
     ");
-
     foreach ($_SESSION['cart'] as $item) {
-        $stmt->execute([$cid, $item['id'], $item['nom'], $item['qty'], $item['prix']]);
+        $stmt->execute([
+            $cid,
+            $item['id'],
+            $item['nom'],
+            $item['qty'],
+            $item['prix'],
+            $item['personnes_min'] ?? 1
+        ]);
     }
 
+    // Vider le panier
+    $_SESSION['cart'] = [];
 
-// Synchroniser les stats (NoSQL)
+    // Synchroniser les stats (NoSQL)
     include_once __DIR__ . '/../includes/nosql_db.php';
     $statsSync = new StatsSync($pdo, new NoSQLStore());
     $statsSync->syncOrder($cid);
 
-    // ── Envoi email de confirmation 
+    // Envoi email de confirmation
     include_once __DIR__ . '/../includes/mailer.php';
 
-    // Récupère l'email du client
     $stmt_user = $pdo->prepare("SELECT email, prenom FROM users WHERE id = ?");
     $stmt_user->execute([$_SESSION['user_id']]);
     $client = $stmt_user->fetch();
 
-    // Construit le récap des menus commandés
-    $lignes_email = '';
-    foreach ($_SESSION['cart'] as $item) {
-        // Note : le panier est déjà vidé ici, donc on utilise les données avant le clear
-    }
-
-    // Récupère les items depuis la BDD (panier déjà vidé en session)
     $stmt_items = $pdo->prepare("
         SELECT nom_menu, quantite, prix_unitaire
         FROM commande_items
@@ -183,8 +182,9 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     $stmt_items->execute([$cid]);
     $items_email = $stmt_items->fetchAll();
 
+    $lignes_email = '';
     foreach ($items_email as $item) {
-        $ligne_total = number_format($item['quantite'] * $item['prix_unitaire'], 2, ',', ' ');
+        $ligne_total   = number_format($item['quantite'] * $item['prix_unitaire'], 2, ',', ' ');
         $lignes_email .= "
         <tr>
             <td style='padding:8px;border-bottom:1px solid #f0ebe3;'>{$item['nom_menu']}</td>
@@ -193,38 +193,26 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
         </tr>";
     }
 
-    $date_affiche = $date_ev
-        ? date('d/m/Y', strtotime($date_ev))
-        : 'Non précisée';
+    $date_affiche = $date_ev ? date('d/m/Y', strtotime($date_ev)) : 'Non précisée';
 
     $contenu_email = "
     <div style='font-family:Nunito,sans-serif;max-width:600px;margin:0 auto;background:#FAF7F2;'>
-
-        <!-- En-tête -->
         <div style='background:#1C1510;padding:2rem;text-align:center;'>
             <h1 style='color:#C9973D;font-family:Georgia,serif;margin:0;font-size:1.8rem;'>
-                🍽️ Vite &amp; Gourmand
+                Vite &amp; Gourmand
             </h1>
             <p style='color:rgba(255,255,255,.6);margin:.5rem 0 0;font-size:.9rem;'>
                 Confirmation de commande
             </p>
         </div>
-
-        <!-- Corps -->
         <div style='padding:2rem;'>
-            <p style='font-size:1.1rem;'>
-                Bonjour <strong>{$client['prenom']}</strong>,
-            </p>
+            <p style='font-size:1.1rem;'>Bonjour <strong>{$client['prenom']}</strong>,</p>
             <p style='color:#555;line-height:1.7;'>
                 Votre commande <strong>#$cid</strong> a bien été enregistrée.
                 Notre équipe va l'examiner et vous confirmera sa prise en charge très prochainement.
             </p>
-
-            <!-- Récap commande -->
             <div style='background:#fff;border-radius:8px;padding:1.5rem;margin:1.5rem 0;border:1px solid rgba(201,151,61,.2);'>
-                <h3 style='color:#1C1510;font-family:Georgia,serif;margin:0 0 1rem;font-size:1.1rem;'>
-                    Récapitulatif
-                </h3>
+                <h3 style='color:#1C1510;font-family:Georgia,serif;margin:0 0 1rem;font-size:1.1rem;'>Récapitulatif</h3>
                 <table style='width:100%;border-collapse:collapse;'>
                     <thead>
                         <tr style='background:#1C1510;color:#C9973D;'>
@@ -233,12 +221,8 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
                             <th style='padding:8px;text-align:right;font-size:.85rem;'>Total</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        $lignes_email
-                    </tbody>
+                    <tbody>$lignes_email</tbody>
                 </table>
-
-                <!-- Totaux -->
                 <div style='margin-top:1rem;padding-top:1rem;border-top:2px solid rgba(201,151,61,.3);'>
                     <div style='display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.9rem;color:#555;'>
                         <span>Sous-total</span>
@@ -246,11 +230,11 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
                     </div>
                     " . ($remise > 0 ? "
                     <div style='display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.9rem;color:#2E7D32;'>
-                        <span>🏷️ Remise</span>
+                        <span>Remise</span>
                         <span>- " . number_format($remise, 2, ',', ' ') . " €</span>
                     </div>" : "") . "
                     <div style='display:flex;justify-content:space-between;margin-bottom:.4rem;font-size:.9rem;color:#555;'>
-                        <span>🚚 Livraison</span>
+                        <span>Livraison</span>
                         <span>" . number_format($frais_liv, 2, ',', ' ') . " €</span>
                     </div>
                     <div style='display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:#C9973D;margin-top:.5rem;'>
@@ -259,25 +243,12 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
                     </div>
                 </div>
             </div>
-
-            <!-- Infos événement -->
             <div style='background:#fff;border-radius:8px;padding:1.5rem;border:1px solid rgba(201,151,61,.2);'>
-                <h3 style='color:#1C1510;font-family:Georgia,serif;margin:0 0 1rem;font-size:1.1rem;'>
-                    Informations de livraison
-                </h3>
-                <p style='margin:.3rem 0;font-size:.9rem;color:#555;'>
-                    📅 <strong>Date :</strong> $date_affiche
-                </p>
-                <p style='margin:.3rem 0;font-size:.9rem;color:#555;'>
-                    📍 <strong>Adresse :</strong> $adresse_liv
-                </p>
+                <h3 style='color:#1C1510;font-family:Georgia,serif;margin:0 0 1rem;font-size:1.1rem;'>Informations de livraison</h3>
+                <p style='margin:.3rem 0;font-size:.9rem;color:#555;'>📅 <strong>Date :</strong> $date_affiche</p>
+                <p style='margin:.3rem 0;font-size:.9rem;color:#555;'>📍 <strong>Adresse :</strong> $adresse_liv</p>
                 " . ($notes ? "<p style='margin:.3rem 0;font-size:.9rem;color:#555;'>📝 <strong>Notes :</strong> $notes</p>" : "") . "
             </div>
-
-            <p style='margin-top:1.5rem;color:#555;font-size:.9rem;line-height:1.7;'>
-                Vous pouvez suivre l'avancement de votre commande depuis votre espace client.
-            </p>
-
             <div style='text-align:center;margin-top:1.5rem;'>
                 <a href='http://localhost/ViteEtGourmand/user/orders.php'
                    style='background:#C9973D;color:#1C1510;padding:.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:700;'>
@@ -285,16 +256,20 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
                 </a>
             </div>
         </div>
-
-        <!-- Footer -->
         <div style='background:#1C1510;padding:1.5rem;text-align:center;'>
             <p style='color:rgba(255,255,255,.4);font-size:.8rem;margin:0;'>
                 © " . date('Y') . " Vite &amp; Gourmand — 12 rue des Saveurs, 33000 Bordeaux
             </p>
         </div>
-
     </div>";
+
+    envoyerEmail($client['email'], "Confirmation de votre commande #$cid — Vite & Gourmand", $contenu_email);
+
+    $order_ok = true;
+    $order_id = $cid;
 }
+
+
 // Chargement des menus et regroupement par cat.
 $menus = $pdo->query("
     SELECT *
