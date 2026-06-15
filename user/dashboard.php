@@ -96,7 +96,7 @@ $total_cmd = $stmt->fetchColumn(); // renvoie un nombre entier
                             <span>Commandes en cours</span>
                             <strong><?= $en_cours ?></strong>
                         </div>
-                        <a href="order.php" class="btn btn-outline-secondary w-100 mt-2 btn-sm">Voir mes commandes</a>
+                        <a href="orders.php" class="btn btn-outline-secondary w-100 mt-2 btn-sm">Voir mes commandes</a>
                     </div> <!-- cardbody-->
                 </div> <!-- card -->
             </div> <!-- col -->

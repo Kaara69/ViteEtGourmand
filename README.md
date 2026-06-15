@@ -13,7 +13,6 @@
 5. [Fonctionnalités](#5-fonctionnalités)
 6. [Prérequis](#6-prérequis)
 7. [Installation locale (XAMPP)](#7-installation-locale-xampp)
-8. [Déploiement](#8-déploiement)
 
 
 ## 1. Présentation
@@ -209,7 +208,7 @@ define('BASE_URL', '/ViteEtGourmand/');
 
 ### 5. Configurer les mails
 
-Créer un fichier `.env` à la racine du projet (ce fichier n'est pzas sur GitHub) : 
+Créer un fichier `.env` à la racine du projet (ce fichier n'est pas sur GitHub) : 
 
 MAIL_USER=identifiant_mailtrap
 MAIL_PASS=mot_de_passe_mailtrap
@@ -225,8 +224,6 @@ Vérifier que **Apache** et **MySQL** sont bien démarrés dans le panneau XAMPP
 http://localhost/ViteEtGourmand/
 
 
-## 8. Déploiement
 
 
-<!-- installation composer phpmailer -->
-<!-- config mail trap  test-->
+
