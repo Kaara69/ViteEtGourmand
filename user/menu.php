@@ -626,7 +626,7 @@ const lineRemise = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
       <div class="d-flex justify-content-between align-items-start gap-2">
         <div class="flex-grow-1">
           <div class="small fw-semibold">${i.nom}${hasDisc ? '<span class="discount-badge ms-1">-10%</span>' : ''}</div>
-          <div class="text-muted" style="font-size:.72rem;">${fmt(i.prix)}/u</div>
+          
         </div>
         <div class="d-flex align-items-center gap-1 flex-shrink-0">
           <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="cartAction({action:'update',menu_id:${i.id},qty:${i.qty-1}})">−</button>

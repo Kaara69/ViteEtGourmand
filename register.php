@@ -12,19 +12,34 @@ $error = '';
 // Vérifier si le formulaire a été envoyé (méthode POST)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // 1. Récupérer les données du formulaire (avec ?? pour éviter les undefined index)
-    $nom   = trim($_POST['nom']       ?? '');
-    $email = trim($_POST['email']     ?? '');
-    $pass  =      $_POST['password']  ?? '';
-    $pass2 =      $_POST['password2'] ?? '';
+    $prenom     = trim($_POST['prenom']   ?? '' );
+    $nom        = trim($_POST['nom']       ?? '');
+    $email      = trim($_POST['email']     ?? '');
+    $adresse    = trim($_POST['adresse']   ?? '');
+    $telephone  = trim($_POST['telephone'] ?? '');
+    $pass       =      $_POST['password']  ?? '';
+    $pass2      =      $_POST['password2'] ?? '';
 
     // 2. Vérifier que les champs obligatoires ne sont pas vides
-    if (empty($nom) || empty($email) || empty($pass)) {
+    if (empty($prenom) || empty($nom) || empty($email) || empty($adresse) || empty($telephone) || empty($pass)) {
         $error = 'Tous les champs sont obligatoires.';
     }
-    // 3. Vérifier que le mot de passe fait au moins 6 caractères
-    elseif (strlen($pass) < 6) {
-        $error = 'Le mot de passe doit contenir au moins 6 caractères.';
+
+    // 3. V"rifier que l'email est valide
+    elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)){
+        $error = 'L\'adresse mail est invalide.';
+        }
+
+    // 4. Vérifier que le téléphone est valide 
+    elseif (!preg_match('/^[0-9]{10,15}$/', $telephone)){
+        $error = 'Le numéro de téléphone est invalide.';
     }
+
+    // 5. Vérifier qla force du mdp 
+    elseif (!preg_match('/^(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\\W_]).{10,}$/', $pass)) {
+        $error = 'Le mot de passe doit contenir au moins 10 caractères, une majuscule, une minuscule, un chiffre et un caractère spécial.';
+    }
+
     // 4. Vérifier que les deux mots de passe sont identiques
     elseif ($pass !== $pass2) {
         $error = 'Les mots de passe ne correspondent pas.';
@@ -36,20 +51,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $hash = password_hash($pass, PASSWORD_DEFAULT);
 
             // Insérer le nouvel utilisateur
-            $sql = "INSERT INTO users (nom, email, password, role) VALUES (?, ?, ?, 'client')";
+            $sql = "INSERT INTO users (prenom, nom, email, adresse, telephone, password, role) 
+                    VALUES (?, ?, ?, ?, ?, ?, 'client')";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$nom, $email, $hash]);
+            $stmt->execute([$prenom, $nom, $email, $adresse, $telephone, $hash]);
 
             // Recharger les infos de l’utilisateur
             $stmtUser = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
             $stmtUser->execute([$email]);
-            $user = $stmtUser->fetch();
+            $user = $stmtUser->fetch(PDO::FETCH_ASSOC);
 
             // Connecter l’utilisateur automatiquement
             $_SESSION['user_id'] = $user['id'];
+            $_SESSION['prenom']  = $user['prenom'];
             $_SESSION['nom']     = $user['nom'];
             $_SESSION['email']   = $user['email'];
-            $_SESSION['role']    = $user['role'] ?? $user['role'];
+            $_SESSION['role']    = $user['role'];
 
             // Rediriger vers le dashboard
             header('Location: user/dashboard.php');
@@ -88,8 +105,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <?php endif; ?>
                     <form method="post">
                         <div class="mb-3">
-                            <label class="form-label fw-semibold">Nom complet*</label>
+                            <label class="form-label fw-semibold">Nom*</label>
                             <input type="text" name="nom" class="form-control" required value="<?= htmlspecialchars($_POST['nom'] ?? '') ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Prénom*</label>
+                            <input type="text" name="prenom" class="form-control" required value="<?= htmlspecialchars($_POST['prenom'] ?? '') ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Adresse postale*</label>
+                            <input type="text" name="adresse" class="form-control" required value="<?= htmlspecialchars($_POST['adresse'] ?? '') ?>">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Numéro de téléphone*</label>
+                            <input type="tel" name="telephone" class="form-control" required value="<?= htmlspecialchars($_POST['telephone'] ?? '') ?>">
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Adresse email*</label>

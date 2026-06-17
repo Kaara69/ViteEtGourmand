@@ -28,7 +28,6 @@ $avis_att=$pdo->query("SELECT * FROM avis WHERE statut='en attente' ORDER BY cre
 <body class="bg-light">
     <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>
     <div class="contrainer-fluid py-4">
-        <h4 class="mb-4 fw-bold">Bonjour, <?= htmlspecialchars($_SESSION['nom']) ?></h4>
         <div class="row g-3 mb-4">
             <div class="col-6 col-lg-3"><div class="card text-white bg-primary h-100"><div class="card-body"><div class="fs-2 fw-bold"><?= $stats['total'] ?></div><div class="small">Commandes total</div></div></div></div>
             <div class="col-6 col-lg-3"><div class="card text-dark bg-warning h-100"><div class="card-body"><div class="fs-2 fw-bold"><?= $stats['att'] ?></div><div class="small">En attente</div></div></div></div>

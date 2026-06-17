@@ -35,7 +35,7 @@ $top3 = array_slice($top_menus, 0, 3);
 <body class="bg-light">
     <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
     <div class="container-fluid py-4">
-        <h4 class="mb-4 fw-bold">Tableau de bord &nbsp; <small class="text-muted fs-6 fw-normal">Bonjour, <?= htmlspecialchars($_SESSION['nom']) ?></small></h4>
+        <h4 class="mb-4 fw-bold">Tableau de bord &nbsp;</h4>
 
         <div class="row g-3 mb-4">
             <div class="col-6 col-lg-2">

@@ -21,7 +21,7 @@ class NoSQLStore
         if ($pdo instanceof PDO) {
             $this->pdo = $pdo;
         } else {
-            // Sinon, crée une connexion PDO (comme dans config.php)
+            // Sinon, créer une connexion PDO (comme dans config.php)
             require_once dirname(__DIR__) . '/config.php';
             $dsn = sprintf(
                 'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
@@ -100,9 +100,7 @@ class NoSQLStore
 
     // ── API publique
 
-    /**
-     * Récupère tous les documents d'une collection qui correspondent au filtre
-     */
+     // Récupère tous les documents d'une collection qui correspondent au filtre
     public function find(string $col, array $filter = []): array
     {
         $docs = $this->fetchAll($col);
