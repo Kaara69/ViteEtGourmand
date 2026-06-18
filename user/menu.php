@@ -9,6 +9,7 @@ $active_page = 'menu';
 
 // Initialisation du panier
 // Si le panier n’existe pas encore, on crée un tableau vide
+
 if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
 
 
@@ -46,7 +47,7 @@ if (isset($_POST['action'])) {
                 $_SESSION['cart'][$id] = [
                     'id'            => $m['id'],
                     'nom'           => $m['nom'],
-                    'prix'          => (float)$m['prix'],
+                    'prix'          => $m['prix'],
                     'qty'           => 1,
                     'personnes_min' => (int)($m['personnes_min'] ?? 1),
                 ];
@@ -59,15 +60,15 @@ if (isset($_POST['action'])) {
         unset($_SESSION['cart'][$id]);
     }
 
-    //  Mettre à jour la quantité
+  //  Mettre à jour la quantité
     elseif ($action === 'update') {
-        $qty = max(0, (int)($_POST['qty'] ?? 0));
-        if ($qty === 0) {
-            unset($_SESSION['cart'][$id]);
-        } else {
-            $_SESSION['cart'][$id]['qty'] = $qty;
-        }
+    $qty = max(0, (int)($_POST['qty'] ?? 0));
+    if ($qty === 0) {
+        unset($_SESSION['cart'][$id]);
+    } else {
+        $_SESSION['cart'][$id]['qty'] = $qty;
     }
+}
 
     //Vider complètement le panier
     elseif ($action === 'clear') {
@@ -102,11 +103,21 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     // Données du formulaire
     $notes   = trim($_POST['notes']          ?? '');
     $date_ev = trim($_POST['date_evenement'] ?? '');
+    $heure_ev   = trim($_POST['heure_evenement'] ?? '');
 
     // On valide la date : doit être dans le futur
-    if ($date_ev && (strtotime($date_ev) === false || strtotime($date_ev) < strtotime('today'))) {
-        $date_ev = '';
-    }
+    // if ($date_ev && (strtotime($date_ev) === false || strtotime($date_ev) < strtotime('today'))) {
+    //     $date_ev = '';
+    // }
+    // Validation de la date
+if ($date_ev && (strtotime($date_ev) === false || strtotime($date_ev) < strtotime('today'))) {
+    $date_ev = '';
+}
+
+// Validation de l'heure
+if ($heure_ev && strtotime($heure_ev) === false) {
+    $heure_ev = '';
+}
 
     $nb_pers     = max(1, (int)($_POST['nb_personnes']  ?? 1));
     $adresse_liv = trim($_POST['adresse_livraison']     ?? '');
@@ -129,16 +140,28 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
     $total = round($subtotal - $remise + $frais_liv, 2);
 
     // Enregistrer la commande
+    // $pdo->prepare("
+    //     INSERT INTO commandes
+    //     (user_id, total, notes, nb_personnes, adresse_livraison,
+    //      km_livraison, frais_livraison, remise, date_evenement)
+    //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    // ")->execute([
+    //     $_SESSION['user_id'], $total, $notes, $nb_pers,
+    //     $adresse_liv, $km, $frais_liv, $remise,
+    //     $date_ev ?: null
+    // ]);
     $pdo->prepare("
-        INSERT INTO commandes
-        (user_id, total, notes, nb_personnes, adresse_livraison,
-         km_livraison, frais_livraison, remise, date_evenement)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ")->execute([
-        $_SESSION['user_id'], $total, $notes, $nb_pers,
-        $adresse_liv, $km, $frais_liv, $remise,
-        $date_ev ?: null
-    ]);
+    INSERT INTO commandes
+    (user_id, total, notes, nb_personnes, adresse_livraison,
+     km_livraison, frais_livraison, remise,
+     date_evenement, heure_evenement)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+")->execute([
+    $_SESSION['user_id'], $total, $notes, $nb_pers,
+    $adresse_liv, $km, $frais_liv, $remise,
+    $date_ev ?: null,
+    $heure_ev ?: null
+]);
 
     $cid = (int)$pdo->lastInsertId();
 
@@ -193,7 +216,14 @@ if (isset($_POST['checkout']) && !empty($_SESSION['cart'])) {
         </tr>";
     }
 
-    $date_affiche = $date_ev ? date('d/m/Y', strtotime($date_ev)) : 'Non précisée';
+    // $date_affiche = $date_ev ? date('d/m/Y', strtotime($date_ev)) : 'Non précisée';
+    $date_affiche = $date_ev
+    ? date('d/m/Y', strtotime($date_ev))
+    : 'Non précisée';
+
+if ($heure_ev) {
+    $date_affiche .= ' à ' . date('H:i', strtotime($heure_ev));
+}
 
     $contenu_email = "
     <div style='font-family:Nunito,sans-serif;max-width:600px;margin:0 auto;background:#FAF7F2;'>
@@ -512,10 +542,34 @@ $cat_style = [
                                     <label class="form-label small fw-bold mb-1" style="color:var(--gold)">
                                         <i class="bi bi-calendar-event me-1"></i>Date de l'événement
                                     </label>
-                                    <input type="date" name="date_evenement" id="input-date-evenement" class="form-control form-control-sm"
-                                    min="<?= date('Y-m-d' , strtotime('+1 day')) ?>" placeholder="JJ/MM/AAAA">
+
+                                    <input type="date"
+                                        name="date_evenement"
+                                        id="input-date-evenement"
+                                        class="form-control form-control-sm"
+                                        min="<?= date('Y-m-d', strtotime('+1 day')) ?>"
+                                        placeholder="JJ/MM/AAAA">
+
                                     <div class="form-text" style="font-size:.72rem;color:#999;">
                                         Pour quel jour souhaitez-vous votre commande ?
+                                    </div>
+                                </div>
+
+                                <div class="mb-2">
+                                    <label class="form-label small fw-bold mb-1" style="color:var(--gold)">
+                                        <i class="bi bi-clock me-1"></i>Heure de l'événement
+                                    </label>
+
+                                    <input type="time"
+                                        name="heure_evenement"
+                                        id="input-heure-evenement"
+                                        class="form-control form-control-sm"
+                                        min="10:00"
+                                        max="22:00"
+                                        step="900">
+
+                                    <div class="form-text" style="font-size:.72rem;color:#999;">
+                                        À quelle heure souhaitez-vous être livré(e) ?
                                     </div>
                                 </div>
 
@@ -546,6 +600,7 @@ const LIV_KM   = <?= LIV_KM ?>;
 // ── État
 let cart        = <?= json_encode(array_values($_SESSION['cart'])) ?>;
 let nbPersonnes = 1;
+let nbPersonnesManuel = false;
 let kmLivraison = 0;      // distance calculée en km
 let adresseLiv  = '';     // adresse textuelle
 
@@ -626,7 +681,7 @@ const lineRemise = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
       <div class="d-flex justify-content-between align-items-start gap-2">
         <div class="flex-grow-1">
           <div class="small fw-semibold">${i.nom}${hasDisc ? '<span class="discount-badge ms-1">-10%</span>' : ''}</div>
-          
+         
         </div>
         <div class="d-flex align-items-center gap-1 flex-shrink-0">
           <button class="btn btn-sm btn-outline-secondary py-0 px-1" onclick="cartAction({action:'update',menu_id:${i.id},qty:${i.qty-1}})">−</button>
@@ -673,15 +728,21 @@ const lineRemise = hasDisc ? Math.round(lineTotal * 0.10 * 100) / 100 : 0;
 async function cartAction(data) {
   const fd = new FormData();
   for (const [k,v] of Object.entries(data)) fd.append(k, v);
-  const d = await (await fetch('menu.php', {method:'POST', body:fd})).json();
+  const res = await fetch('menu.php', {method:'POST', body:fd});
+  const text = await res.text();
+  console.log('RÉPONSE BRUTE:', text);
+  const d = JSON.parse(text);
   cart = d.cart;
-  renderCart();
   updateNbPersonnesUI();
+  renderCart();
 }
 document.querySelectorAll('.btn-add').forEach(btn => {
   btn.addEventListener('click', () => cartAction({action:'add', menu_id:btn.dataset.id}));
 });
-document.getElementById('btn-clear').addEventListener('click', () => cartAction({action:'clear', menu_id:0}));
+document.getElementById('btn-clear').addEventListener('click', () => {
+  nbPersonnesManuel = false;
+  cartAction({action:'clear', menu_id:0});
+});
 
 // ── Nombre de personnes
 const nbInput = document.getElementById('nb-personnes');
@@ -694,14 +755,18 @@ function getCartMin() {
 
 function updateNbPersonnesUI() {
   const min = getCartMin();
-  // Forcer nbPersonnes au minimum si en dessous
-  if (nbPersonnes < min) {
+
+  if (nbPersonnesManuel) {
+    if (nbPersonnes < min) {
+      nbPersonnes = min;
+    }
+  } else {
     nbPersonnes = min;
-    nbInput.value = min;
   }
+
+  nbInput.value = nbPersonnes;
   nbInput.min = min;
 
-  // Afficher/masquer le message de minimum requis
   let hint = document.getElementById('pers-min-hint');
   if (!hint) {
     hint = document.createElement('div');
@@ -716,11 +781,11 @@ function updateNbPersonnesUI() {
     hint.innerHTML = '';
   }
 
-  // Griser le bouton − si on est au minimum
   document.getElementById('pers-minus').disabled = (nbPersonnes <= min);
 }
 
 document.getElementById('pers-minus').addEventListener('click', () => {
+    nbPersonnesManuel = true;
   const min = getCartMin();
   nbPersonnes = Math.max(min, nbPersonnes - 1);
   nbInput.value = nbPersonnes;
@@ -728,12 +793,14 @@ document.getElementById('pers-minus').addEventListener('click', () => {
   renderCart();
 });
 document.getElementById('pers-plus').addEventListener('click', () => {
+    nbPersonnesManuel = true;
   nbPersonnes = Math.min(999, nbPersonnes + 1);
   nbInput.value = nbPersonnes;
   updateNbPersonnesUI();
   renderCart();
 });
 nbInput.addEventListener('input', () => {
+    nbPersonnesManuel = true;
   const min = getCartMin();
   nbPersonnes = Math.max(min, parseInt(nbInput.value) || min);
   nbInput.value = nbPersonnes;

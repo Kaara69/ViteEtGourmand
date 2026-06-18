@@ -67,6 +67,7 @@ CREATE TABLE `commandes` (
   `frais_livraison` decimal(8,2) DEFAULT 5.00,
   `remise` decimal(8,2) DEFAULT 0.00,
   `date_evenement` date DEFAULT NULL,
+  `heure_evenement` date DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 

@@ -1,4 +1,4 @@
-<?php
+évènement<?php
 session_start();
 include __DIR__ . '/../includes/auth.php';
 checkLogin('../login.php');
@@ -136,13 +136,29 @@ function renderTrack($statut, $id) {
                                     <tbody>
                                         <?php $subtotal_items = 0;
                                         foreach ($details[$c['id']] as $it):
-                                        $line = $it['quantite']*$it['prix_unitaire'];
-                                        $subtotal_items += $line;
+                                            $pmin = (int)($it['personnes_min'] ?? 1);
+                                            if ($pmin > 1) {
+                                                // Menu collectif : prix par personne × nb personnes de la commande
+                                                $pu_affiche = $it['prix_unitaire'] / $pmin;
+                                                $line = $pu_affiche * $c['nb_personnes'] * $it['quantite'];
+                                            } else {
+                                                // Menu individuel classique
+                                                $pu_affiche = $it['prix_unitaire'];
+                                                $line = $it['quantite'] * $it['prix_unitaire'];
+                                            }
+                                            $subtotal_items += $line;
                                         ?>
                                         <tr>
-                                            <td><?= htmlspecialchars($it['nom_menu']) ?></td>
+                                            <td>
+                                                <?= htmlspecialchars($it['nom_menu']) ?>
+                                                <?php if ($pmin > 1): ?>
+                                                    <div class="text-muted" style="font-size:.72rem;">
+                                                        <?= number_format($pu_affiche, 2, ',', ' ') ?> €/pers. × <?= (int)$c['nb_personnes'] ?> pers.
+                                                    </div>
+                                                <?php endif; ?>
+                                            </td>
                                             <td><?= $it['quantite'] ?></td>
-                                            <td><?= number_format($it['prix_unitaire'],2,',',' ') ?> €</td>
+                                            <td><?= number_format($pu_affiche,2,',',' ') ?> €<?= $pmin > 1 ? '<span class="text-muted" style="font-size:.7rem;">/pers.</span>' : '' ?></td>
                                             <td><?= number_format($line,2,',',' ') ?> €</td>
                                         </tr>
                                         <?php endforeach; ?>
@@ -166,13 +182,25 @@ function renderTrack($statut, $id) {
                                 <p class="small fw-bold" style="color:var(--gold);">
                                     <i class="bi bi-calendar-event me-1"></i>Date de l'événement :
                                     <?= date('d/m/Y', strtotime($c['date_evenement'])) ?>
+
+                                    <?php if (!empty($c['heure_evenement'])): ?>
+                                        à <?= date('H:i', strtotime($c['heure_evenement'])) ?>
+                                    <?php endif; ?>
                                 </p>
                                 <?php endif; ?>
+
                                 <?php if (!empty($c['nb_personnes']) && $c['nb_personnes'] > 1): ?>
-                                <p class="text-muted small"><i class="bi bi-people me-1"></i><strong>Nb personnes :</strong> <?= (int)$c['nb_personnes'] ?></p>
+                                <p class="text-muted small">
+                                    <i class="bi bi-people me-1"></i>
+                                    <strong>Nb personnes :</strong> <?= (int)$c['nb_personnes'] ?>
+                                </p>
                                 <?php endif; ?>
+
                                 <?php if ($c['notes']): ?>
-                                <p class="text-muted small"><i class="bi bi-chat-left-text me-1"></i><strong>Notes :</strong> <?= htmlspecialchars($c['notes']) ?></p>
+                                <p class="text-muted small">
+                                    <i class="bi bi-chat-left-text me-1"></i>
+                                    <strong>Notes :</strong> <?= htmlspecialchars($c['notes']) ?>
+                                </p>
                                 <?php endif; ?>
                             </div> <!-- col-md-6 -->
 
