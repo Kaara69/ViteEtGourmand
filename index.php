@@ -229,8 +229,8 @@ if ($stmt_horaires) {
                     </div>
                 </div>
                 <div class="mt-5">
-                    <a href="contact.php" class="btn btn-gold btn-lg me-3">Nous contacter</a>
-                    <a href="menus.php" class="btn btn-outline-gold btn-lg">Voir la carte</a>
+                    <a href="contact.php" class="btn btn-gold me-3 mb-4">Nous contacter</a>
+                    <a href="menus.php" class="btn btn-outline-gold mb-4">Voir la carte</a>
                 </div>
             </div>
             <div class="col-lg-6">
