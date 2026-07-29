@@ -1,195 +1,76 @@
 <?php
-/**
- * Store NoSQL-like dans MySQL (table `nosql_documents`)
- * 
- * Table:
- *   id           INT AUTO_INCREMENT PRIMARY KEY
- *   collection   VARCHAR(100)
- *   doc_id       VARCHAR(40)  (id du document)
- *   data         JSON
- *   created_at   DATETIME
- *   updated_at   DATETIME
- */
+
+use MongoDB\Client;
+
 class NoSQLStore
 {
-    private PDO $pdo;
+    private \MongoDB\Database $db;
 
     public function __construct()
     {
-        // Utilise la connexion globale $pdo si elle existe
-        global $pdo;
-        if ($pdo instanceof PDO) {
-            $this->pdo = $pdo;
-        } else {
-            // Sinon, créer une connexion PDO (comme dans config.php)
-            require_once dirname(__DIR__) . '/config.php';
-            $dsn = sprintf(
-                'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
-                DB_HOST, DB_PORT, DB_NAME
-            );
-            $this->pdo = new PDO($dsn, DB_USER, DB_PASS, [
-                PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            ]);
-        }
+        $host   = getenv('MONGO_HOST') ?: 'localhost';
+        $port   = getenv('MONGO_PORT') ?: '27017';
+        $dbName = getenv('MONGO_DB')   ?: 'vite_gourmand';
+
+        $client   = new Client("mongodb://{$host}:{$port}");
+        $this->db = $client->selectDatabase($dbName);
     }
 
-    // Génération d'ID simple
     private function newId(): string
     {
         return bin2hex(random_bytes(16));
     }
 
-    // Récupère tous les docs d'une collection
-    private function fetchAll(string $col): array
+    // Convertit un objet BSON (retourné par le driver) en tableau PHP classique
+    private function toArray($doc): array
     {
-        $stmt = $this->pdo->prepare(
-            "SELECT doc_id, data FROM nosql_documents WHERE collection = ? ORDER BY created_at ASC"
-        );
-        $stmt->execute([$col]);
-        $rows = $stmt->fetchAll();
+        if ($doc === null) {
+            return [];
+        }
+        return json_decode(json_encode($doc), true);
+    }
 
+    // ── API publique (inchangée pour le reste du code) ──
+
+    public function find(string $col, array $filter = []): array
+    {
+        $cursor = $this->db->selectCollection($col)->find($filter);
         $docs = [];
-        foreach ($rows as $row) {
-            $data = json_decode($row['data'], true) ?? [];
-            $data['_id'] = $row['doc_id'];
-            $docs[] = $data;
+        foreach ($cursor as $doc) {
+            $docs[] = $this->toArray($doc);
         }
         return $docs;
     }
 
-    // Filtre par clé/valeur (PHP)
-    private function matches(array $doc, array $filter): bool
-    {
-        foreach ($filter as $key => $value) {
-            if (!isset($doc[$key])) {
-                return false;
-            }
-
-            if (is_array($value)) {
-                foreach ($value as $op => $operand) {
-                    switch ($op) {
-                        case '$gte':
-                            if ($doc[$key] < $operand) return false;
-                            break;
-                        case '$lte':
-                            if ($doc[$key] > $operand) return false;
-                            break;
-                        case '$gt':
-                            if ($doc[$key] <= $operand) return false;
-                            break;
-                        case '$lt':
-                            if ($doc[$key] >= $operand) return false;
-                            break;
-                        case '$ne':
-                            if ($doc[$key] === $operand) return false;
-                            break;
-                        case '$in':
-                            if (!in_array($doc[$key], $operand, true)) return false;
-                            break;
-                    }
-                }
-            } else {
-                if ($doc[$key] !== $value) {
-                    return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    // ── API publique
-
-     // Récupère tous les documents d'une collection qui correspondent au filtre
-    public function find(string $col, array $filter = []): array
-    {
-        $docs = $this->fetchAll($col);
-        if (empty($filter)) {
-            return $docs;
-        }
-
-        $results = [];
-        foreach ($docs as $d) {
-            if ($this->matches($d, $filter)) {
-                $results[] = $d;
-            }
-        }
-        return $results;
-    }
-
-    /* Récupère le premier document qui correspond au filtre */
-
     public function findOne(string $col, array $filter = []): ?array
     {
-        $results = $this->find($col, $filter);
-        return $results[0] ?? null;
+        $doc = $this->db->selectCollection($col)->findOne($filter);
+        return $doc ? $this->toArray($doc) : null;
     }
-
-    /* Insère un nouveau document */
 
     public function insertOne(string $col, array $doc): array
     {
-        $id  = $this->newId();
-        $now = date('Y-m-d H:i:s');
+        $doc['_id']         = $doc['_id'] ?? $this->newId();
+        $doc['_created_at'] = date('Y-m-d H:i:s');
 
-        $doc['_created_at'] = $now;
-        $doc['_id']          = $id;
-
-        $stmt = $this->pdo->prepare(
-            "INSERT INTO nosql_documents (collection, doc_id, data, created_at, updated_at)
-             VALUES (?, ?, ?, ?, ?)"
-        );
-        $stmt->execute([
-            $col,
-            $id,
-            json_encode($doc, JSON_UNESCAPED_UNICODE),
-            $now,
-            $now,
-        ]);
+        $this->db->selectCollection($col)->insertOne($doc);
 
         return $doc;
     }
 
-    /* Met à jour le premier document trouvé */
     public function updateOne(string $col, array $filter, array $update): bool
     {
-        $docs = $this->fetchAll($col);
+        unset($update['_id']);
+        $update['_updated_at'] = date('Y-m-d H:i:s');
 
-        foreach ($docs as $doc) {
-            if ($this->matches($doc, $filter)) {
-                $id = $doc['_id'];
-                $now = date('Y-m-d H:i:s');
+        $result = $this->db->selectCollection($col)->updateOne(
+            $filter,
+            ['$set' => $update]
+        );
 
-                // Fusionne le doc original avec les modifications
-                $updated = $doc; // copie
-                foreach ($update as $k => $v) {
-                    $updated[$k] = $v;
-                }
-                $updated['_updated_at'] = $now;
-
-                unset($updated['_id']);
-
-                $stmt = $this->pdo->prepare(
-                    "UPDATE nosql_documents
-                     SET data = ?, updated_at = ?
-                     WHERE collection = ? AND doc_id = ?"
-                );
-                $stmt->execute([
-                    json_encode($updated, JSON_UNESCAPED_UNICODE),
-                    $now,
-                    $col,
-                    $id,
-                ]);
-
-                return true; // on ne met à jour qu’un seul doc
-            }
-        }
-
-        return false;
+        return $result->getMatchedCount() > 0;
     }
 
-    /* Insert si n’existe pas, sinon met à jour */
-    
     public function upsertOne(string $col, array $filter, array $doc): array
     {
         $existing = $this->findOne($col, $filter);
@@ -203,51 +84,17 @@ class NoSQLStore
         return $this->insertOne($col, array_merge($filter, $doc));
     }
 
-    /**
-     * Supprime tous les docs qui correspondent au filtre
-     */
     public function deleteMany(string $col, array $filter = []): int
     {
-        if (empty($filter)) {
-            $stmt = $this->pdo->prepare("DELETE FROM nosql_documents WHERE collection = ?");
-            $stmt->execute([$col]);
-            return $stmt->rowCount();
-        }
-
-        $docs = $this->fetchAll($col);
-        $deleted = 0;
-
-        $stmt = $this->pdo->prepare(
-            "DELETE FROM nosql_documents WHERE collection = ? AND doc_id = ?"
-        );
-
-        foreach ($docs as $doc) {
-            if ($this->matches($doc, $filter)) {
-                $stmt->execute([$col, $doc['_id']]);
-                $deleted++;
-            }
-        }
-
-        return $deleted;
+        $result = $this->db->selectCollection($col)->deleteMany($filter);
+        return $result->getDeletedCount();
     }
 
-    /**
-     * Compte les documents
-     */
     public function count(string $col, array $filter = []): int
     {
-        if (empty($filter)) {
-            $stmt = $this->pdo->prepare(
-                "SELECT COUNT(*) FROM nosql_documents WHERE collection = ?"
-            );
-            $stmt->execute([$col]);
-            return (int)$stmt->fetchColumn();
-        }
-
-        return count($this->find($col, $filter));
+        return $this->db->selectCollection($col)->countDocuments($filter);
     }
 }
-
 /**
  * Synchronise les stats depuis MySQL vers NoSQLStore
  */

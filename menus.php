@@ -1,8 +1,10 @@
 <?php
 session_start();
 
-include 'includes/db.php';
+require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/includes/db.php';
 
+var_dump(BASE_URL);
 
 $active_page = 'menus';
 
@@ -92,7 +94,6 @@ foreach ($menus as $menu) {
 // Liste des noms de catégories (utilisée pour les filtres)
 $categories = array_keys($menus_par_categorie);
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -309,7 +310,7 @@ $categories = array_keys($menus_par_categorie);
 
                         <?php if (!empty($menu['image_url'])): ?>
                             <!-- Image réelle depuis la base de données -->
-                            <img src="<?= htmlspecialchars($menu['image_url']) ?>"
+                            <img src="/<?= htmlspecialchars($menu['image_url']) ?>">
                                 alt="<?= htmlspecialchars($menu['nom']) ?>"
                                 class="menu-img" loading="lazy">
                         <?php else: ?>

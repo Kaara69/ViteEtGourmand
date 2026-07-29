@@ -3,6 +3,7 @@ $_active = $active_page ?? '';
 $_logged = isset($_SESSION['user_id']);
 $_role   = $_SESSION['role'] ?? '';
 ?>
+
 <nav class="navbar navbar-expand-lg navbar-main sticky-top">
     <div class="container">
         <a class="navbar-brand" href="<?= strpos($_SERVER['PHP_SELF'],'/user/')!==false||strpos($_SERVER['PHP_SELF'],'/admin/')!==false||strpos($_SERVER['PHP_SELF'],'/employee/')!==false ? '../index.php' : 'index.php' ?>"> Vite &amp; Gourmand</a>

@@ -1,22 +1,18 @@
 <?php
 
-$is_local = ($_SERVER['HTTP_HOST'] === 'localhost');
+$is_local = str_starts_with($_SERVER['HTTP_HOST'] ?? '', 'localhost');
 
 if ($is_local) {
-define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
-define('DB_PORT', getenv('DB_PORT') ?: '3307');
-define('DB_NAME', getenv('DB_NAME') ?: 'vite_gourmand');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
-define('BASE_URL', '/viteetgourmand/');
-
-} else {
-    define('DB_HOST', 'nom host infinity');
-    define('DB_PORT', 'port');
-    define('DB_NAME', 'epiz_XXXXXXX_vg');
-    define('DB_USER', 'epiz_XXXXXXX_vg');
-    define('DB_PASS', '***');
+    define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
+    define('DB_PORT', getenv('DB_PORT') ?: '3306');
+    define('DB_NAME', getenv('DB_NAME') ?: 'vite_gourmand');
+    define('DB_USER', getenv('DB_USER') ?: 'root');
+    define('DB_PASS', getenv('DB_PASS') ?: '');
     define('BASE_URL', '/');
+
+    define('MONGO_HOST', getenv('MONGO_HOST') ?: 'localhost');
+    define('MONGO_PORT', getenv('MONGO_PORT') ?: '27017');
+    define('MONGO_DB',   getenv('MONGO_DB')   ?: 'vite_gourmand');
 }
 
 require_once __DIR__ . '/vendor/autoload.php';

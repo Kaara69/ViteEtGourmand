@@ -1,27 +1,5 @@
 <?php
 session_start();
-
-// Vérification de connexion + rôle
-$is_logged = isset($_SESSION['user_id']);
-$role      = '';
-if ($is_logged && isset($_SESSION['role'])) {
-    $role = $_SESSION['role'];
-}
-
-// Chargement de la navbar adaptée
-if ($is_logged) {
-    if ($role === 'admin') {
-        include 'includes/partials/admin_nav.php';
-    } elseif ($role === 'employee') {
-        include 'includes/partials/employee_nav.php';
-    } else {
-        // Par défaut : simple utilisateur connecté
-        include 'includes/partials/user_nav.php';
-    }
-} else {
-    include 'includes/partials/public_nav.php';
-}
-
 include 'includes/db.php';
 
 // Message d'erreur (vide au départ)
@@ -59,6 +37,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Si on arrive ici, c’est que l’email ou le mot de passe est incorrect
     $error = 'Email ou mot de passe incorrect.';
 }
+
+// Vérification de connexion + rôle
+$is_logged = isset($_SESSION['user_id']);
+$role      = '';
+if ($is_logged && isset($_SESSION['role'])) {
+    $role = $_SESSION['role'];
+}
+
+// Chargement de la navbar adaptée
+if ($is_logged) {
+    if ($role === 'admin') {
+        include 'includes/partials/admin_nav.php';
+    } elseif ($role === 'employee') {
+        include 'includes/partials/employee_nav.php';
+    } else {
+        // Par défaut : simple utilisateur connecté
+        include 'includes/partials/user_nav.php';
+    }
+} else {
+    include 'includes/partials/public_nav.php';
+}
+
+
+
+
 ?>
 
 <!DOCTYPE html>

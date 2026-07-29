@@ -280,7 +280,7 @@ if ($heure_ev) {
                 " . ($notes ? "<p style='margin:.3rem 0;font-size:.9rem;color:#555;'>📝 <strong>Notes :</strong> $notes</p>" : "") . "
             </div>
             <div style='text-align:center;margin-top:1.5rem;'>
-                <a href='http://localhost/ViteEtGourmand/user/orders.php'
+                <a href='<?= BASE_URL ?>user/orders.php'
                    style='background:#C9973D;color:#1C1510;padding:.75rem 2rem;border-radius:8px;text-decoration:none;font-weight:700;'>
                     Suivre ma commande →
                 </a>
@@ -380,7 +380,7 @@ $cat_style = [
                     <div class="col-md-6">
                         <div class="menu-card shadow-sm h-100">
                             <?php if (!empty($m['image_url'])): ?>
-                                <img src="/viteetgourmand/<?= htmlspecialchars($m['image_url']) ?>" class="menu-img" alt="<?= htmlspecialchars($m['nom'])  ?>"loading="lazy">
+                                <img src="<?= BASE_URL . htmlspecialchars($m['image_url']) ?>" class="menu-img" alt="<?= htmlspecialchars($m['nom'])  ?>"loading="lazy">
                             <?php else: ?>
                             <div class="menu-img-ph" style="background:<?= $cs[1] ?>;"><?= $cs[0] ?></div>
                             <?php endif; ?>
@@ -427,7 +427,7 @@ $cat_style = [
                                             data-ppp="<?= $ppp ? number_format($ppp, 2, ',', ' ') : '' ?>"
                                             data-pers="<?= $pers ?>"
                                             data-cat="<?= htmlspecialchars($cat, ENT_QUOTES) ?>"
-                                            data-img="<?= htmlspecialchars('/viteetgourmand/' . ($m['image_url'] ?? ''), ENT_QUOTES) ?>"
+                                            data-img="<?= htmlspecialchars(BASE_URL . ($m['image_url'] ?? ''), ENT_QUOTES) ?>"
                                             data-allergens="<?= htmlspecialchars($m['allergenes'] ?? '', ENT_QUOTES) ?>"
                                             data-regimes="<?= htmlspecialchars($m['regime'] ?? '', ENT_QUOTES) ?>"
                                             data-color="<?= $cs[1] ?>"
@@ -624,10 +624,16 @@ function fmtKm(n){ return n < 1 ? '< 1 km' : Math.round(n) + ' km'; }
 // ── Recalcul totaux (debug prix/personnes)
 
 function calcTotals() {
+
     let subtotal = 0, remise = 0;
     cart.filter(i => i.qty > 0).forEach(i => {
         const pmin = parseInt(i.personnes_min) || 1;
-
+console.log(i.nom, {
+    prix: i.prix,
+    personnes_min: i.personnes_min,
+    pmin,
+    qty: i.qty
+});
         // Menu collectif (ex: 750€ pour 20 pers min)
         // → prix par personne × nb personnes choisi
         // Menu individuel (ex: 19.90€/pers)
