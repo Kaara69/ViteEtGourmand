@@ -1,41 +1,41 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+
+
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/ReviewRepository.php';
+
+$reviewRepository = new ReviewRepository($pdo);
+
 checkAdmin();
-include __DIR__ . '/../includes/db.php';
+
 $active_page = 'reviews';
 
 if (isset($_GET['approve'])) {
-    $pdo->prepare("UPDATE avis SET statut='approuvé' WHERE id=?")->execute([(int)$_GET['approve']]);
-    header('Location: reviews.php?filtre=en attente&ok=approuvé'); exit;
+    $reviewRepository->approve((int)$_GET['approve']);
+    header('Location: reviews.php?filtre=en attente&ok=approuvé');
+    exit;
 }
+
 if (isset($_GET['reject'])) {
-    $pdo->prepare("UPDATE avis SET statut='refusé' WHERE id=?")->execute([(int)$_GET['reject']]);
-    header('Location: reviews.php?filtre=en attente&ok=refusé'); exit;
+    $reviewRepository->reject((int)$_GET['reject']);
+    header('Location: reviews.php?filtre=en attente&ok=refusé');
+    exit;
 }
+
 if (isset($_GET['delete'])) {
-    $pdo->prepare("DELETE FROM avis WHERE id=?")->execute([(int)$_GET['delete']]);
-    header('Location: reviews.php?ok=supprimé'); exit;
+    $reviewRepository->delete((int)$_GET['delete']);
+    header('Location: reviews.php?ok=supprimé');
+    exit;
 }
 
 $filtre = $_GET['filtre'] ?? 'tous';
-$counts = [];
-foreach (['tous','en attente','approuvé','refusé'] as $f) {
-    if ($f === 'tous') $counts[$f] = $pdo->query("SELECT COUNT(*) FROM avis")->fetchColumn();
-    else $counts[$f] = $pdo->prepare("SELECT COUNT(*) FROM avis WHERE statut=?")->execute([$f]) ? $pdo->prepare("SELECT COUNT(*) FROM avis WHERE statut=?")->execute([$f]) : 0;
-}
-// Recompute correctly
-$counts = ['tous' => $pdo->query("SELECT COUNT(*) FROM avis")->fetchColumn()];
-foreach (['en attente','approuvé','refusé'] as $f) {
-    $s = $pdo->prepare("SELECT COUNT(*) FROM avis WHERE statut=?"); $s->execute([$f]);
-    $counts[$f] = $s->fetchColumn();
-}
+$counts = $reviewRepository->getCounts();
 
-$where = ($filtre !== 'tous') ? "WHERE statut=?" : "WHERE 1";
-$params = ($filtre !== 'tous') ? [$filtre] : [];
-$stmt = $pdo->prepare("SELECT a.*,u.email FROM avis a LEFT JOIN users u ON u.id=a.user_id $where ORDER BY a.created_at DESC");
-$stmt->execute($params);
-$avis = $stmt->fetchAll();
+$avis = $reviewRepository->getAllWithUsers(
+    $filtre === 'tous' ? null : $filtre
+);
 ?>
 
 <!DOCTYPE html>

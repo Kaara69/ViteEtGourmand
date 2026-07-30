@@ -32,7 +32,7 @@ if (isset($_GET['delete'])) {
 $filtre = $_GET['filtre'] ?? 'tous';
 $counts = $reviewRepository->getCounts();
 $avis = $reviewRepository->getAllWithUsers(
-    $filtre === 'tous' ? null : $filtre
+$filtre === 'tous' ? null : $filtre
 );
 ?>
 <!DOCTYPE html>
