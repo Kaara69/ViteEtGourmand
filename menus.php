@@ -310,7 +310,7 @@ $categories = array_keys($menus_par_categorie);
 
                         <?php if (!empty($menu['image_url'])): ?>
                             <!-- Image réelle depuis la base de données -->
-                            <img src="/<?= htmlspecialchars($menu['image_url']) ?>">
+                            <img src="/<?= htmlspecialchars($menu['image_url']) ?>"
                                 alt="<?= htmlspecialchars($menu['nom']) ?>"
                                 class="menu-img" loading="lazy">
                         <?php else: ?>
@@ -455,7 +455,7 @@ $categories = array_keys($menus_par_categorie);
                         <p id="m-cat" class="mb-0" style="color: var(--gold); font-size: .72rem; letter-spacing: 2px; text-transform: uppercase;"></p>
                         <h4 id="m-nom" class="text-white fw-bold mb-0" syle="font-family: 'Playfair Display', serif;"></h4>
                     </div>
-                    <button class="btn-close btn-close-white ms-auto" type="button" data-bs-dismiss="modal"></button>
+                    <button class="btn-close btn-close-black ms-auto" type="button" data-bs-dismiss="modal"></button>
                 </div> <!-- modal header-->
                                 <!-- corps modal  -->
                 
