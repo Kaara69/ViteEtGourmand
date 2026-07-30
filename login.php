@@ -72,8 +72,8 @@ if ($is_logged) {
     <title>Connexion</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/global.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/public.css">
 </head>
 <body>
     <div class="row g-0 min-vh-100">

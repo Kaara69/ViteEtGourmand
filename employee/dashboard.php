@@ -22,8 +22,8 @@ $avis_att=$pdo->query("SELECT * FROM avis WHERE statut='en attente' ORDER BY cre
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Employe</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="../css/global.css">
-    <link rel="stylesheet" href="../css/espace.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/global.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/espace.css">
 </head>
 <body class="bg-light">
     <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>

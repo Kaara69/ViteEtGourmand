@@ -48,12 +48,12 @@ if (!empty($_FILES['image_file']['name'])) {
             // Nom unique + sauvegarde
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $filename = uniqid('menu_') . '.' . strtolower($ext);
-            $dest = dirname(__DIR__) . '/uploads/' . $filename;
+            $dest = dirname(__DIR__) . '/assets/uploads/' . $filename;
             
             if (move_uploaded_file($file['tmp_name'], $dest)) {
-                $image_url = 'uploads/' . $filename;  // Chemin relatif
+                $image_url = 'assets/uploads/' . $filename;  // Chemin relatif
             } else {
-                $msg_err = '❌ Permissions uploads/ ?';
+                $msg_err = '❌ Permissions assets/uploads/ ?';
             }
         }
     }
@@ -106,8 +106,8 @@ foreach ($menus as $m) {
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Menus – Admin</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="../css/global.css">
-<link rel="stylesheet" href="../css/espace.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/global.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/espace.css">
 </head>
 <body class="bg-light">
 
@@ -157,7 +157,7 @@ foreach ($menus as $m) {
                                 <?php if ($edit && !empty($edit['image_url'])): ?>
                                 <div class="mb-2 d-flex align-items-center gap-3">
                                     <?php $preview = $edit['image_url'];
-                                            if (str_starts_with($preview, 'uploads/')) $preview = '../' . $preview; ?>
+                                            if (str_starts_with($preview, 'assets/uploads/')) $preview = '../' . $preview; ?>
                                     <img src="<?= htmlspecialchars($preview) ?>" alt="Photo actuelle"
                                         style="width:80px;height:60px;object-fit:cover;border-radius:6px;border:2px solid var(--gold);">
                                     <span class="text-muted small">Photo actuelle</span>

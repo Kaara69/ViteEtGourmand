@@ -11,8 +11,8 @@ $active_page = '';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Conditions Générales de Vente — Vite &amp; Gourmand</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/global.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/public.css">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>

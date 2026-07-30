@@ -1,22 +1,4 @@
 <?php
-// TEMPORAIRE : pour voir le site sans erreurs
-// session_start();
-// $is_logged = false;
-// $role = '';
-// $avis = []; // Pas d'avis pour l'instant
-// $horaires = [];
-
-// function stars($note) {
-//     $html = '';
-//     for($i=1; $i<=5; $i++) {
-//         $html .= ($i <= $note) ? '★' : '☆';
-//     }
-//     return $html;
-// }
-
-
-
-// Démarre la session PHP (pour accéder à $_SESSION) session_start();
 
 // Connexions et includes
 include 'includes/db.php';
@@ -74,19 +56,6 @@ if ($stmt_horaires) {
     }
 }
 
-
-// function stars($note) {
-//     $note = (int) $note;
-//     $html = '';
-//     for ($i = 0; $i < 5; $i++) {
-//         if ($i < $note) {
-//             $html .= '<span class="star">★</span>';
-//         } else {
-//             $html .= '<span class="star">☆</span>';
-//         }
-//     }
-//     return $html;
-// }
 ?>
 
 <!DOCTYPE html>
@@ -99,8 +68,8 @@ if ($stmt_horaires) {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/global.css">
-    <link rel="stylesheet" href="css/public.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/global.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>assets/css/public.css">
 </head>
 
 <body>
@@ -139,7 +108,7 @@ if ($stmt_horaires) {
             <div class="col-lg-5 d-none d-lg-block text-center">
                 <div style="width: 360px;height: 360px;margin: auto;border-radius: 50%;background: linear-gradient(135deg, rgba(201,151,61,.15), rgba(201,151,61,.05));
                     border: 2px solid var(--gold);display: flex;align-items: center;justify-content: center;">
-                    <img src="uploads/chefs.jpg" alt="Julie et José" style="width: 320px;height: 320px;object-fit: cover; border-radius:50%;">
+                    <img src="assets/images/chefs.jpg" alt="Julie et José" style="width: 320px;height: 320px;object-fit: cover; border-radius:50%;">
                 </div>
             </div>
         </div>
