@@ -1,18 +1,22 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
+require_once __DIR__ . '/../repositories/ReviewRepository.php';
+require_once __DIR__ . '/../includes/db.php';
+$orderRepository = new OrderRepository($pdo);
+$reviewRepository = new ReviewRepository($pdo);
+
 checkAdminOrEmployee();
+
 if ($_SESSION['role']==='admin') { header('Location: ../admin/dashboard.php'); exit; }
-include __DIR__ . '/../includes/db.php';
+
 $active_page='dashboard';
-$stats=[
-    'total' => $pdo->query("SELECT COUNT(*) FROM commandes")->fetchColumn(),
-    'att'   => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en attente'")->fetchColumn(),
-    'prep'  => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en preparation'")->fetchColumn(),
-    'pret'  => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='pret'")->fetchColumn(),
-];
-$recentes=$pdo->query("SELECT c.*,u.nom as client FROM commandes c JOIN users u ON u.id=c.user_id ORDER BY c.created_at DESC LIMIT 8")->fetchAll();
-$avis_att=$pdo->query("SELECT * FROM avis WHERE statut='en attente' ORDER BY created_at DESC LIMIT 5")->fetchAll();
+
+$stats = $orderRepository->getDashboardStats();
+$recentes = $orderRepository->getRecent();
+$avis_att = $reviewRepository->getPending();
+
 ?>
 
 <!DOCTYPE html>
@@ -27,7 +31,7 @@ $avis_att=$pdo->query("SELECT * FROM avis WHERE statut='en attente' ORDER BY cre
 </head>
 <body class="bg-light">
     <?php include __DIR__ . '/../includes/partials/employee_nav.php'; ?>
-    <div class="contrainer-fluid py-4">
+    <div class="contrainer-fluid py-4 px-5">
         <div class="row g-3 mb-4">
             <div class="col-6 col-lg-3"><div class="card text-white bg-primary h-100"><div class="card-body"><div class="fs-2 fw-bold"><?= $stats['total'] ?></div><div class="small">Commandes total</div></div></div></div>
             <div class="col-6 col-lg-3"><div class="card text-dark bg-warning h-100"><div class="card-body"><div class="fs-2 fw-bold"><?= $stats['att'] ?></div><div class="small">En attente</div></div></div></div>

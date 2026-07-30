@@ -1,50 +1,81 @@
 <?php 
 session_start();
 
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/MenuRepository.php';
+
+$menuRepository = new MenuRepository($pdo);
+
 checkAdminOrEmployee();
-if ($_SESSION['role']==='admin') {header('Location: ../admin/menus.php'); exit;}
-include __DIR__ . '/../includes/db.php';
+
+    if ($_SESSION['role'] === 'admin') {
+        header('Location: ../admin/menus.php');
+        exit;
+    }
 
 $active_page = 'menus';
 
 $msg = '';
-if (isset($_GET['delete'])) {
-    $pdo->prepare("DELETE FROM menus WHERE id=?")->execute([(int)$_GET['delete']]);
-    header('Location: menus.php?ok=supprimé'); exit;
-}
-if (isset($_GET['toggle'])) {
-    $pdo->prepare("UPDATE menus SET disponible = CASE WHEN disponible=1 THEN 0 ELSE 1 END WHERE id=?")->execute([(int)$_GET['toggle']]);
-    header('Location: menus.php'); exit;
-}
-if ($_SERVER['REQUEST_METHOD']==='POST') {
-    $nom   = trim($_POST['nom']);
-    $desc  = trim($_POST['description']);
-    $prix  = (float)str_replace(',','.',$_POST['prix']);
-    $cat   = trim($_POST['categorie']);
-    $dispo = isset($_POST['disponible']) ? 1 : 0;
-    if ($_POST['id']) {
-        $image_url=trim($_POST['image_url']??'');
-        $pdo->prepare("UPDATE menus SET nom=?,description=?,prix=?,categorie=?,disponible=?,image_url=? WHERE id=?")
-            ->execute([$nom,$desc,$prix,$cat,$dispo,$image_url,(int)$_POST['id']]);
-        $msg = 'Menu mis à jour avec succès.';
-    } else {
-        $image_url=trim($_POST['image_url']??'');
-        $pdo->prepare("INSERT INTO menus (nom,description,prix,categorie,disponible,image_url) VALUES (?,?,?,?,?,?)")
-            ->execute([$nom,$desc,$prix,$cat,$dispo,$image_url]);
-        $msg = 'Menu ajouté avec succès.';
+    if (isset($_GET['delete'])) {
+        $menuRepository->delete((int)$_GET['delete']);
+        header('Location: menus.php?ok=supprimé'); exit;
     }
+    if (isset($_GET['toggle'])) {
+        $menuRepository->toggleAvailability((int)$_GET['toggle']);
+        header('Location: menus.php'); exit;
+    }
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+        $nom   = trim($_POST['nom']);
+        $desc  = trim($_POST['description']);
+        $prix  = (float)str_replace(',', '.', $_POST['prix']);
+        $cat   = trim($_POST['categorie']);
+        $dispo = isset($_POST['disponible']) ? 1 : 0;
+        $image_url = trim($_POST['image_url'] ?? '');
+
+        if (!empty($_POST['id'])) {
+
+            $menuRepository->update(
+                (int)$_POST['id'],
+                $nom,
+                $desc,
+                $prix,
+                $cat,
+                $dispo,
+                $image_url
+            );
+
+            $msg = 'Menu mis à jour avec succès.';
+
+        } else {
+            $menuRepository->create(
+                $nom,
+                $desc,
+                $prix,
+                $cat,
+                $dispo,
+                $image_url
+            );
+
+            $msg = 'Menu ajouté avec succès.';
+        }
+    }
+
+    $edit = null;
+
+    if (isset($_GET['edit'])) {
+        $edit = $menuRepository->findById((int)$_GET['edit']);
+    }
+
+    $cats = $menuRepository->getCategories();
+    $menus = $menuRepository->getAll();
+
+    $by_cat = [];
+
+    foreach ($menus as $m) {
+        $by_cat[$m['categorie']][] = $m;
 }
-$edit = null;
-if (isset($_GET['edit'])) {
-    $s = $pdo->prepare("SELECT * FROM menus WHERE id=?");
-    $s->execute([(int)$_GET['edit']]);
-    $edit = $s->fetch();
-}
-$cats   = $pdo->query("SELECT DISTINCT categorie FROM menus ORDER BY categorie")->fetchAll(PDO::FETCH_COLUMN);
-$menus  = $pdo->query("SELECT * FROM menus ORDER BY categorie,nom")->fetchAll();
-$by_cat = [];
-foreach ($menus as $m) $by_cat[$m['categorie']][] = $m;
 ?>
 
 <!DOCTYPE html>
@@ -69,7 +100,7 @@ foreach ($menus as $m) $by_cat[$m['categorie']][] = $m;
         <?php if ($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
         <?php if (isset($_GET['ok'])): ?><div class="alert alert-info">Menu <?= htmlspecialchars($_GET['ok']) ?>.</div><?php endif; ?>
         
-        <div class="collapse" <?= $edit ? 'show' : '' ?> id="forMenu">
+        <div class="collapse <?= $edit ? 'show' : '' ?>" id="forMenu">
             <div class="card">
                 <div class="card-header fw-bold"><?= $edit ? 'Modifier : ' .htmlspecialchars($edit['nom']) : 'Nouveau menu' ?></div>
                 <div class="card-body">

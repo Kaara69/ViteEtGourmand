@@ -73,7 +73,7 @@ $cat_config = [
 $max_pers = $menuRepository->getMaxPersonnes();
 
 // Récupère tous les menus disponibles, triés par catégorie puis par nom
-$menus = $menuRepository->getAvailableMenus();
+$menus = $menuRepository->getAllAvailable();
 
 
 // Regroupe les menus par cat dans un tableau associatif

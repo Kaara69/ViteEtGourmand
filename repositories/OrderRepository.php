@@ -171,4 +171,30 @@ class OrderRepository
 
         return (int)$stmt->fetchColumn() > 0;
     }
+// stats
+    public function getDashboardStats(): array
+    {
+        return [
+            'total' => $this->pdo->query("SELECT COUNT(*) FROM commandes")->fetchColumn(),
+            'att'   => $this->pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en attente'")->fetchColumn(),
+            'prep'  => $this->pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en preparation'")->fetchColumn(),
+            'pret'  => $this->pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='pret'")->fetchColumn(),
+        ];
+    }
+// cmd recentes
+    public function getRecent(int $limit = 8): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT c.*, u.nom AS client
+        FROM commandes c
+        JOIN users u ON u.id = c.user_id
+        ORDER BY c.created_at DESC
+        LIMIT :limite
+    ");
+
+    $stmt->bindValue(':limite', $limit, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }
