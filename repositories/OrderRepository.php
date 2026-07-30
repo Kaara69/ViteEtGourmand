@@ -157,4 +157,18 @@ class OrderRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function hasCompletedOrder(int $userId): bool
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*)
+            FROM commandes
+            WHERE user_id = ?
+            AND statut IN ('livré', 'terminée')
+        ");
+
+        $stmt->execute([$userId]);
+
+        return (int)$stmt->fetchColumn() > 0;
+    }
 }

@@ -19,4 +19,40 @@ class ReviewRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function create(
+        int $userId,
+        string $nom,
+        string $contenu,
+        int $note
+    ): void
+    {
+        $stmt = $this->pdo->prepare("
+            INSERT INTO avis
+            (user_id, nom, contenu, note, statut)
+            VALUES (?, ?, ?, ?, 'en attente')
+        ");
+
+        $stmt->execute([
+            $userId,
+            $nom,
+            $contenu,
+            $note
+        ]);
+    }
+
+    public function getByUser(int $userId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT *
+            FROM avis
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        ");
+
+        $stmt->execute([$userId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+    
 }

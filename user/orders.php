@@ -7,15 +7,12 @@ require_once __DIR__ . '/../repositories/OrderRepository.php';
 checkLogin('../login.php');
 $active_page = 'orders';
 
-
 $orderRepository = new OrderRepository($pdo);
 
 // Annuler une commande
 if (isset($_POST['cancel_order'])) {
     $cid = (int)$_POST['cancel_order'];
 
-
-    // Vérifie que la commande appartient bien à l'utilisateur ET est encore "en attente"
     $cmd = $orderRepository->getByIdAndUser(
     $cid,
     $_SESSION['user_id']
@@ -57,6 +54,7 @@ function renderTrack($statut, $id) {
     return $out;
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>

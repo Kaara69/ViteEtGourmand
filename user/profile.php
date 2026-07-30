@@ -1,18 +1,21 @@
 <?php 
 session_start();
 
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/UserRepository.php';
+require_once __DIR__ . '/../repositories/ReviewRepository.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
+
 checkLogin('../login.php');
 
-include __DIR__ . '/../includes/db.php';
+$userRepository = new UserRepository($pdo);
+$reviewRepository = new ReviewRepository($pdo);
+$orderRepository = new OrderRepository($pdo);
 
 $active_page = 'profile';
 
-// Charger l'utilisateur connecté
-$user = $pdo->prepare("SELECT * FROM users WHERE id = ?");
-$user->execute([$_SESSION['user_id']]);
-$user = $user->fetch();
-
+$user = $userRepository->findById($_SESSION['user_id']);
 
 // Messages de retour
 $msg = '';
@@ -45,26 +48,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     else {
         try {
             if (!empty($pass)) {
-                // Mise à jour avec nouveau mot de passe
-                $sql = "UPDATE users
-                        SET nom = ?, prenom = ?, email = ?, telephone = ?, adresse = ?, password = ?
-                        WHERE id = ?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    $nom, $prenom, $email, $telephone, $adresse,
-                    password_hash($pass, PASSWORD_DEFAULT),
-                    $_SESSION['user_id']
-                ]);
+                $userRepository->updateProfileWithPassword(
+                    $_SESSION['user_id'],
+                    $nom,
+                    $prenom,
+                    $email,
+                    $telephone,
+                    $adresse,
+                    $pass
+                );
             } else {
-                // Mise à jour sans changer le mot de passe
-                $sql = "UPDATE users
-                        SET nom = ?, prenom = ?, email = ?, telephone = ?, adresse = ?
-                        WHERE id = ?";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([
-                    $nom, $prenom, $email, $telephone, $adresse,
-                    $_SESSION['user_id']
-                ]);
+                $userRepository->updateProfile(
+                    $_SESSION['user_id'],
+                    $nom,
+                    $prenom,
+                    $email,
+                    $telephone,
+                    $adresse
+                );
             }
 
             // Mettre à jour la session et la variable $user
@@ -91,46 +92,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_avis'])) {
     $note = max(1, min(5, (int)($_POST['note'] ?? 5)));
 
     // ── Vérification : a-t-il une commande livrée ou terminée ? ──
-    $stmtCheck = $pdo->prepare("
-        SELECT COUNT(*) FROM commandes
-        WHERE user_id = ?
-        AND statut IN ('livré', 'terminée')
-    ");
-    $stmtCheck->execute([$_SESSION['user_id']]);
-    $aCommande = (int)$stmtCheck->fetchColumn() > 0;
+    $aCommande = $orderRepository->hasCompletedOrder($_SESSION['user_id']);
 
     if (!$aCommande) {
         $error = 'Vous devez avoir une commande livrée pour laisser un avis.';
     } elseif (empty($contenu) || strlen($contenu) < 20) {
         $error = 'Votre commentaire doit faire au moins 20 caractères.';
     } else {
-        $stmt = $pdo->prepare("
-            INSERT INTO avis (user_id, nom, contenu, note, statut)
-            VALUES (?, ?, ?, ?, 'en attente')
-        ");
-        $stmt->execute([
-            $_SESSION['user_id'],
-            $user['nom'],
-            $contenu,
-            $note
-        ]);
+        // $stmt = $pdo->prepare("
+        //     INSERT INTO avis (user_id, nom, contenu, note, statut)
+        //     VALUES (?, ?, ?, ?, 'en attente')
+        // ");
+        // $stmt->execute([
+        //     $_SESSION['user_id'],
+        //     $user['nom'],
+        //     $contenu,
+        //     $note
+        // ]);
+        $reviewRepository->create(
+        $_SESSION['user_id'],
+        $user['nom'],
+        $contenu,
+        $note
+);
         $msg = 'Votre avis a été soumis et sera publié après validation par notre équipe.';
     }
 }
 
 // Charger les avis de cet utilisateur
-$stmt = $pdo->prepare("SELECT * FROM avis WHERE user_id = ? ORDER BY created_at DESC");
-$stmt->execute([$_SESSION['user_id']]);
-$mes_avis = $stmt->fetchAll();
+$mes_avis = $reviewRepository->getByUser($_SESSION['user_id']);
 
 // Vérifie si l'utilisateur peut laisser un avis
-$stmtPeutAvis = $pdo->prepare("
-    SELECT COUNT(*) FROM commandes
-    WHERE user_id = ?
-    AND statut IN ('livré', 'terminée')
-");
-$stmtPeutAvis->execute([$_SESSION['user_id']]);
-$peutLaisserAvis = (int)$stmtPeutAvis->fetchColumn() > 0;
+$peutLaisserAvis = $orderRepository->hasCompletedOrder($_SESSION['user_id']);
 
 ?>
 <!DOCTYPE html>
