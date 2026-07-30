@@ -199,17 +199,7 @@ if (isset($_GET['id'])) {
             </div>
         </div>
     </div> <!-- container -->
-<script>
-document.querySelectorAll('.statut-select').forEach(sel => {
-    sel.addEventListener('change', async function() {
-        const fb = this.parentElement.querySelector('.statut-feedback');
-        const fd = new FormData();
-        fd.append('ajax_statut','1'); fd.append('id',this.dataset.id); fd.append('statut',this.value);
-        const d = await (await fetch('orders.php',{method:'POST',body:fd})).json();
-        if (d.ok && fb) { fb.textContent='✓ Sauvegardé'; setTimeout(()=>fb.textContent='',2000); }
-    });
-});
-</script>
+<script src="<?= BASE_URL ?>assets/js/admin_orders.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
