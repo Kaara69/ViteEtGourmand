@@ -59,9 +59,6 @@ if ($is_logged) {
     include 'includes/partials/public_nav.php';
 }
 
-
-
-
 ?>
 
 <!DOCTYPE html>
