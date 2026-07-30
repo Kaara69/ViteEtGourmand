@@ -1,17 +1,22 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/UserRepository.php';
+
+$userRepository = new UserRepository($pdo);
 checkAdmin();
-include __DIR__ . '/../includes/db.php';
+
 $active_page = 'employees';
 
 $msg = ''; $error = '';
 
 if (isset($_GET['delete'])) {
     $id = (int)$_GET['delete'];
-    if ($id !== (int)$_SESSION['user_id']) {
-        $pdo->prepare("DELETE FROM users WHERE id=? AND role!='client'")->execute([$id]);
-    }
+
+if ($id !== (int)$_SESSION['user_id']) {
+    $userRepository->deleteStaff($id);
+}
     header('Location: employees.php?ok=1'); exit;
 }
 
@@ -25,16 +30,23 @@ if ($_SERVER['REQUEST_METHOD']==='POST') {
     } elseif (strlen($pass)<6) {
         $error = 'Mot de passe trop court (6 caractères minimum).';
     } else {
-        try {
-            $pdo->prepare("INSERT INTO users (nom,email,password,role) VALUES (?,?,?,?)")
-                ->execute([$nom,$email,password_hash($pass,PASSWORD_DEFAULT),$role]);
-            $msg = 'Compte créé avec succès.';
+            try {
+
+        $userRepository->createStaff(
+            $nom,
+            $email,
+            $pass,
+            $role
+        );
+
+        $msg = 'Compte créé avec succès.';
+
         } catch (PDOException $e) {
             $error = 'Cet email est déjà utilisé.';
         }
     }
 }
-$staff = $pdo->query("SELECT * FROM users WHERE role IN ('admin','employee') ORDER BY role,nom")->fetchAll();
+$staff = $userRepository->getStaff();
 ?>
 <!DOCTYPE html>
 <html lang="fr">

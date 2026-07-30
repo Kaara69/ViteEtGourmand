@@ -121,5 +121,48 @@ class UserRepository
             ")
             ->fetchColumn();
     }
-    
+// admin delete staff
+    public function deleteStaff(int $id): void
+{
+    $stmt = $this->pdo->prepare("
+        DELETE FROM users
+        WHERE id = ?
+        AND role <> 'client'
+    ");
+
+    $stmt->execute([$id]);
+}
+// admin create staff
+public function createStaff(
+    string $nom,
+    string $email,
+    string $password,
+    string $role
+): void {
+
+    $stmt = $this->pdo->prepare("
+        INSERT INTO users
+        (nom, email, password, role)
+        VALUES (?, ?, ?, ?)
+    ");
+
+    $stmt->execute([
+        $nom,
+        $email,
+        password_hash($password, PASSWORD_DEFAULT),
+        $role
+    ]);
+}
+
+public function getStaff(): array
+{
+    return $this->pdo
+        ->query("
+            SELECT *
+            FROM users
+            WHERE role IN ('admin', 'employee')
+            ORDER BY role, nom
+        ")
+        ->fetchAll(PDO::FETCH_ASSOC);
+}
 }
