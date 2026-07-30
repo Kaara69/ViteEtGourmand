@@ -1,9 +1,14 @@
 <?php
 
 // Connexions et includes
-include 'includes/db.php';
-include 'includes/auth.php';
+require_once 'includes/db.php';
+require_once 'includes/auth.php';
 
+require_once 'repositories/ReviewRepository.php';
+require_once 'repositories/ScheduleRepository.php';
+
+$reviewRepository = new ReviewRepository($pdo);
+$scheduleRepository = new ScheduleRepository($pdo);
 
 // Vérification de connexion + rôle
 $is_logged = isset($_SESSION['user_id']);
@@ -38,24 +43,8 @@ $jour_fr = [
 ];
 $today_fr = $jour_fr[date('l')];
 
-// Récupération des 6 derniers avis approuvés
-$avis = [];
-$sql_avis = "SELECT * FROM avis WHERE statut='approuvé' ORDER BY created_at DESC LIMIT 6";
-$stmt_avis = $pdo->query($sql_avis);
-if ($stmt_avis) {
-    $avis = $stmt_avis->fetchAll();
-}
-
-// Récupération des horaires
-$horaires = [];
-$sql_horaires = "SELECT * FROM horaires ORDER BY id";
-$stmt_horaires = $pdo->query($sql_horaires);
-if ($stmt_horaires) {
-    while ($h = $stmt_horaires->fetch()) {
-        $horaires[$h['jour']] = $h;
-    }
-}
-
+$avis = $reviewRepository->getLatestApproved();
+$horaires = $scheduleRepository->getAll();
 ?>
 
 <!DOCTYPE html>
