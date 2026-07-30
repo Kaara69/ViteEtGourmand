@@ -1,35 +1,42 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
-checkLogin('../login.php');
-include __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
 
+checkLogin('../login.php');
 $active_page = 'orders';
 
-// ── Annuler une commande ──────────────────────────────────────
+
+$orderRepository = new OrderRepository($pdo);
+
+// Annuler une commande
 if (isset($_POST['cancel_order'])) {
     $cid = (int)$_POST['cancel_order'];
+
+
     // Vérifie que la commande appartient bien à l'utilisateur ET est encore "en attente"
-    $check = $pdo->prepare("SELECT id, statut FROM commandes WHERE id=? AND user_id=?");
-    $check->execute([$cid, $_SESSION['user_id']]);
-    $cmd = $check->fetch();
-    if ($cmd && $cmd['statut'] === 'en attente') {
-        $pdo->prepare("UPDATE commandes SET statut='annulé' WHERE id=?")->execute([$cid]);
-        $cancel_msg = "Commande #$cid annulée avec succès.";
-    } else {
-        $cancel_error = "Impossible d'annuler cette commande (déjà prise en charge ou introuvable).";
+    $cmd = $orderRepository->getByIdAndUser(
+    $cid,
+    $_SESSION['user_id']
+);
+
+if ($cmd && $cmd['statut'] === 'en attente') {
+    $orderRepository->cancel($cid);
+
+    $cancel_msg = "Commande #$cid annulée avec succès.";
+} else {
+    $cancel_error = "Impossible d'annuler cette commande (déjà prise en charge ou introuvable).";
     }
 }
 
-$stmt = $pdo->prepare("SELECT * FROM commandes WHERE user_id=? ORDER BY created_at DESC");
-$stmt->execute([$_SESSION['user_id']]);
-$commandes = $stmt->fetchAll();
+$commandes = $orderRepository->getAllByUser($_SESSION['user_id']);
 
 $details = [];
-foreach ($commandes as $c) {
-    $si = $pdo->prepare("SELECT * FROM commande_items WHERE commande_id=?");
-    $si->execute([$c['id']]);
-    $details[$c['id']] = $si->fetchAll();
+
+foreach ($commandes as $commande) {
+    $details[$commande['id']] =
+        $orderRepository->getItemsByOrder($commande['id']);
 }
 $ids = array_column($commandes, 'id');
 

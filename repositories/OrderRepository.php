@@ -106,4 +106,55 @@ class OrderRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function getByIdAndUser(int $orderId, int $userId): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT id, statut
+            FROM commandes
+            WHERE id = ? AND user_id = ?
+        ");
+
+        $stmt->execute([$orderId, $userId]);
+        $order = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $order ?: null;
+    }
+
+    public function cancel(int $orderId): void
+    {
+        $stmt = $this->pdo->prepare("
+            UPDATE commandes
+            SET statut = 'annulé'
+            WHERE id = ?
+        ");
+
+        $stmt->execute([$orderId]);
+    }
+
+    public function getAllByUser(int $userId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT *
+            FROM commandes
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        ");
+
+        $stmt->execute([$userId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getItemsByOrder(int $orderId): array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT *
+            FROM commande_items
+            WHERE commande_id = ?
+        ");
+
+        $stmt->execute([$orderId]);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
