@@ -1,7 +1,9 @@
 <?php
 session_start();
-include 'includes/db.php';
+require_once 'includes/db.php';
+require_once 'repositories/UserRepository.php';
 
+$userRepository = new UserRepository($pdo);
 // Message d'erreur (vide au départ)
 $error = '';
 
@@ -10,12 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email_saisi = trim($_POST['email'] ?? '');
     $password_saisi = $_POST['password'] ?? '';
 
-    // On cherche un utilisateur avec cet email
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? LIMIT 1");
-    $stmt->execute([$email_saisi]);
-    $user = $stmt->fetch();
-
+    $user = $userRepository->findByEmail($email_saisi);
     // Si on trouve un utilisateur et que le mot de passe est bon
+
     if ($user && password_verify($password_saisi, $user['password'])) {
         // On stocke les infos de l'utilisateur en session
         $_SESSION['user_id'] = $user['id'];
@@ -48,17 +47,16 @@ if ($is_logged && isset($_SESSION['role'])) {
 // Chargement de la navbar adaptée
 if ($is_logged) {
     if ($role === 'admin') {
-        include 'includes/partials/admin_nav.php';
+        require_once 'includes/partials/admin_nav.php';;
     } elseif ($role === 'employee') {
-        include 'includes/partials/employee_nav.php';
+        require_once 'includes/partials/employee_nav.php';
     } else {
         // Par défaut : simple utilisateur connecté
-        include 'includes/partials/user_nav.php';
+        require_once 'includes/partials/user_nav.php';
     }
 } else {
-    include 'includes/partials/public_nav.php';
+    require_once 'includes/partials/public_nav.php';
 }
-
 ?>
 
 <!DOCTYPE html>
