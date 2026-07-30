@@ -1,40 +1,60 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
+
+$orderRepository = new OrderRepository($pdo);
+
 checkAdminOrEmployee();
-if ($_SESSION['role']==='admin') { header('Location: ../include/admin/orders.php'); exit;}
-include __DIR__ . '/../includes/db.php';
+
+if ($_SESSION['role']==='admin') 
+    { header('Location: ../admin/orders.php'); 
+exit;}
+
+
 $active_page = 'orders';
 
 // ajax statut
 if ($_SERVER['REQUEST_METHOD']==='POST' && isset($_POST['ajax_statut'])) {
-    $pdo->prepare("UPDATE commandes SET statut=? WHERE id=?")->execute([$_POST['statut'],(int)$_POST['id']]);
+    $orderRepository->updateStatus(
+    (int)$_POST['id'],
+    $_POST['statut']
+);
     echo json_encode(['ok'=>true]); exit;
 }
 // Suppression
 if (isset($_GET['delete'])) {
-    $pdo->prepare("DELETE FROM commandes WHERE id=?")->execute([(int)$_GET['delete']]);
+    $orderRepository->delete((int)$_GET['delete']);
     header('Location: orders.php?ok=1'); exit;
 }
 
 $filtre = $_GET['filtre'] ?? 'tous';
-$statuts = ['en attente','accepté','en préparation','prêt','livré','en attente du retour de matériel','annulé'];
-$where = ($filtre!=='tous') ? "WHERE c.statut=?" : "WHERE 1";
-$params = ($filtre!=='tous') ? [$filtre] : [];
-$stmt = $pdo->prepare("SELECT c.*,u.nom as client,u.email,u.telephone,u.adresse as client_adresse FROM commandes c JOIN users u ON u.id=c.user_id $where ORDER BY c.created_at DESC");
-$stmt->execute($params);
-$commandes = $stmt->fetchAll();
+
+$statuts = [
+    'en attente',
+    'accepté',
+    'en préparation',
+    'prêt',
+    'livré',
+    'en attente du retour de matériel',
+    'annulé'
+];
+
+$commandes = $orderRepository->getAllWithUsers(
+    $filtre === 'tous' ? null : $filtre
+);
 
 // Détail
-$detail = null; $detail_items = [];
+$detail = null;
+$detail_items = [];
+
 if (isset($_GET['id'])) {
-    $s = $pdo->prepare("SELECT c.*,u.nom as client,u.email,u.telephone,u.adresse as client_adresse FROM commandes c JOIN users u ON u.id=c.user_id WHERE c.id=?");
-    $s->execute([(int)$_GET['id']]);
-    $detail = $s->fetch();
+
+    $detail = $orderRepository->getWithUser((int)$_GET['id']);
+
     if ($detail) {
-        $si = $pdo->prepare("SELECT * FROM commande_items WHERE commande_id=?");
-        $si->execute([$detail['id']]);
-        $detail_items = $si->fetchAll();
+        $detail_items = $orderRepository->getItemsForOrder($detail['id']);
     }
 }
 ?>

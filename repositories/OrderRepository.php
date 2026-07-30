@@ -197,4 +197,88 @@ class OrderRepository
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+// update order
+public function updateStatus(int $id, string $statut): void
+{
+    $stmt = $this->pdo->prepare("
+        UPDATE commandes
+        SET statut = ?
+        WHERE id = ?
+    ");
+
+    $stmt->execute([
+        $statut,
+        $id
+    ]);
+}
+// delete order
+public function delete(int $id): void
+{
+    $stmt = $this->pdo->prepare("
+        DELETE FROM commandes
+        WHERE id = ?
+    ");
+
+    $stmt->execute([$id]);
+}
+// chargement cmd
+public function getAllWithUsers(?string $statut = null): array
+{
+    $where = $statut ? "WHERE c.statut = ?" : "";
+
+    $stmt = $this->pdo->prepare("
+        SELECT
+            c.*,
+            u.nom AS client,
+            u.email,
+            u.telephone,
+            u.adresse AS client_adresse
+        FROM commandes c
+        JOIN users u ON u.id = c.user_id
+        $where
+        ORDER BY c.created_at DESC
+    ");
+
+    if ($statut) {
+        $stmt->execute([$statut]);
+    } else {
+        $stmt->execute();
+    }
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+public function getWithUser(int $id): ?array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT
+            c.*,
+            u.nom AS client,
+            u.email,
+            u.telephone,
+            u.adresse AS client_adresse
+        FROM commandes c
+        JOIN users u ON u.id = c.user_id
+        WHERE c.id = ?
+    ");
+
+    $stmt->execute([$id]);
+
+    $commande = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return $commande ?: null;
+}
+
+public function getItemsForOrder(int $commandeId): array
+{
+    $stmt = $this->pdo->prepare("
+        SELECT *
+        FROM commande_items
+        WHERE commande_id = ?
+    ");
+
+    $stmt->execute([$commandeId]);
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }
