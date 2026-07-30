@@ -20,4 +20,19 @@ class ScheduleRepository
 
         return $horaires;
     }
+
+    public function getByDay(string $jour): ?array
+    {
+        $stmt = $this->pdo->prepare("
+            SELECT *
+            FROM horaires
+            WHERE jour = ?
+        ");
+
+        $stmt->execute([$jour]);
+
+        $horaire = $stmt->fetch(PDO::FETCH_ASSOC);
+
+        return $horaire ?: null;
+    }
 }

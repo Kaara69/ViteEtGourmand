@@ -1,11 +1,15 @@
 <?php
 session_start();
 
-// Inclure le fichier d'authentification (vérifie si utilisateur connecté)
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/ScheduleRepository.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
+
 checkLogin('../login.php'); // si pas connecté, redirige vers la page de login
 
-include __DIR__ . '/../includes/db.php';
+$scheduleRepository = new ScheduleRepository($pdo);
+$orderRepository = new OrderRepository($pdo);
 
 $active_page = 'dashboard';
 
@@ -26,23 +30,14 @@ $jour_anglais = date('l');
 // 2. Convertir ce jour en français
 $auj = $jours_fr[$jour_anglais];
 
-
-// 3. Charger l'horaire du jour dans la base (table horaires)
-$stmt = $pdo->prepare("SELECT * FROM horaires WHERE jour = ?");
-$stmt->execute([$auj]);
-$horaire = $stmt->fetch();
-
+$horaire = $scheduleRepository->getByDay($auj);
 
 // 4. Charger les 5 dernières commandes de l'utilisateur
-$stmt = $pdo->prepare("SELECT * FROM commandes WHERE user_id = ? ORDER BY created_at DESC LIMIT 5");
-$stmt->execute([$_SESSION['user_id']]);
-$mes_cmd = $stmt->fetchAll();
-
+$mes_cmd = $orderRepository->getLatestByUser($_SESSION['user_id']);
 
 // 5. Compter le nombre total de commandes de l'utilisateur
-$stmt = $pdo->prepare("SELECT COUNT(*) FROM commandes WHERE user_id = ?");
-$stmt->execute([$_SESSION['user_id']]);
-$total_cmd = $stmt->fetchColumn(); // renvoie un nombre entier
+$total_cmd = $orderRepository->countByUser($_SESSION['user_id']);
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">

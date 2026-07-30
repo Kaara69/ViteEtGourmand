@@ -1,26 +1,26 @@
 <?php
 session_start();
-include __DIR__ . '/../config.php';
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../config.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/MenuRepository.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
+require_once __DIR__ . '/../repositories/UserRepository.php';
+
 checkLogin('../login.php');
 
-include __DIR__ . '/../includes/db.php';
+$menuRepository = new MenuRepository($pdo);
+$orderRepository = new OrderRepository($pdo);
+$userRepository  = new UserRepository($pdo);
 $active_page = 'menu'; 
 
-// Initialisation du panier
-// Si le panier n’existe pas encore, on crée un tableau vide
-
 if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
-
 
 // Coordonnées livraison Bordeaux (Bordeaux centre – Place de la Comédie)
 define('BDX_LAT',  44.8412);   // latitude
 define('BDX_LNG', -0.5712);   // longitude
 define('LIV_FIXE', 5.00);     // frais de base (5 €)
 define('LIV_KM',   0.54);     // € par km
-
-
-
 
 // AJAX panier (ajouter, modifier, supprimer, vider)
 if (isset($_POST['action'])) {
@@ -32,13 +32,7 @@ if (isset($_POST['action'])) {
 
     // Ajouter un menu au panier
     if ($action === 'add') {
-        $stmt = $pdo->prepare("
-            SELECT id, nom, prix, personnes_min
-            FROM menus
-            WHERE id = ? AND disponible = 1
-        ");
-        $stmt->execute([$id]);
-        $m = $stmt->fetch();
+        $m = $menuRepository->getAvailableById($id);
 
         if ($m) {
             if (isset($_SESSION['cart'][$id])) {
@@ -139,71 +133,38 @@ if ($heure_ev && strtotime($heure_ev) === false) {
     }
     $total = round($subtotal - $remise + $frais_liv, 2);
 
-    // Enregistrer la commande
-    // $pdo->prepare("
-    //     INSERT INTO commandes
-    //     (user_id, total, notes, nb_personnes, adresse_livraison,
-    //      km_livraison, frais_livraison, remise, date_evenement)
-    //     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-    // ")->execute([
-    //     $_SESSION['user_id'], $total, $notes, $nb_pers,
-    //     $adresse_liv, $km, $frais_liv, $remise,
-    //     $date_ev ?: null
-    // ]);
-    $pdo->prepare("
-    INSERT INTO commandes
-    (user_id, total, notes, nb_personnes, adresse_livraison,
-     km_livraison, frais_livraison, remise,
-     date_evenement, heure_evenement)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-")->execute([
-    $_SESSION['user_id'], $total, $notes, $nb_pers,
-    $adresse_liv, $km, $frais_liv, $remise,
-    $date_ev ?: null,
-    $heure_ev ?: null
-]);
-
-    $cid = (int)$pdo->lastInsertId();
+    $cid = $orderRepository->create([
+        'user_id'             => $_SESSION['user_id'],
+        'total'               => $total,
+        'notes'               => $notes,
+        'nb_personnes'        => $nb_pers,
+        'adresse_livraison'   => $adresse_liv,
+        'km_livraison'        => $km,
+        'frais_livraison'     => $frais_liv,
+        'remise'              => $remise,
+        'date_evenement'      => $date_ev ?: null,
+        'heure_evenement'     => $heure_ev ?: null,
+    ]);
 
     // Enregistrer les lignes de commande avec personnes_min
-    $stmt = $pdo->prepare("
-        INSERT INTO commande_items
-        (commande_id, menu_id, nom_menu, quantite, prix_unitaire, personnes_min)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ");
     foreach ($_SESSION['cart'] as $item) {
-        $stmt->execute([
-            $cid,
-            $item['id'],
-            $item['nom'],
-            $item['qty'],
-            $item['prix'],
-            $item['personnes_min'] ?? 1
-        ]);
+    $orderRepository->addItem($cid, $item);
     }
 
     // Vider le panier
     $_SESSION['cart'] = [];
 
     // Synchroniser les stats (NoSQL)
-    include_once __DIR__ . '/../includes/nosql_db.php';
+    require_once __DIR__ . '/../includes/nosql_db.php';
     $statsSync = new StatsSync($pdo, new NoSQLStore());
     $statsSync->syncOrder($cid);
 
     // Envoi email de confirmation
-    include_once __DIR__ . '/../includes/mailer.php';
+    require_once __DIR__ . '/../includes/mailer.php';
 
-    $stmt_user = $pdo->prepare("SELECT email, prenom FROM users WHERE id = ?");
-    $stmt_user->execute([$_SESSION['user_id']]);
-    $client = $stmt_user->fetch();
+    $client = $userRepository->getEmailAndFirstname($_SESSION['user_id']);
 
-    $stmt_items = $pdo->prepare("
-        SELECT nom_menu, quantite, prix_unitaire
-        FROM commande_items
-        WHERE commande_id = ?
-    ");
-    $stmt_items->execute([$cid]);
-    $items_email = $stmt_items->fetchAll();
+    $items_email = $orderRepository->getItems($cid);
 
     $lignes_email = '';
     foreach ($items_email as $item) {
@@ -299,26 +260,14 @@ if ($heure_ev) {
     $order_id = $cid;
 }
 
-
 // Chargement des menus et regroupement par cat.
-$menus = $pdo->query("
-    SELECT *
-    FROM menus
-    WHERE disponible = 1
-    ORDER BY categorie, nom
-")->fetchAll();
+$menus = $menuRepository->getAllAvailable(); //add
 
 $by_cat = [];
 foreach ($menus as $m) {
     $by_cat[$m['categorie']][] = $m;
 }
-
-
-// Charger l’adresse de l’utilisateur (profil)
-$user = $pdo->prepare("SELECT adresse FROM users WHERE id = ?");
-$user->execute([$_SESSION['user_id']]);
-$adresse_client = $user->fetchColumn() ?? '';
-
+$adresse_client = $userRepository->getAddress($_SESSION['user_id']);
 
 // Styles visuels par catégorie de menu
 $cat_style = [
@@ -328,6 +277,7 @@ $cat_style = [
     'Menu Mariage'   => ['💍', '#4A2D6B'],
 ];
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -342,7 +292,7 @@ $cat_style = [
 </head>
 <body>
 
-<?php include __DIR__ . '/../includes/partials/user_nav.php'; ?>
+<?php require_once __DIR__ . '/../includes/partials/user_nav.php'; ?>
 
     <div class="container-fluid py-4 px-3 px-lg-4">
         <!-- affichage du message de confirmation de cmd -->
