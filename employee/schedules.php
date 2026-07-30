@@ -1,24 +1,34 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/ScheduleRepository.php';
+
+$scheduleRepository = new ScheduleRepository($pdo);
+
 checkAdminOrEmployee();
 if ($_SESSION['role']==='admin') { header('Location: ../admin/schedules.php'); exit; }
-include __DIR__ . '/../includes/db.php';
+
 $active_page = 'schedules';
 
 $msg = '';
 if ($_SERVER['REQUEST_METHOD']==='POST') {
     foreach ($_POST['h'] as $jour => $data) {
-        $ferme = isset($data['ferme']) ? 1 : 0;
-        $ouv   = $ferme ? '00:00' : $data['ouverture'];
-        $ferm  = $ferme ? '00:00' : $data['fermeture'];
-        $pdo->prepare("UPDATE horaires SET heure_ouverture=?,heure_fermeture=?,ferme=? WHERE jour=?")
-            ->execute([$ouv,$ferm,$ferme,$jour]);
-    }
+
+    $ferme = isset($data['ferme']) ? 1 : 0;
+    $ouv   = $ferme ? '00:00' : $data['ouverture'];
+    $ferm  = $ferme ? '00:00' : $data['fermeture'];
+
+    $scheduleRepository->update(
+        $jour,
+        $ouv,
+        $ferm,
+        $ferme
+    );
+}
     $msg = 'Horaires enregistrés avec succès.';
 }
-$horaires = [];
-foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $horaires[$h['jour']] = $h;
+$horaires = $scheduleRepository->getAll();
 ?>
 
 <!DOCTYPE html>

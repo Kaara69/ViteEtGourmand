@@ -12,7 +12,6 @@ if ($_SESSION['role']==='admin')
     { header('Location: ../admin/orders.php'); 
 exit;}
 
-
 $active_page = 'orders';
 
 // ajax statut

@@ -71,4 +71,83 @@ class ReviewRepository
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+    public function approve(int $id): void
+{
+    $stmt = $this->pdo->prepare("
+        UPDATE avis
+        SET statut='approuvé'
+        WHERE id=?
+    ");
+
+    $stmt->execute([$id]);
+}
+
+public function reject(int $id): void
+{
+    $stmt = $this->pdo->prepare("
+        UPDATE avis
+        SET statut='refusé'
+        WHERE id=?
+    ");
+
+    $stmt->execute([$id]);
+}
+
+public function delete(int $id): void
+{
+    $stmt = $this->pdo->prepare("
+        DELETE FROM avis
+        WHERE id=?
+    ");
+
+    $stmt->execute([$id]);
+}
+// compteurs
+public function getCounts(): array
+{
+    $counts = [];
+
+    $counts['tous'] = (int)$this->pdo
+        ->query("SELECT COUNT(*) FROM avis")
+        ->fetchColumn();
+
+    foreach (['en attente', 'approuvé', 'refusé'] as $statut) {
+
+        $stmt = $this->pdo->prepare("
+            SELECT COUNT(*)
+            FROM avis
+            WHERE statut = ?
+        ");
+
+        $stmt->execute([$statut]);
+
+        $counts[$statut] = (int)$stmt->fetchColumn();
+    }
+
+    return $counts;
+}
+// ts les avis
+public function getAllWithUsers(?string $statut = null): array
+{
+    $where = $statut ? "WHERE a.statut = ?" : "";
+
+    $stmt = $this->pdo->prepare("
+        SELECT
+            a.*,
+            u.email
+        FROM avis a
+        LEFT JOIN users u
+            ON u.id = a.user_id
+        $where
+        ORDER BY a.created_at DESC
+    ");
+
+    if ($statut) {
+        $stmt->execute([$statut]);
+    } else {
+        $stmt->execute();
+    }
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 }

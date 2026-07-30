@@ -35,4 +35,26 @@ class ScheduleRepository
 
         return $horaire ?: null;
     }
+
+    public function update(
+        string $jour,
+        string $ouverture,
+        string $fermeture,
+        int $ferme
+    ): void {
+        $stmt = $this->pdo->prepare("
+            UPDATE horaires
+            SET heure_ouverture = ?,
+                heure_fermeture = ?,
+                ferme = ?
+            WHERE jour = ?
+        ");
+
+        $stmt->execute([
+            $ouverture,
+            $fermeture,
+            $ferme,
+            $jour
+        ]);
+    }
 }
