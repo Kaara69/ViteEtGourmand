@@ -506,5 +506,5 @@ const REGIMES_INFO = <?= json_encode(
 // true si l'utilisateur est connecté (pour afficher le bon bouton dans le modal)
 const EST_CONNECTE = <?= $is_logged ? 'true' : 'false' ?>;
 </script>
-<script src="<?= BASE_URL ?>assets/js/menus_public.js"></script>
+<script src="<?= BASE_URL ?>assets/js/public/menus.js"></script>
 </body>

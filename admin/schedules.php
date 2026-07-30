@@ -63,6 +63,6 @@ foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $h
             </form>
         </div>
     </div>
-<script src="<?= BASE_URL ?>assets/js/admin_schedules.js"></script>
+<script src="<?= BASE_URL ?>assets/js/shared/schedules.js"></script>
 </body>
 </html>

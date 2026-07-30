@@ -2,6 +2,7 @@
 
 $is_local = str_starts_with($_SERVER['HTTP_HOST'] ?? '', 'localhost');
 
+
 if ($is_local) {
     define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
     define('DB_PORT', getenv('DB_PORT') ?: '3306');

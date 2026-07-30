@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.2.3
 -- https://www.phpmyadmin.net/
 --
--- Hôte : 127.0.0.1:3307
--- Généré le : ven. 12 juin 2026 à 10:05
--- Version du serveur : 10.4.32-MariaDB
--- Version de PHP : 8.2.12
+-- Hôte : db
+-- Généré le : jeu. 30 juil. 2026 à 12:55
+-- Version du serveur : 8.0.46
+-- Version de PHP : 8.3.32
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -28,13 +28,13 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `avis` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) DEFAULT NULL,
-  `nom` varchar(150) NOT NULL,
-  `contenu` text NOT NULL,
-  `note` tinyint(1) DEFAULT 5,
-  `statut` varchar(50) DEFAULT 'en attente',
-  `created_at` datetime DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `user_id` int DEFAULT NULL,
+  `nom` varchar(150) COLLATE utf8mb4_general_ci NOT NULL,
+  `contenu` text COLLATE utf8mb4_general_ci NOT NULL,
+  `note` tinyint(1) DEFAULT '5',
+  `statut` varchar(50) COLLATE utf8mb4_general_ci DEFAULT 'en attente',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -56,36 +56,33 @@ INSERT INTO `avis` (`id`, `user_id`, `nom`, `contenu`, `note`, `statut`, `create
 --
 
 CREATE TABLE `commandes` (
-  `id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
+  `id` int NOT NULL,
+  `user_id` int NOT NULL,
   `total` decimal(10,2) NOT NULL,
-  `statut` varchar(50) DEFAULT 'en attente',
-  `notes` text DEFAULT NULL,
-  `nb_personnes` int(11) DEFAULT 1,
-  `adresse_livraison` text DEFAULT '',
-  `km_livraison` decimal(8,2) DEFAULT 0.00,
-  `frais_livraison` decimal(8,2) DEFAULT 5.00,
-  `remise` decimal(8,2) DEFAULT 0.00,
+  `statut` varchar(50) COLLATE utf8mb4_general_ci DEFAULT 'en attente',
+  `notes` text COLLATE utf8mb4_general_ci,
+  `nb_personnes` int DEFAULT '1',
+  `adresse_livraison` text COLLATE utf8mb4_general_ci,
+  `km_livraison` decimal(8,2) DEFAULT '0.00',
+  `frais_livraison` decimal(8,2) DEFAULT '5.00',
+  `remise` decimal(8,2) DEFAULT '0.00',
   `date_evenement` date DEFAULT NULL,
-  `heure_evenement` date DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `heure_evenement` time DEFAULT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Déchargement des données de la table `commandes`
 --
 
-INSERT INTO `commandes` (`id`, `user_id`, `total`, `statut`, `notes`, `nb_personnes`, `adresse_livraison`, `km_livraison`, `frais_livraison`, `remise`, `date_evenement`, `created_at`) VALUES
-(5, 3, 2615.06, 'livré', '', 35, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 290.00, '2026-06-05', '2026-05-27 21:48:18'),
-(8, 4, 25.87, 'annulé', '', 11, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, '2026-06-14', '2026-06-11 18:38:27'),
-(9, 4, 25.87, 'en attente', '', 1, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, NULL, '2026-06-11 18:38:32'),
-(10, 4, 25.87, 'annulé', '', 10, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, NULL, '2026-06-11 18:38:51'),
-(11, 4, 174.87, 'annulé', '', 40, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 18.50, NULL, '2026-06-11 18:50:27'),
-(12, 4, 174.87, 'en attente', '', 20, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 18.50, NULL, '2026-06-11 18:51:16'),
-(13, 3, 225.56, 'en attente', '', 15, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 24.50, NULL, '2026-06-11 21:05:46'),
-(14, 4, 228.87, 'annulé', '', 15, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 24.50, NULL, '2026-06-12 09:27:54'),
-(15, 4, 230.37, 'annulé', '', 20, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 24.67, NULL, '2026-06-12 09:41:03'),
-(16, 4, 339.12, 'en attente', '', 15, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 36.75, NULL, '2026-06-12 10:04:39');
+INSERT INTO `commandes` (`id`, `user_id`, `total`, `statut`, `notes`, `nb_personnes`, `adresse_livraison`, `km_livraison`, `frais_livraison`, `remise`, `date_evenement`, `heure_evenement`, `created_at`) VALUES
+(5, 3, 2615.06, 'livré', '', 35, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 290.00, '2026-06-05', NULL, '2026-05-27 21:48:18'),
+(9, 4, 25.87, 'en attente', '', 1, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 0.00, NULL, NULL, '2026-06-11 18:38:32'),
+(12, 4, 174.87, 'en attente', '', 20, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 18.50, NULL, NULL, '2026-06-11 18:51:16'),
+(13, 3, 225.56, 'accepté', '', 15, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 24.50, NULL, NULL, '2026-06-11 21:05:46'),
+(14, 4, 228.87, 'annulé', '', 15, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 24.50, NULL, NULL, '2026-06-12 09:27:54'),
+(16, 4, 339.12, 'accepté', '', 15, 'Beauté 33, 13, Rue des Poilus, Le Bourg, Pessac, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33600, France', 6.24, 8.37, 36.75, NULL, NULL, '2026-06-12 10:04:39'),
+(17, 3, 162.56, 'en attente', '', 10, '8, Cours du Chapeau Rouge, Bordeaux, Port de la Lune, Bordeaux Centre, Bordeaux, Gironde, Nouvelle-Aquitaine, France métropolitaine, 33000, France', 0.12, 5.06, 17.50, '2026-08-04', '19:15:00', '2026-07-30 12:53:07');
 
 -- --------------------------------------------------------
 
@@ -94,13 +91,13 @@ INSERT INTO `commandes` (`id`, `user_id`, `total`, `statut`, `notes`, `nb_person
 --
 
 CREATE TABLE `commande_items` (
-  `id` int(11) NOT NULL,
-  `commande_id` int(11) NOT NULL,
-  `menu_id` int(11) NOT NULL,
-  `nom_menu` varchar(200) NOT NULL,
-  `quantite` int(11) NOT NULL DEFAULT 1,
+  `id` int NOT NULL,
+  `commande_id` int NOT NULL,
+  `menu_id` int NOT NULL,
+  `nom_menu` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
+  `quantite` int NOT NULL DEFAULT '1',
   `prix_unitaire` decimal(10,2) NOT NULL,
-  `personnes_min` int(11) NOT NULL DEFAULT 1
+  `personnes_min` int NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -109,15 +106,12 @@ CREATE TABLE `commande_items` (
 
 INSERT INTO `commande_items` (`id`, `commande_id`, `menu_id`, `nom_menu`, `quantite`, `prix_unitaire`, `personnes_min`) VALUES
 (5, 5, 9, 'Banquet Mariage Prestige', 2, 1450.00, 1),
-(9, 8, 2, 'Menu Vert & Saveurs', 1, 87.50, 1),
 (10, 9, 2, 'Menu Vert & Saveurs', 1, 87.50, 1),
-(11, 10, 2, 'Menu Vert & Saveurs', 1, 87.50, 1),
-(12, 11, 4, 'Noël Végétal', 1, 185.00, 1),
 (13, 12, 4, 'Noël Végétal', 1, 185.00, 1),
 (14, 13, 3, 'Réveillon Tradition', 1, 245.00, 1),
 (15, 14, 3, 'Réveillon Tradition', 1, 245.00, 1),
-(16, 15, 4, 'Noël Végétal', 1, 185.00, 1),
-(17, 16, 3, 'Réveillon Tradition', 1, 245.00, 10);
+(17, 16, 3, 'Réveillon Tradition', 1, 245.00, 10),
+(18, 17, 2, 'Menu Vert & Saveurs', 1, 87.50, 5);
 
 -- --------------------------------------------------------
 
@@ -126,11 +120,11 @@ INSERT INTO `commande_items` (`id`, `commande_id`, `menu_id`, `nom_menu`, `quant
 --
 
 CREATE TABLE `horaires` (
-  `id` int(11) NOT NULL,
-  `jour` varchar(20) NOT NULL,
-  `heure_ouverture` varchar(5) DEFAULT '09:00',
-  `heure_fermeture` varchar(5) DEFAULT '19:00',
-  `ferme` tinyint(1) DEFAULT 0
+  `id` int NOT NULL,
+  `jour` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
+  `heure_ouverture` varchar(5) COLLATE utf8mb4_general_ci DEFAULT '09:00',
+  `heure_fermeture` varchar(5) COLLATE utf8mb4_general_ci DEFAULT '19:00',
+  `ferme` tinyint(1) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -153,17 +147,17 @@ INSERT INTO `horaires` (`id`, `jour`, `heure_ouverture`, `heure_fermeture`, `fer
 --
 
 CREATE TABLE `menus` (
-  `id` int(11) NOT NULL,
-  `nom` varchar(200) NOT NULL,
-  `description` text DEFAULT NULL,
+  `id` int NOT NULL,
+  `nom` varchar(200) COLLATE utf8mb4_general_ci NOT NULL,
+  `description` text COLLATE utf8mb4_general_ci,
   `prix` decimal(10,2) NOT NULL,
-  `categorie` varchar(100) NOT NULL,
-  `disponible` tinyint(1) DEFAULT 1,
-  `image_url` text DEFAULT '',
-  `allergenes` text DEFAULT '',
-  `regime` varchar(200) DEFAULT '',
-  `personnes_min` int(11) DEFAULT 1,
-  `created_at` datetime DEFAULT current_timestamp()
+  `categorie` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `disponible` tinyint(1) DEFAULT '1',
+  `image_url` text COLLATE utf8mb4_general_ci,
+  `allergenes` text COLLATE utf8mb4_general_ci,
+  `regime` varchar(200) COLLATE utf8mb4_general_ci DEFAULT '',
+  `personnes_min` int DEFAULT '1',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -171,16 +165,15 @@ CREATE TABLE `menus` (
 --
 
 INSERT INTO `menus` (`id`, `nom`, `description`, `prix`, `categorie`, `disponible`, `image_url`, `allergenes`, `regime`, `personnes_min`, `created_at`) VALUES
-(1, 'Formule Gourmande', 'Velouté de butternut au lait de coco, suivi d\'un confit de canard aux pommes sarladaises et haricots verts, dessert du jour.', 19.90, 'Menu Classique', 1, 'uploads/menu_69b52a839e722.jpg', 'gluten,lactose,sulfites', '', 1, '2026-03-14 08:23:08'),
-(2, 'Menu Vert & Saveurs', 'Gaspacho de tomates anciennes, curry de pois chiches aux légumes du soleil et riz basmati, mousse de mangue à la noix de coco.', 87.50, 'Menu Classique', 1, 'uploads/menu_69b52aa3959e7.jpg', '', 'vegan,vegetarien,sans_gluten', 1, '2026-03-14 08:32:41'),
-(3, 'Réveillon Tradition', 'Velouté de châtaignes au foie gras poêlé, pintade farcie aux marrons et cèpes, gratin dauphinois, bûche pralinée maison.', 245.00, 'Menu Noël', 1, 'uploads/menu_69b52d5eca498.jpg', 'gluten,lactose,oeufs,sulfites', '', 1, '2026-03-14 08:50:26'),
-(4, 'Noël Végétal', 'Velouté de panais à la truffe, risotto aux champignons des bois et parmesan, bûche au chocolat noir et fruits rouges.', 185.00, 'Menu Noël', 1, 'uploads/menu_69b52d507c3d3.jpg', 'gluten,lactose,oeufs', 'vegetarien', 1, '2026-03-14 08:56:47'),
-(5, 'Agneau de Pâques', 'Assiette de saumon gravlax, gigot d\'agneau de 7 heures et gratin dauphinois, charlotte aux fraises et rhubarbe.', 220.00, 'Menu Pâques', 1, 'uploads/menu_69b52d6c24d90.jpg', 'gluten,lactose,oeufs,poisson', '', 1, '2026-03-14 09:02:56'),
-(6, 'Pâques Printanier', 'Tartare de betterave et avocat, tajine de légumes nouveaux aux épices douces et semoule, salade d\'agrumes à la menthe fraîche.', 165.00, 'Menu Pâques', 1, 'uploads/menu_69b52d76a304b.jpg', 'gluten,sésame', 'vegan,vegetarien', 1, '2026-03-14 09:08:58'),
-(7, 'Cocktail Dinatoire Mariage', '30 pièces par personne : verrines de tartare de saumon à l\'aneth, bouchées de foie gras sur pain d\'épices, mini-brochettes de bœuf sauce béarnaise, verrines de gaspacho tomate-basilic, tartelettes au chèvre et figues, macarons salés saumon-avocat, mini-éclairs au chocolat et caramel beurre salé.', 480.00, 'Menu Mariage', 1, 'uploads/menu_69b52d40541d2.jpg', 'gluten,lactose,oeufs,poisson,sulfites', '', 1, '2026-03-14 09:23:11'),
-(8, 'Banquet Élégance', 'Amuse-bouches variés, foie gras mi-cuit sur brioche toastée, filet de boeuf sauce périgueux et légumes glacés, pièce montée choux.', 750.00, 'Menu Mariage', 1, 'uploads/menu_69b52d0dbe427.jpg', 'gluten,lactose,oeufs,sulfites', '', 1, '2026-03-14 09:28:26'),
-(9, 'Banquet Mariage Prestige', '7 services : amuse-bouches au homard et caviar, velouté de truffe noire, tartare de Saint-Jacques en gelée au champagne, sorbet citron-basilic, filet de bœuf Rossini sauce Périgueux et légumes confits, plateau de fromages affinés, pièce montée personnalisée et mignardises.', 1450.00, 'Menu Mariage', 1, 'uploads/menu_69b52d24bd933.jpg', 'gluten,lactose,oeufs,sulfites,fruits_a_coque,poisson,mollusques,crustaces', '', 1, '2026-03-14 09:34:49');
-
+(1, 'Formule Gourmande', 'Velouté de butternut au lait de coco, suivi d\'un confit de canard aux pommes sarladaises et haricots verts, dessert du jour.', 99.50, 'Menu Classique', 1, 'assets/uploads/menu_69b52a839e722.jpg', 'gluten,lactose,sulfites', '', 5, '2026-03-14 08:23:08'),
+(2, 'Menu Vert & Saveurs', 'Gaspacho de tomates anciennes, curry de pois chiches aux légumes du soleil et riz basmati, mousse de mangue à la noix de coco.', 87.50, 'Menu Classique', 1, 'assets/uploads/menu_69b52aa3959e7.jpg', '', 'vegan,vegetarien,sans_gluten', 5, '2026-03-14 08:32:41'),
+(3, 'Réveillon Tradition', 'Velouté de châtaignes au foie gras poêlé, pintade farcie aux marrons et cèpes, gratin dauphinois, bûche pralinée maison.', 245.00, 'Menu Noël', 1, 'assets/uploads/menu_69b52d5eca498.jpg', 'gluten,lactose,oeufs,sulfites', '', 10, '2026-03-14 08:50:26'),
+(4, 'Noël Végétal', 'Velouté de panais à la truffe, risotto aux champignons des bois et parmesan, bûche au chocolat noir et fruits rouges.', 185.00, 'Menu Noël', 1, 'assets/uploads/menu_69b52d507c3d3.jpg', 'gluten,lactose,oeufs', 'vegetarien', 10, '2026-03-14 08:56:47'),
+(5, 'Agneau de Pâques', 'Assiette de saumon gravlax, gigot d\'agneau de 7 heures et gratin dauphinois, charlotte aux fraises et rhubarbe.', 220.00, 'Menu Pâques', 1, 'assets/uploads/menu_69b52d6c24d90.jpg', 'gluten,lactose,oeufs,poisson', '', 10, '2026-03-14 09:02:56'),
+(6, 'Pâques Printanier', 'Tartare de betterave et avocat, tajine de légumes nouveaux aux épices douces et semoule, salade d\'agrumes à la menthe fraîche.', 165.00, 'Menu Pâques', 1, 'assets/uploads/menu_69b52d76a304b.jpg', 'gluten,sésame', 'vegan,vegetarien', 10, '2026-03-14 09:08:58'),
+(7, 'Cocktail Dinatoire Mariage', '30 pièces par personne : verrines de tartare de saumon à l\'aneth, bouchées de foie gras sur pain d\'épices, mini-brochettes de bœuf sauce béarnaise, verrines de gaspacho tomate-basilic, tartelettes au chèvre et figues, macarons salés saumon-avocat, mini-éclairs au chocolat et caramel beurre salé.', 480.00, 'Menu Mariage', 1, 'assets/uploads/menu_69b52d40541d2.jpg', 'gluten,lactose,oeufs,poisson,sulfites', '', 25, '2026-03-14 09:23:11'),
+(8, 'Banquet Élégance', 'Amuse-bouches variés, foie gras mi-cuit sur brioche toastée, filet de boeuf sauce périgueux et légumes glacés, pièce montée choux.', 750.00, 'Menu Mariage', 1, 'assets/uploads/menu_69b52d0dbe427.jpg', 'gluten,lactose,oeufs,sulfites', '', 25, '2026-03-14 09:28:26'),
+(9, 'Banquet Mariage Prestige', '7 services : amuse-bouches au homard et caviar, velouté de truffe noire, tartare de Saint-Jacques en gelée au champagne, sorbet citron-basilic, filet de bœuf Rossini sauce Périgueux et légumes confits, plateau de fromages affinés, pièce montée personnalisée et mignardises.', 1350.00, 'Menu Mariage', 1, 'assets/uploads/menu_69b52d24bd933.jpg', 'gluten,lactose,oeufs,sulfites,fruits_a_coque,poisson,mollusques,crustaces', '', 25, '2026-03-14 09:34:49');
 
 -- --------------------------------------------------------
 
@@ -189,13 +182,13 @@ INSERT INTO `menus` (`id`, `nom`, `description`, `prix`, `categorie`, `disponibl
 --
 
 CREATE TABLE `nosql_documents` (
-  `id` int(11) NOT NULL,
-  `collection` varchar(100) NOT NULL,
-  `doc_id` varchar(40) NOT NULL,
-  `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`data`)),
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='Stockage orienté document (NoSQL-like)';
+  `id` int NOT NULL,
+  `collection` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `doc_id` varchar(40) COLLATE utf8mb4_general_ci NOT NULL,
+  `data` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ;
 
 --
 -- Déchargement des données de la table `nosql_documents`
@@ -220,15 +213,15 @@ INSERT INTO `nosql_documents` (`id`, `collection`, `doc_id`, `data`, `created_at
 --
 
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `nom` varchar(25) NOT NULL,
-  `email` varchar(25) NOT NULL,
-  `password` varchar(100) NOT NULL,
-  `role` enum('admin','employee','client') NOT NULL DEFAULT 'client',
-  `prenom` varchar(25) DEFAULT NULL,
-  `telephone` varchar(15) DEFAULT NULL,
-  `adresse` text DEFAULT '',
-  `created_at` datetime DEFAULT current_timestamp()
+  `id` int NOT NULL,
+  `nom` varchar(25) COLLATE utf8mb4_general_ci NOT NULL,
+  `email` varchar(25) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(100) COLLATE utf8mb4_general_ci NOT NULL,
+  `role` enum('admin','employee','client') COLLATE utf8mb4_general_ci NOT NULL DEFAULT 'client',
+  `prenom` varchar(25) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `telephone` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `adresse` text COLLATE utf8mb4_general_ci,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -305,43 +298,43 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT pour la table `avis`
 --
 ALTER TABLE `avis`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
 
 --
 -- AUTO_INCREMENT pour la table `commandes`
 --
 ALTER TABLE `commandes`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT pour la table `commande_items`
 --
 ALTER TABLE `commande_items`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
 
 --
 -- AUTO_INCREMENT pour la table `horaires`
 --
 ALTER TABLE `horaires`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT pour la table `menus`
 --
 ALTER TABLE `menus`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT pour la table `nosql_documents`
 --
 ALTER TABLE `nosql_documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT pour la table `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
+  MODIFY `id` int NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- Contraintes pour les tables déchargées

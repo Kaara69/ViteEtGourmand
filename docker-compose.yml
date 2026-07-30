@@ -10,12 +10,15 @@ services:
       - mongo
     env_file:
       - .env
+    environment:
+      TZ: Europe/Paris
 
   db:
     image: mysql:8.0
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: vite_gourmand
+      TZ: Europe/Paris
     volumes:
       - ./vite_gourmand.sql:/docker-entrypoint-initdb.d/init.sql
       - db_data:/var/lib/mysql

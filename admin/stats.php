@@ -458,7 +458,7 @@ const pieLabels  = <?= json_encode($top_labels, JSON_UNESCAPED_UNICODE) ?>;
 const pieValues  = <?= json_encode($top_values) ?>;
 const pieColors  = <?= json_encode($pie_colors) ?>;
 </script>
-<script src="<?= BASE_URL ?>assets/js/admin_stats.js"></script>
+<script src="<?= BASE_URL ?>assets/js/admin/admin_stats.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
 </body>

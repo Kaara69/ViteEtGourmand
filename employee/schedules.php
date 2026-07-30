@@ -64,13 +64,6 @@ foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $h
             </form>
         </div>
     </div>
-<script>
-document.querySelectorAll('.toggle-ferme').forEach(cb => {
-  cb.addEventListener('change', function() {
-    const row = this.closest('tr');
-    row.querySelectorAll('input[type="time"]').forEach(i => i.disabled = this.checked);
-  });
-});
-</script>
+<script src="<?= BASE_URL ?>assets/js/shared/schedules.js"></script>
 </body>
 </html>
