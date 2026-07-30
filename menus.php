@@ -3,6 +3,9 @@ session_start();
 
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/repositories/MenuRepository.php';
+
+$menuRepository = new MenuRepository($pdo);
 
 $active_page = 'menus';
 
@@ -16,15 +19,15 @@ if ($is_logged && isset($_SESSION['role'])) {
 // Chargement de la navbar adaptée
 if ($is_logged) {
     if ($role === 'admin') {
-        include 'includes/partials/admin_nav.php';
+        require_once 'includes/partials/admin_nav.php';
     } elseif ($role === 'employee') {
-        include 'includes/partials/employee_nav.php';
+        require_once 'includes/partials/employee_nav.php';
     } else {
         // Par défaut : simple utilisateur connecté
-        include 'includes/partials/user_nav.php';
+        require_once 'includes/partials/user_nav.php';
     }
 } else {
-    include 'includes/partials/public_nav.php';
+    require_once 'includes/partials/public_nav.php';
 }
 
 
@@ -67,19 +70,10 @@ $cat_config = [
 
 // Récupère le nombre maximum de personnes (slider)
 // try/catch : si la colonne n'existe pas, on met 1 par défaut
-try {
-    $max_pers = (int) $pdo
-        ->query("SELECT MAX(personnes_min) FROM menus WHERE disponible = 1")
-        ->fetchColumn();
-} catch (Exception $e) {
-    $max_pers = 1;
-}
-if ($max_pers < 1) $max_pers = 1;
+$max_pers = $menuRepository->getMaxPersonnes();
 
 // Récupère tous les menus disponibles, triés par catégorie puis par nom
-$menus = $pdo
-    ->query("SELECT * FROM menus WHERE disponible = 1 ORDER BY categorie, nom")
-    ->fetchAll();
+$menus = $menuRepository->getAvailableMenus();
 
 
 // Regroupe les menus par cat dans un tableau associatif

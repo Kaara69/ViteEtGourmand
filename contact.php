@@ -1,7 +1,9 @@
 <?php   
 session_start();
-include 'includes/db.php';
+require_once 'includes/db.php';
+require_once 'repositories/ScheduleRepository.php';
 
+$scheduleRepository = new ScheduleRepository($pdo);
 $active_page = 'contact';
 
 $msg    = '';
@@ -23,12 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $msg = 'Votre message a été envoyé ! Nous vous répondrons dans les plus brefs délais.';
     }
 }
-// on charge les horaires (table horaires)
-$horaire = [];
-$horaires_rows = $pdo->query("SELECT * FROM horaires ORDER BY id")-> fetchAll();
-foreach($horaires_rows as $h) {
-    $horaires[$h['jour']] = $h;
-}
+// on charge les horaires
+$horaires = $scheduleRepository->getAll();
 ?>
 <!DOCTYPE html>
 <html lang="fr">

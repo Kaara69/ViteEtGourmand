@@ -20,15 +20,15 @@ if ($is_logged && isset($_SESSION['role'])) {
 // Chargement de la navbar adaptée
 if ($is_logged) {
     if ($role === 'admin') {
-        include 'includes/partials/admin_nav.php';
+        require_once 'includes/partials/admin_nav.php';
     } elseif ($role === 'employee') {
-        include 'includes/partials/employee_nav.php';
+        require_once 'includes/partials/employee_nav.php';
     } else {
         // Par défaut : simple utilisateur connecté
-        include 'includes/partials/user_nav.php';
+        require_once 'includes/partials/user_nav.php';
     }
 } else {
-    include 'includes/partials/public_nav.php';
+    require_once 'includes/partials/public_nav.php';
 }
 
 // Jour de la semaine en français
