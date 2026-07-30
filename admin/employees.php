@@ -112,6 +112,6 @@ $staff = $pdo->query("SELECT * FROM users WHERE role IN ('admin','employee') ORD
             </div>
         </div> <!-- row -->
     </div> <!-- container -->
-    
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
