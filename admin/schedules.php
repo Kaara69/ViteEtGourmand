@@ -1,23 +1,34 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/ScheduleRepository.php';
+
+$scheduleRepository = new ScheduleRepository($pdo);
+
 checkAdmin();
-include __DIR__ . '/../includes/db.php';
+
 $active_page = "schedules";
 
 $msg = '';
-if ($_SERVER['REQUEST_METHOD']==='POST'){
+if ($_SERVER['REQUEST_METHOD']==='POST') {
     foreach ($_POST['h'] as $jour => $data) {
-        $ferme  = isset($data['ferme']) ? 1 : 0;
-        $ouv    = $ferme ? '00:00' : $data['ouverture'];
-        $ferme  = $ferme ? '00:00' : $data['fermeture'];
-        $dp->prepare("UPDATE horaires SET heure_ouverture=?,heure_fermeture=? WHERE jour=?")
-           ->execute([$ouv,$ferm,$ferme,$jour]);
-    }
+
+    $ferme = isset($data['ferme']) ? 1 : 0;
+    $ouv   = $ferme ? '00:00' : $data['ouverture'];
+    $ferm  = $ferme ? '00:00' : $data['fermeture'];
+
+    $scheduleRepository->update(
+        $jour,
+        $ouv,
+        $ferm,
+        $ferme
+    );
+}
     $msg = 'Horaires enregistrés avec succès.';
 }
-$horaires = [];
-foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $horaires[$h['jour']] = $h;
+$horaires = $scheduleRepository->getAll();
+
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -32,7 +43,7 @@ foreach ($pdo->query("SELECT * FROM horaires ORDER BY id")->fetchAll() as $h) $h
 <body class="bg-light">
     <?php include __DIR__ . '/../includes/partials/admin_nav.php'; ?>
 
-    <div class="container">
+    <div class="container py-4">
         <h4 class="fw-bold mb-4">Gestion des horaires d'ouverture</h4>
         <?php if ($msg): ?><div class="alert alert-success"><?= $msg ?></div><?php endif; ?>
         <div class="col-md-8">
