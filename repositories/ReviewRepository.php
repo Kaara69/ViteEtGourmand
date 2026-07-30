@@ -150,4 +150,17 @@ public function getAllWithUsers(?string $statut = null): array
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+public function countPending(): int
+{
+    $stmt = $this->pdo->prepare("
+        SELECT COUNT(*)
+        FROM avis
+        WHERE statut = 'en attente'
+    ");
+
+    $stmt->execute();
+
+    return (int)$stmt->fetchColumn();
+}
 }

@@ -281,4 +281,15 @@ public function getItemsForOrder(int $commandeId): array
 
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
+
+public function getRevenue(): float
+{
+    return (float)$this->pdo
+        ->query("
+            SELECT COALESCE(SUM(total),0)
+            FROM commandes
+            WHERE statut <> 'annulé'
+        ")
+        ->fetchColumn();
+}
 }

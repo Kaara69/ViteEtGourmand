@@ -1,20 +1,32 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/nosql_db.php';
+require_once __DIR__ . '/../repositories/OrderRepository.php';
+require_once __DIR__ . '/../repositories/UserRepository.php';
+require_once __DIR__ . '/../repositories/ReviewRepository.php';
+
+$orderRepository = new OrderRepository($pdo);
+$userRepository = new UserRepository($pdo);
+$reviewRepository = new ReviewRepository($pdo);
+
 checkAdmin();
-include __DIR__ . '/../includes/db.php';
-include_once __DIR__ . '/../includes/nosql_db.php';
+
 $active_page = 'dashboard';
 
+$orderStats = $orderRepository->getDashboardStats();
+
 $stats = [
-    'total_cmd'    => $pdo->query("SELECT COUNT(*) FROM commandes")->fetchColumn(),
-    'en_attente'   => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en attente'")->fetchColumn(),
-    'en_prep'      => $pdo->query("SELECT COUNT(*) FROM commandes WHERE statut='en préparation'")->fetchColumn(),
-    'revenus'      => $pdo->query("SELECT COALESCE(SUM(total),0) FROM commandes WHERE statut NOT IN ('annulé')")->fetchColumn(),
-    'clients'      => $pdo->query("SELECT COUNT(*) FROM users WHERE role='client'")->fetchColumn(),
-    'avis_attente' => $pdo->query("SELECT COUNT(*) FROM avis WHERE statut='en attente'")->fetchColumn(),
+    'total_cmd'    => $orderStats['total'],
+    'en_attente'   => $orderStats['att'],
+    'en_prep'      => $orderStats['prep'],
+    'revenus'      => $orderRepository->getRevenue(),
+    'clients'      => $userRepository->countClients(),
+    'avis_attente' => $reviewRepository->countPending(),
 ];
-$recentes = $pdo->query("SELECT c.*,u.nom as client FROM commandes c JOIN users u ON u.id=c.user_id ORDER BY c.created_at DESC LIMIT 8")->fetchAll();
+
+$recentes = $orderRepository->getRecent();
 
 $nosql_dash = new NoSQLStore();
 $top_menus  = $nosql_dash->find('stats_menu');

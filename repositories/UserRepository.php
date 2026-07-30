@@ -34,7 +34,7 @@ class UserRepository
 
         return $user ?: null;
     }
-    
+
     public function getEmailAndFirstname(int $id): ?array
     {
     $stmt = $this->pdo->prepare("
@@ -111,6 +111,15 @@ class UserRepository
             $id
         ]);
     }
-
+    public function countClients(): int
+    {
+        return (int)$this->pdo
+            ->query("
+                SELECT COUNT(*)
+                FROM users
+                WHERE role = 'client'
+            ")
+            ->fetchColumn();
+    }
     
 }
