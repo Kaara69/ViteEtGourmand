@@ -2,61 +2,47 @@
 session_start();
 require_once 'includes/db.php';
 require_once 'repositories/UserRepository.php';
+require_once 'services/AuthService.php';
 
 $userRepository = new UserRepository($pdo);
-// Message d'erreur (vide au départ)
+$authService = new AuthService($userRepository);
+
 $error = '';
 
-// On vérifie si le formulaire a été envoyé
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email_saisi = trim($_POST['email'] ?? '');
-    $password_saisi = $_POST['password'] ?? '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    $user = $userRepository->findByEmail($email_saisi);
-    // Si on trouve un utilisateur et que le mot de passe est bon
+        $email_saisi = trim($_POST['email'] ?? '');
+        $password_saisi = $_POST['password'] ?? '';
 
-    if ($user && password_verify($password_saisi, $user['password'])) {
-        // On stocke les infos de l'utilisateur en session
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['nom']     = $user['nom'];
-        $_SESSION['email']   = $user['email'];
-        $_SESSION['role']    = $user['role'];
+        $user = $authService->login($email_saisi, $password_saisi);
 
-        // On redirige selon le rôle
-        if ($user['role'] === 'client') {
-            header('Location: user/dashboard.php');
-        } elseif ($user['role'] === 'employee') {
-            header('Location: employee/dashboard.php');
-        } else {
-            header('Location: admin/dashboard.php');
-        }
-        exit;
-    }
+    if ($user) {
+    header('Location: ' . $authService->getRedirectUrl($user['role']));
+    exit;
+}
 
-    // Si on arrive ici, c’est que l’email ou le mot de passe est incorrect
     $error = 'Email ou mot de passe incorrect.';
 }
-
 // Vérification de connexion + rôle
-$is_logged = isset($_SESSION['user_id']);
-$role      = '';
-if ($is_logged && isset($_SESSION['role'])) {
-    $role = $_SESSION['role'];
-}
+    $is_logged = isset($_SESSION['user_id']);
+    $role      = '';
+    if ($is_logged && isset($_SESSION['role'])) {
+        $role = $_SESSION['role'];
+    }
 
 // Chargement de la navbar adaptée
-if ($is_logged) {
-    if ($role === 'admin') {
-        require_once 'includes/partials/admin_nav.php';;
-    } elseif ($role === 'employee') {
-        require_once 'includes/partials/employee_nav.php';
+    if ($is_logged) {
+        if ($role === 'admin') {
+            require_once 'includes/partials/admin_nav.php';
+        } elseif ($role === 'employee') {
+            require_once 'includes/partials/employee_nav.php';
+        } else {
+            // Par défaut : simple utilisateur connecté
+            require_once 'includes/partials/user_nav.php';
+        }
     } else {
-        // Par défaut : simple utilisateur connecté
-        require_once 'includes/partials/user_nav.php';
+        require_once 'includes/partials/public_nav.php';
     }
-} else {
-    require_once 'includes/partials/public_nav.php';
-}
 ?>
 
 <!DOCTYPE html>
