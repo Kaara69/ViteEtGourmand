@@ -1,9 +1,14 @@
 <?php
 session_start();
-include __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/nosql_db.php';
+require_once __DIR__ . '/../repositories/StatsRepository.php';
+
+$statsRepository = new StatsRepository($pdo);
+
 checkAdmin();
-include __DIR__ . '/../includes/db.php';
-include __DIR__ . '/../includes/nosql_db.php';
+
 $active_page = 'stats';
 
 $nosql      = new NoSQLStore();
@@ -107,23 +112,17 @@ $top_labels = array_slice(array_keys($ca_by_menu), 0, 8);
 $top_values = array_map(fn($l) => round($ca_by_menu[$l], 2), $top_labels);
 
 // Menus liste pour le select
-$menus_list = $pdo->query("SELECT id, nom FROM menus ORDER BY nom")->fetchAll();
+$menus_list = $statsRepository->getMenusList();
 
 // Calcul nombre commandes total sur période (hors doublons)
-$nb_cmd_periode = $pdo->prepare("
-    SELECT COUNT(DISTINCT c.id) FROM commandes c
-    JOIN commande_items ci ON ci.commande_id = c.id
-    WHERE c.statut NOT IN ('annulé')
-      AND DATE(c.created_at) BETWEEN ? AND ?
-      " . ($menu_filter > 0 ? "AND ci.menu_id = ?" : "") . "
-");
-$params = [$date_from, $date_to];
-if ($menu_filter > 0) $params[] = $menu_filter;
-$nb_cmd_periode->execute($params);
-$nb_cmd_periode = $nb_cmd_periode->fetchColumn();
+$nb_cmd_periode = $statsRepository->countOrdersBetween(
+    $date_from,
+    $date_to,
+    $menu_filter > 0 ? $menu_filter : null
+);
 
 // Meilleur menu sur la période
-$top_menu_periode = $qty_by_menu ? array_key_first($qty_by_menu) : '—';
+$top_menu_periode = $statsRepository->getBestMenu($qty_by_menu);
 
 // Couleurs pour les graphiques
 function generateColors(int $n, float $alpha = 0.8): array {
