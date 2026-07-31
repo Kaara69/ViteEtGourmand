@@ -3,15 +3,18 @@ session_start();
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../repositories/MenuRepository.php';
+require_once __DIR__ . '/../services/MenuService.php';
 
 $menuRepository = new MenuRepository($pdo);
+$menuService = new MenuService($menuRepository);
 
 checkAdmin();
 
 $active_page = 'menus';
 
 // Suppresion menu
-$msg = '';  // Message feedback utilisateur
+$msg = '';
+$msg_err = '';
 if (isset($_GET['delete'])) {
     $menuRepository->delete((int)$_GET['delete']);
     header('Location: menus.php?ok=supprimé'); 
@@ -27,81 +30,10 @@ if (isset($_GET['toggle'])) {
 
 // formulaire soumis (POST ajout/modif)
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Nettoyage + validation données
-    $nom    = trim($_POST['nom']);           // Nom menu
-    $desc   = trim($_POST['description']);   // Description
-    $prix   = (float)str_replace(',','.',$_POST['prix']);  // Prix → float
-    $cat    = trim($_POST['categorie']);     // Catégorie
-    $dispo  = isset($_POST['disponible']) ? 1 : 0;  // Checkbox → 1/0
-
-    $image_url = trim($_POST['image_url'] ?? '');  // URL manuelle
-    $msg_err   = '';
-
-// upload image (si fichier choisi)
-
-if (!empty($_FILES['image_file']['name'])) {
-        $file = $_FILES['image_file'];
-        
-        // Vérifications sécurité
-        $allowed = ['image/jpeg','image/png','image/gif','image/webp'];
-        $maxsize = 3 * 1024 * 1024;  // 3 Mo
-        
-        if (!in_array($file['type'], $allowed)) {
-            $msg_err = '❌ JPG/PNG/GIF/WEBP seulement';
-        } elseif ($file['size'] > $maxsize) {
-            $msg_err = '❌ Max 3 Mo';
-        } else {
-            // Nom unique + sauvegarde
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $filename = uniqid('menu_') . '.' . strtolower($ext);
-            $dest = dirname(__DIR__) . '/assets/uploads/' . $filename;
-            
-            if (move_uploaded_file($file['tmp_name'], $dest)) {
-                $image_url = 'assets/uploads/' . $filename;  // Chemin relatif
-            } else {
-                $msg_err = '❌ Permissions assets/uploads/ ?';
-            }
-        }
-    }
-
-// sauvegarde update ou insert
-
- if (!$msg_err) {
-        if (!empty($_POST['id'])) { 
-            // Garde ancienne image si vide
-            if ($image_url === '') {
-                $image_url = $menuRepository->getImageUrl((int)$_POST['id']);
-            }
-            
-            $menuRepository->update(
-                (int)$_POST['id'],
-                $nom,
-                $desc,
-                $prix,
-                $cat,
-                $dispo,
-                $image_url
-            );
-
-            $msg = '✅ Menu modifié !';
-
-        } else {  // AJOUT nouveau
-            $menuRepository->create(
-                $nom,
-                $desc,
-                $prix,
-                $cat,
-                $dispo,
-                $image_url
-            );
-
-            $msg = '✅ Menu ajouté !';
-        }
-    }
+    [$msg, $msg_err] = $menuService->saveMenu($_POST, $_FILES);
 }
 
 // édition (pré-rempli formulaire)
-
 $edit = null;
 
 if (isset($_GET['edit'])) {
