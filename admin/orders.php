@@ -23,6 +23,7 @@ if (isset($_GET['delete'])) {
     $orderRepository->delete((int)$_GET['delete']);
     header('Location: orders.php?ok=1'); exit;
 }
+$filtre = $_GET['filtre'] ?? 'tous';
 
 $statuts = [
     'en attente',

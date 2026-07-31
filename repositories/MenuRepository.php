@@ -17,18 +17,6 @@ class MenuRepository
         }
     }
 
-    // public function getAvailableMenus(): array
-    // {
-    //     return $this->pdo
-    //         ->query("
-    //             SELECT *
-    //             FROM menus
-    //             WHERE disponible = 1
-    //             ORDER BY categorie, nom
-    //         ")
-    //         ->fetchAll(PDO::FETCH_ASSOC);
-    // }
-
     public function getAvailableById(int $id): ?array
     {
     $stmt = $this->pdo->prepare("
@@ -170,5 +158,19 @@ public function getCategories(): array
             ORDER BY categorie
         ")
         ->fetchAll(PDO::FETCH_COLUMN);
+}
+
+// recup ancienne img si pas de nvl
+public function getImageUrl(int $id): string
+{
+    $stmt = $this->pdo->prepare("
+        SELECT image_url
+        FROM menus
+        WHERE id = ?
+    ");
+
+    $stmt->execute([$id]);
+
+    return $stmt->fetchColumn() ?: '';
 }
 }

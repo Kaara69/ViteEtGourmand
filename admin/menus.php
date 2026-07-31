@@ -1,22 +1,28 @@
 <?php 
 session_start();
-include __DIR__ . '/../includes/auth.php';
-checkadminOrEmployee();
-include __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../includes/auth.php';
+require_once __DIR__ . '/../includes/db.php';
+require_once __DIR__ . '/../repositories/MenuRepository.php';
+
+$menuRepository = new MenuRepository($pdo);
+
+checkAdmin();
+
 $active_page = 'menus';
 
-// Suppresion menu (GET ?delete=ID)
+// Suppresion menu
 $msg = '';  // Message feedback utilisateur
 if (isset($_GET['delete'])) {
-    $pdo->prepare("DELETE FROM menus WHERE id=?")->execute([(int)$_GET['delete']]);
-    header('Location: menus.php?ok=supprimé'); exit;  // Redirection + feedback
+    $menuRepository->delete((int)$_GET['delete']);
+    header('Location: menus.php?ok=supprimé'); 
+    exit; 
 }
 
-// Dispo (GET ?toggle=id)
+// Dispo
 if (isset($_GET['toggle'])) {
-    $pdo->prepare("UPDATE menus SET disponible = CASE WHEN disponible=1 THEN 0 ELSE 1 END WHERE id=?")
-        ->execute([(int)$_GET['toggle']]);  // 1→0 ou 0→1
-    header('Location: menus.php'); exit;
+    $menuRepository->toggleAvailability((int)$_GET['toggle']);
+    header('Location: menus.php'); 
+    exit;
 }
 
 // formulaire soumis (POST ajout/modif)
@@ -61,20 +67,34 @@ if (!empty($_FILES['image_file']['name'])) {
 // sauvegarde update ou insert
 
  if (!$msg_err) {
-        if ($_POST['id']) {  // MODIF existant
+        if (!empty($_POST['id'])) { 
             // Garde ancienne image si vide
             if ($image_url === '') {
-                $s = $pdo->prepare("SELECT image_url FROM menus WHERE id=?");
-                $s->execute([(int)$_POST['id']]);
-                $image_url = $s->fetchColumn() ?? '';
+                $image_url = $menuRepository->getImageUrl((int)$_POST['id']);
             }
             
-            $pdo->prepare("UPDATE menus SET nom=?,description=?,prix=?,categorie=?,disponible=?,image_url=? WHERE id=?")
-                ->execute([$nom,$desc,$prix,$cat,$dispo,$image_url,(int)$_POST['id']]);
+            $menuRepository->update(
+                (int)$_POST['id'],
+                $nom,
+                $desc,
+                $prix,
+                $cat,
+                $dispo,
+                $image_url
+            );
+
             $msg = '✅ Menu modifié !';
+
         } else {  // AJOUT nouveau
-            $pdo->prepare("INSERT INTO menus (nom,description,prix,categorie,disponible,image_url) VALUES (?,?,?,?,?,?)")
-                ->execute([$nom,$desc,$prix,$cat,$dispo,$image_url]);
+            $menuRepository->create(
+                $nom,
+                $desc,
+                $prix,
+                $cat,
+                $dispo,
+                $image_url
+            );
+
             $msg = '✅ Menu ajouté !';
         }
     }
@@ -83,15 +103,14 @@ if (!empty($_FILES['image_file']['name'])) {
 // édition (pré-rempli formulaire)
 
 $edit = null;
+
 if (isset($_GET['edit'])) {
-    $s = $pdo->prepare("SELECT * FROM menus WHERE id=?");
-    $s->execute([(int)$_GET['edit']]);
-    $edit = $s->fetch();
+    $edit = $menuRepository->findById((int)$_GET['edit']);
 }
 
 // données affichage
-$cats  = $pdo->query("SELECT DISTINCT categorie FROM menus ORDER BY categorie")->fetchAll(PDO::FETCH_COLUMN);
-$menus = $pdo->query("SELECT * FROM menus ORDER BY categorie,nom")->fetchAll();
+$cats  = $menuRepository->getCategories();
+$menus = $menuRepository->getAll();
 
 // regroupement par catérgorie (tableau)
 $by_cat = [];
