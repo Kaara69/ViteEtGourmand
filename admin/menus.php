@@ -15,6 +15,7 @@ $active_page = 'menus';
 // Suppresion menu
 $msg = '';
 $msg_err = '';
+
 if (isset($_GET['delete'])) {
     $menuRepository->delete((int)$_GET['delete']);
     header('Location: menus.php?ok=supprimé'); 

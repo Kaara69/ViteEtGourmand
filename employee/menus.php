@@ -4,8 +4,10 @@ session_start();
 require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../repositories/MenuRepository.php';
+require_once __DIR__ . '/../services/MenuService.php';
 
 $menuRepository = new MenuRepository($pdo);
+$menuService = new MenuService($menuRepository);
 
 checkAdminOrEmployee();
 
@@ -16,65 +18,43 @@ checkAdminOrEmployee();
 
 $active_page = 'menus';
 
+// Suppresion menu
 $msg = '';
-    if (isset($_GET['delete'])) {
-        $menuRepository->delete((int)$_GET['delete']);
-        header('Location: menus.php?ok=supprimé'); exit;
-    }
-    if (isset($_GET['toggle'])) {
-        $menuRepository->toggleAvailability((int)$_GET['toggle']);
-        header('Location: menus.php'); exit;
-    }
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+$msg_err = '';
 
-        $nom   = trim($_POST['nom']);
-        $desc  = trim($_POST['description']);
-        $prix  = (float)str_replace(',', '.', $_POST['prix']);
-        $cat   = trim($_POST['categorie']);
-        $dispo = isset($_POST['disponible']) ? 1 : 0;
-        $image_url = trim($_POST['image_url'] ?? '');
+if (isset($_GET['delete'])) {
+    $menuRepository->delete((int)$_GET['delete']);
+    header('Location: menus.php?ok=supprimé'); 
+    exit; 
+}
 
-        if (!empty($_POST['id'])) {
+// Dispo
+if (isset($_GET['toggle'])) {
+    $menuRepository->toggleAvailability((int)$_GET['toggle']);
+    header('Location: menus.php'); 
+    exit;
+}
 
-            $menuRepository->update(
-                (int)$_POST['id'],
-                $nom,
-                $desc,
-                $prix,
-                $cat,
-                $dispo,
-                $image_url
-            );
+// formulaire soumis (POST ajout/modif)
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    [$msg, $msg_err] = $menuService->saveMenu($_POST, $_FILES);
+}
 
-            $msg = 'Menu mis à jour avec succès.';
+// édition (pré-rempli formulaire)
+$edit = null;
 
-        } else {
-            $menuRepository->create(
-                $nom,
-                $desc,
-                $prix,
-                $cat,
-                $dispo,
-                $image_url
-            );
+if (isset($_GET['edit'])) {
+    $edit = $menuRepository->findById((int)$_GET['edit']);
+}
 
-            $msg = 'Menu ajouté avec succès.';
-        }
-    }
+// données affichage
+$cats  = $menuRepository->getCategories();
+$menus = $menuRepository->getAll();
 
-    $edit = null;
-
-    if (isset($_GET['edit'])) {
-        $edit = $menuRepository->findById((int)$_GET['edit']);
-    }
-
-    $cats = $menuRepository->getCategories();
-    $menus = $menuRepository->getAll();
-
-    $by_cat = [];
-
-    foreach ($menus as $m) {
-        $by_cat[$m['categorie']][] = $m;
+// regroupement par catérgorie (tableau)
+$by_cat = [];
+foreach ($menus as $m) {
+    $by_cat[$m['categorie']][] = $m;
 }
 ?>
 
