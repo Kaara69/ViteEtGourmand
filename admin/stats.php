@@ -31,19 +31,19 @@ $periode        = $_GET['periode']    ?? 'custom';
 // raccourci periode
 
 switch ($periode) {
-    case '7j';
+    case '7j':
         $date_from = date('Y-m-d', strtotime('-7 days'));
         $date_to   = date('Y-m-d');
         break;
-    case '30j';
+    case '30j':
         $date_from = date('Y-m-d', strtotime('-30 days'));
         $date_to   = date('Y-m-d');
         break;
-    case '3m';
+    case '3m':
         $date_from = date('Y-m-d', strtotime('-3 months'));
         $date_to   = date('Y-m-d');
         break;
-    case 'annee';
+    case 'annee':
         $date_from = date('Y-01-01');
         $date_to   = date('Y-12-31');
         break;

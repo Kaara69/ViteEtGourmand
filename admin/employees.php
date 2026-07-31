@@ -9,35 +9,36 @@ checkAdmin();
 
 $active_page = 'employees';
 
-$msg = ''; $error = '';
+$msg = '';
+$error = '';
 
-if (isset($_GET['delete'])) {
-    $id = (int)$_GET['delete'];
+    if (isset($_GET['delete'])) {
+        $id = (int)$_GET['delete'];
 
-if ($id !== (int)$_SESSION['user_id']) {
-    $userRepository->deleteStaff($id);
-}
-    header('Location: employees.php?ok=1'); exit;
-}
+    if ($id !== (int)$_SESSION['user_id']) {
+        $userRepository->deleteStaff($id);
+    }
+        header('Location: employees.php?ok=1'); exit;
+    }
 
-if ($_SERVER['REQUEST_METHOD']==='POST') {
-    $nom   = trim($_POST['nom']);
-    $email = trim(strtolower($_POST['email']));
-    $pass  = $_POST['password'];
-    $role  = in_array($_POST['role'],['employee','admin']) ? $_POST['role'] : 'employee';
-    if (!$nom||!$email||!$pass) {
-        $error = 'Tous les champs sont obligatoires.';
-    } elseif (strlen($pass)<6) {
-        $error = 'Mot de passe trop court (6 caractères minimum).';
-    } else {
+    if ($_SERVER['REQUEST_METHOD']==='POST') {
+        $nom   = trim($_POST['nom']);
+        $email = trim(strtolower($_POST['email']));
+        $pass  = $_POST['password'];
+        $role  = in_array($_POST['role'],['employee','admin']) ? $_POST['role'] : 'employee';
+        if (!$nom||!$email||!$pass) {
+            $error = 'Tous les champs sont obligatoires.';
+        } elseif (strlen($pass)<6) {
+            $error = 'Mot de passe trop court (6 caractères minimum).';
+        } else {
             try {
 
-        $userRepository->createStaff(
-            $nom,
-            $email,
-            $pass,
-            $role
-        );
+                $userRepository->createStaff(
+                    $nom,
+                    $email,
+                    $pass,
+                    $role
+                );
 
         $msg = 'Compte créé avec succès.';
 
