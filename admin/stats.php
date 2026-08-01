@@ -4,6 +4,8 @@ require_once __DIR__ . '/../includes/auth.php';
 require_once __DIR__ . '/../includes/db.php';
 require_once __DIR__ . '/../includes/nosql_db.php';
 require_once __DIR__ . '/../repositories/StatsRepository.php';
+require_once __DIR__ . '/../services/StatsService.php';
+
 
 $statsRepository = new StatsRepository($pdo);
 
@@ -11,13 +13,13 @@ checkAdmin();
 
 $active_page = 'stats';
 
-$nosql      = new NoSQLStore();
-$statsSync  = new StatsSync($pdo, $nosql);
+$nosql        = new NoSQLStore();
+$statsService = new StatsService($pdo, $nosql, $statsRepository);
 
 // resynchroniser
 
-if(isset($_GET['sync'])){
-    $statsSync->syncAll();
+if (isset($_GET['sync'])) {
+    $statsService->syncAll();
     header('Location: stats.php?synced=1');
     exit;
 }
@@ -30,115 +32,32 @@ $periode        = $_GET['periode']    ?? 'custom';
 
 // raccourci periode
 
-switch ($periode) {
-    case '7j':
-        $date_from = date('Y-m-d', strtotime('-7 days'));
-        $date_to   = date('Y-m-d');
-        break;
-    case '30j':
-        $date_from = date('Y-m-d', strtotime('-30 days'));
-        $date_to   = date('Y-m-d');
-        break;
-    case '3m':
-        $date_from = date('Y-m-d', strtotime('-3 months'));
-        $date_to   = date('Y-m-d');
-        break;
-    case 'annee':
-        $date_from = date('Y-01-01');
-        $date_to   = date('Y-12-31');
-        break;
-    case 'tout':
-        $date_from = '2000-01-01';
-        $date_to   = date('Y-m-d');
-        break;
-}
+[$date_from, $date_to] = $statsService->resolvePeriode($periode, $date_from, $date_to);
 
-// lecture données
+// données (KPIs, graphiques, listes)
+$stats = $statsService->getStatsData($date_from, $date_to, $menu_filter);
 
-// tous les menus (filtre)
-$all_menus_stats = $nosql->find('stats_menu');
-usort($all_menus_stats, fn($a,$b) => $b['nb_commandes'] <=> $a['nb_commandes']);
+$all_menus_stats  = $stats['all_menus_stats'];
+$kpi_ca           = $stats['kpi_ca'];
+$kpi_qty          = $stats['kpi_qty'];
+$ca_by_menu       = $stats['ca_by_menu'];
+$qty_by_menu      = $stats['qty_by_menu'];
+$menus_list       = $stats['menus_list'];
+$nb_cmd_periode   = $stats['nb_cmd_periode'];
+$top_menu_periode = $stats['top_menu_periode'];
 
-// stats journalières filtrées par date
-$daily_filter = [
-    'jour' => ['$gte' => $date_from, '$lte' => $date_to],
-];
-if ($menu_filter > 0) {
-    $daily_filter['menu_id'] = $menu_filter;
-}
-$daily_docs = $nosql->find('stats_daily', $daily_filter);
+$chart_bar_labels = $stats['charts']['bar']['labels'];
+$chart_bar_qty    = $stats['charts']['bar']['qty'];
+$chart_bar_ca     = $stats['charts']['bar']['ca'];
+$bar_colors       = $stats['charts']['bar']['colors'];
 
-// agrégation manuelle des daily pour KPIs
-$kpi_ca      = 0.0;
-$kpi_qty     = 0;
-$ca_by_menu  = [];    // [menu_name => ca]
-$qty_by_menu = [];    // [menu_name => qty]
-$ca_by_day   = [];    // [date => ca]
-$qty_by_day  = [];    // [date => qty]
+$chart_line_dates = $stats['charts']['line']['dates'];
+$chart_line_ca    = $stats['charts']['line']['ca'];
+$chart_line_qty   = $stats['charts']['line']['qty'];
 
-foreach ($daily_docs as $doc) {
-    $kpi_ca  += $doc['chiffre_affaires'];
-    $kpi_qty += $doc['nb_commandes'];
-
-    $nom = $doc['nom_menu'];
-    $ca_by_menu[$nom]  = ($ca_by_menu[$nom]  ?? 0) + $doc['chiffre_affaires'];
-    $qty_by_menu[$nom] = ($qty_by_menu[$nom] ?? 0) + $doc['nb_commandes'];
-
-    $ca_by_day[$doc['jour']]  = ($ca_by_day[$doc['jour']]  ?? 0) + $doc['chiffre_affaires'];
-    $qty_by_day[$doc['jour']] = ($qty_by_day[$doc['jour']] ?? 0) + $doc['nb_commandes'];
-}
-
-arsort($ca_by_menu);
-arsort($qty_by_menu);
-ksort($ca_by_day);
-ksort($qty_by_day);
-
-// données pour graphique js
-
-// graphique 1 : comparaison commandes par menu
-
-$chart_bar_labels = array_keys($qty_by_menu);
-$chart_bar_qty    = array_values($qty_by_menu);
-$chart_bar_ca     = array_map(fn($l) => round($ca_by_menu[$l] ?? 0, 2), $chart_bar_labels);
-
-// grapghique 2 : CA et cmd dans le temps
-
-$chart_line_dates  = array_keys($ca_by_day);
-$chart_line_ca     = array_values($ca_by_day);
-$chart_line_qty    = array_map(fn($d) => $qty_by_day[$d] ?? 0, $chart_line_dates);
-
-// graphique §3 : mtop menus en camembert (CA)
-$top_labels = array_slice(array_keys($ca_by_menu), 0, 8);
-$top_values = array_map(fn($l) => round($ca_by_menu[$l], 2), $top_labels);
-
-// Menus liste pour le select
-$menus_list = $statsRepository->getMenusList();
-
-// Calcul nombre commandes total sur période (hors doublons)
-$nb_cmd_periode = $statsRepository->countOrdersBetween(
-    $date_from,
-    $date_to,
-    $menu_filter > 0 ? $menu_filter : null
-);
-
-// Meilleur menu sur la période
-$top_menu_periode = $statsRepository->getBestMenu($qty_by_menu);
-
-// Couleurs pour les graphiques
-function generateColors(int $n, float $alpha = 0.8): array {
-    $palette = [
-        "rgba(201,151,61,$alpha)",  "rgba(28,21,16,$alpha)",   "rgba(54,162,235,$alpha)",
-        "rgba(75,192,192,$alpha)",  "rgba(255,99,132,$alpha)",  "rgba(153,102,255,$alpha)",
-        "rgba(255,159,64,$alpha)",  "rgba(46,204,113,$alpha)",  "rgba(52,73,94,$alpha)",
-        "rgba(231,76,60,$alpha)",   "rgba(155,89,182,$alpha)",  "rgba(26,188,156,$alpha)",
-    ];
-    $out = [];
-    for ($i = 0; $i < $n; $i++) $out[] = $palette[$i % count($palette)];
-    return $out;
-}
-
-$bar_colors = generateColors(count($chart_bar_labels));
-$pie_colors = generateColors(count($top_labels));
+$top_labels = $stats['charts']['pie']['labels'];
+$top_values = $stats['charts']['pie']['values'];
+$pie_colors = $stats['charts']['pie']['colors'];
 ?>
 
 <!DOCTYPE html>
@@ -279,7 +198,7 @@ $pie_colors = generateColors(count($top_labels));
             </div>
         </div> <!-- row -->
 
-        <?php if (empty($daily_docs) && empty($all_menus_stats)): ?>
+        <?php if (empty($ca_by_menu) && empty($all_menus_stats)): ?>
         <!-- État vide -->
         <div class="text-center py-5">
             <div class="fs-1 mb-3">📭</div>
@@ -344,7 +263,7 @@ $pie_colors = generateColors(count($top_labels));
                     <span class="text-muted fw-normal small ms-2">(données NoSQL)</span>
                 </h6>
                 <span class="badge" style="background:var(--dark);color:var(--gold);">
-                    <?= count($qty_by_menu) ?> menu<?= count($qty_by_menu)>1?'s':'' ?> actifs
+                   <?= count($chart_bar_labels) ?> menu<?= count($chart_bar_labels)>1?'s':'' ?> actifs
                 </span>
             </div>
             <div class="table-responsive">
